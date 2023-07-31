@@ -31,7 +31,7 @@ import {
 import { GameDataUpdates, getGameData } from "./handlers/game-data-handler"
 import Reference = database.Reference
 
-export async function newGame(req: Request, res: Response) {
+export async function newGame(req: Request, res: Response): Promise<Response> {
     try {
         const userId: string = !process.env.DEV ? res.locals.uid : "randId0"
         const userName: string = !process.env.DEV ? res.locals.name : "randName0"
@@ -75,7 +75,7 @@ function _randomGameCode() {
     return parseInt(generated)
 }
 
-export async function joinGame(req: Request, res: Response) {
+export async function joinGame(req: Request, res: Response): Promise<Response> {
     try {
         const userId: string = !process.env.DEV ? res.locals.uid : `randId${res.locals.gameData[constants.DATABASE_NODE_PLAYERS].length}`
         const userName: string = !process.env.DEV ? res.locals.name : `randName${res.locals.gameData[constants.DATABASE_NODE_PLAYERS].length}`
@@ -111,7 +111,7 @@ function _user(id: string, name: string) {
     }
 }
 
-export async function startGame(req: Request, res: Response) {
+export async function startGame(req: Request, res: Response): Promise<Response> {
     try {
         const gameCode: string = res.locals.gameCode
         const gameData: any = res.locals.gameData
@@ -299,7 +299,7 @@ async function _finishSetup(gameCode: string, gameType: GameType, skipLongIntro:
         }).updates)
 }
 
-export async function chooseChancellor(req: Request, res: Response) {
+export async function chooseChancellor(req: Request, res: Response): Promise<Response> {
     try {
         const gameCode: string = res.locals.gameCode
         const gameData: any = res.locals.gameData
@@ -338,7 +338,7 @@ export async function chooseChancellor(req: Request, res: Response) {
     }
 }
 
-export async function vote(req: Request, res: Response) {
+export async function vote(req: Request, res: Response): Promise<Response> {
     try {
         const gameCode: string = res.locals.gameCode
         const gameData: any = res.locals.gameData
@@ -560,7 +560,7 @@ async function _beginLegislativeSession(gameCode: string) {
         }).updates)
 }
 
-export async function presidentDiscardPolicy(req: Request, res: Response) {
+export async function presidentDiscardPolicy(req: Request, res: Response): Promise<Response> {
     try {
         const gameCode: string = res.locals.gameCode
         const gameData: any = res.locals.gameData
@@ -605,7 +605,7 @@ export async function presidentDiscardPolicy(req: Request, res: Response) {
     }
 }
 
-export async function chancellorDiscardPolicy(req: Request, res: Response) {
+export async function chancellorDiscardPolicy(req: Request, res: Response): Promise<Response> {
     try {
         const gameCode: string = res.locals.gameCode
         const gameData: any = res.locals.gameData
@@ -716,7 +716,7 @@ async function _onEnactPolicy(gameCode: string, enactedPolicy: string) {
     void _nextElection(gameCode)
 }
 
-export async function presidentialPower(req: Request, res: Response) {
+export async function presidentialPower(req: Request, res: Response): Promise<Response> {
     try {
         const gameCode: string = res.locals.gameCode
         const gameData: any = res.locals.gameData
@@ -882,7 +882,7 @@ async function _endGameIfPossible(gameCode: string): Promise<boolean> {
     return hasGameEnded
 }
 
-export async function askForVeto(req: Request, res: Response) {
+export async function askForVeto(req: Request, res: Response): Promise<Response> {
     try {
         const gameCode: string = res.locals.gameCode
         const gameData: any = res.locals.gameData
@@ -911,7 +911,7 @@ export async function askForVeto(req: Request, res: Response) {
     }
 }
 
-export async function answerVeto(req: Request, res: Response) {
+export async function answerVeto(req: Request, res: Response): Promise<Response> {
     try {
         const gameCode: string = res.locals.gameCode
         const gameData: any = res.locals.gameData
