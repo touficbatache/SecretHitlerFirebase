@@ -1,0 +1,15 @@
+{
+  "scripts": {
+    "link": "ln -s example.firebaserc .firebaserc && ed -s .firebaserc <<ED_COMMANDS\n,s/FIREBASEPROJECT/${npm_config_project}/g\nw\nED_COMMANDS"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.49.0",
+    "@typescript-eslint/parser": "^5.49.0",
+    "eslint": "^8.32.0",
+    "typescript": "^4.9.4"
+  },
+  "dependencies": {
+    "firebase-functions": "^4.4.1",
+    "kill-port": "^2.0.1"
+  }
+}
