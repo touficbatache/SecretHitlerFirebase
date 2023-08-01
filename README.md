@@ -43,3 +43,115 @@ The Emulator UI can be accessed using the URL shown in the terminal, usually htt
 ```shell
 npm run deploy
 ```
+
+## API call examples
+
+POST http://127.0.0.1:5001/secret-hitler-app/us-central1/api/[route]/
+
+- ### /newGame/
+```
+NO BODY
+```
+
+- ### /joinGame/
+```json
+{
+    "code": "[GAMECODE]"
+}
+```
+
+- ### /startGame/
+GAME OWNER ONLY
+```json
+{
+    "code": "[GAMECODE]",
+    "hidePicsGameInfo": "[BOOLEAN]",
+    "skipLongIntro": "[BOOLEAN]"
+}
+```
+
+- ### /chooseChancellor/
+PRESIDENT ONLY
+```json
+{
+    "code": "[GAMECODE]",
+    "chancellorId": "[PLAYER_ID]"
+}
+```
+
+- ### /vote/
+```json
+{
+    "code": "[GAMECODE]",
+    "vote": "[BOOLEAN]"
+}
+```
+
+- ### /presidentDiscardPolicy/
+PRESIDENT ONLY
+```json
+{
+    "code": "[GAMECODE]",
+    "policy": "[POLICY]"
+}
+```
+
+- ### /chancellorDiscardPolicy/
+CHANCELLOR ONLY
+```json
+{
+    "code": "[GAMECODE]",
+    "policy": "[POLICY]"
+}
+```
+
+- ### /presidentialPower/
+  - Policy Peek
+  ```json
+  {
+      "code": "[GAMECODE]"
+  }
+  ```
+  CALL AGAIN TO CONTINUE
+
+  - Investigation
+  ```json
+  {
+      "code": "[GAMECODE]",
+      "player": "[PLAYER_ID]"
+  }
+  ```
+  CALL AGAIN TO CONTINUE
+
+  - Special election
+  ```json
+  {
+    "code": "[GAMECODE]",
+    "player": "[PLAYER_ID]"
+  }
+  ```
+
+  - Execution
+  ```json
+  {
+    "code": "[GAMECODE]",
+    "player": "[PLAYER_ID]"
+  }
+  ```
+  
+- ### /askForVeto/
+CHANCELLOR ONLY
+```json
+{
+  "code": "[GAMECODE]"
+}
+```
+
+- ### /answerVeto/
+PRESIDENT ONLY
+```json
+{
+  "code": "[GAMECODE]",
+  "refuseVeto": "[BOOLEAN"
+}
+```
