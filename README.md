@@ -233,7 +233,7 @@ content-type: application/json
 }
 ```
 
-*⚠️ CALL AGAIN TO CONTINUE GAME PROGRESS ⚠️*
+*❗ Call again to continue game progress ❗*
 
 ### ==== Presidential Power: Investigation ====
 
@@ -257,7 +257,7 @@ content-type: application/json
 { "code": "[GAMECODE]" }
 ```
 
-*⚠️ CALL AGAIN TO CONTINUE GAME PROGRESS ⚠️*
+*❗ Call again to continue game progress ❗*
 
 ### ==== Presidential Power: Special Election ====
 
@@ -438,7 +438,7 @@ content-type: application/json
 { "message": "456 - Game has already started" }
 ```
 
-#### Illegal action
+#### Game progress tampering: illegal action
 
 ```http request
 HTTP/1.1 457 Unknown
