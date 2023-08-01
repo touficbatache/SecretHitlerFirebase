@@ -46,7 +46,7 @@ npm run deploy
 
 ## API call examples
 
-POST http://127.0.0.1:5001/secret-hitler-app/us-central1/api/[route]/
+POST http://127.0.0.1:5001/[project-id]/us-central1/api/[route]/
 
 - ### /newGame/
 ```
@@ -152,6 +152,6 @@ PRESIDENT ONLY
 ```json
 {
   "code": "[GAMECODE]",
-  "refuseVeto": "[BOOLEAN"
+  "refuseVeto": "[BOOLEAN]"
 }
 ```
