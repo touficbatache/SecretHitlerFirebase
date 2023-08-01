@@ -30,7 +30,7 @@ Inside to the `functions/` directory, link a new `.env` file to the existing `ex
 ln -s example.env .env
 ```
 
-Then execute the following commands, which listen to code changes when building and runs the Firebase Emulator locally:
+Then execute the following command, which listens to code changes when building and runs the Firebase Emulator locally:
 
 ```shell
 npm run serve
