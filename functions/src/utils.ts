@@ -47,7 +47,7 @@ export class UnauthorizedError extends Error {
 }
 
 export function handleForbiddenError(res: Response) {
-    return res.status(403).send()
+    return res.status(403).send({ message: "403 - Forbidden" })
 }
 
 export function handleAlreadyExistsError(res: Response) {
@@ -67,7 +67,7 @@ export function handlePlayerAlreadyInGame(res: Response) {
 }
 
 export function handlePlayerNotInGame(res: Response) {
-    return res.status(454).send({ message: "454 - Player already in game" })
+    return res.status(454).send({ message: "454 - Player not in game" })
 }
 
 export function handleNotEnoughPlayersError(res: Response) {
