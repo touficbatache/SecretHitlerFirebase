@@ -16,6 +16,8 @@ firebase-debug.*.log*
 # For a team working on the same Firebase project(s), it is recommended to leave
 # it commented so all members can deploy to the same project(s) in .firebaserc.
 .firebaserc
+*.firebaserc*
+!example.firebaserc
 
 # Runtime data
 pids
@@ -64,6 +66,8 @@ node_modules/
 
 # dotenv environment variables file
 .env
+*.env.*
+!example.env
 
 # IntelliJ folder
 .idea

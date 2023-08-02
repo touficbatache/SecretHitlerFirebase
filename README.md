@@ -24,11 +24,8 @@ npm run link --project=[PROJECTNAME]
 
 ## Run in dev mode
 
-Inside to the `functions/` directory, link a new `.env` file to the existing `example.env` and adjust it to your needs:
-
-```shell
-ln -s example.env .env
-```
+Inside to the `functions/` directory, make sure to set the correct environment variable values for development
+in `.env`.
 
 Then execute the following command, which listens to code changes when building and runs the Firebase Emulator locally:
 
@@ -40,7 +37,11 @@ The Emulator UI can be accessed using the URL shown in the terminal, usually htt
 
 ## Deploy to production
 
+Inside to the `functions/` directory, make sure to set the correct environment variable values for production
+in `.env.[PROJECTNAME]`, then deploy:
+
 ```shell
+cd functions/
 npm run deploy
 ```
 
