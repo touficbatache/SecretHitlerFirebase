@@ -5,7 +5,6 @@ import * as admin from "firebase-admin"
 
 // Express.js imports
 import * as express from "express"
-import { Request, Response } from "express"
 import * as cors from "cors"
 import { routesConfig } from "./routes-config"
 import { Express } from "express-serve-static-core"
