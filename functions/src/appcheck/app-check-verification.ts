@@ -5,6 +5,9 @@ import { VerifyAppCheckTokenResponse } from "firebase-admin/lib/app-check"
 import { handleUnauthorizedError } from "../utils"
 
 export async function appCheckVerification(req: Request, res: Response, next: NextFunction) {
+  // Temporarily disable AppCheck
+  return next()
+
   const appCheckToken: string = req.header('X-Firebase-AppCheck')
 
   if (!appCheckToken) {
