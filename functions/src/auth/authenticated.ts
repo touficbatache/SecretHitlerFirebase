@@ -5,7 +5,7 @@ import { DecodedIdToken } from "firebase-admin/lib/auth"
 import { NextFunction } from "express-serve-static-core"
 
 export async function isAuthenticatedHandler(req: Request, res: Response, next: NextFunction) {
-    if (process.env.DEV) return next()
+    if (process.env.DEV === "true") return next()
 
     const { authorization } = req.headers
 

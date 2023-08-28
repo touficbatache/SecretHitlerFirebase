@@ -4,7 +4,7 @@ Secret Hitler's Firebase Functions API source code.
 
 ## Description
 
-Written using TypeScript, with enforced typing.
+Written using strongly typed TypeScript.
 
 ## How to install?
 

@@ -33,8 +33,8 @@ import Reference = database.Reference
 
 export async function newGame(req: Request, res: Response): Promise<Response> {
     try {
-        const userId: string = !process.env.DEV ? res.locals.uid : "randId0"
-        const userName: string = !process.env.DEV ? res.locals.name : "randName0"
+        const userId: string = process.env.DEV === "true" ? "randId0" : res.locals.uid
+        const userName: string = process.env.DEV === "true" ? "randName0" : res.locals.name
         const temp: string = _randomGameCode().toString()
 
         const gameCreationTries: number = 1
@@ -77,8 +77,8 @@ function _randomGameCode() {
 
 export async function joinGame(req: Request, res: Response): Promise<Response> {
     try {
-        const userId: string = !process.env.DEV ? res.locals.uid : `randId${res.locals.gameData[constants.DATABASE_NODE_PLAYERS].length}`
-        const userName: string = !process.env.DEV ? res.locals.name : `randName${res.locals.gameData[constants.DATABASE_NODE_PLAYERS].length}`
+        const userId: string = process.env.DEV === "true" ? `randId${res.locals.gameData[constants.DATABASE_NODE_PLAYERS].length}` : res.locals.uid
+        const userName: string = process.env.DEV === "true" ? `randName${res.locals.gameData[constants.DATABASE_NODE_PLAYERS].length}` : res.locals.name
         const gameCode: string = res.locals.gameCode
         const gameData: any = res.locals.gameData
 
@@ -357,7 +357,7 @@ export async function vote(req: Request, res: Response): Promise<Response> {
             return handleGameProgressTamperingError(res)
         }
 
-        const userId: string = !process.env.DEV ? res.locals.uid : `randId${Object.values(gameData[constants.DATABASE_NODE_CURRENT_SESSION][constants.DATABASE_NODE_VOTES] ?? {}).length}`
+        const userId: string = process.env.DEV === "true" ? `randId${Object.values(gameData[constants.DATABASE_NODE_CURRENT_SESSION][constants.DATABASE_NODE_VOTES] ?? {}).length}` : res.locals.uid
 
         if (gameData[constants.DATABASE_NODE_CURRENT_SESSION][constants.DATABASE_NODE_VOTES] != null
             && gameData[constants.DATABASE_NODE_CURRENT_SESSION][constants.DATABASE_NODE_VOTES][userId] != null) {

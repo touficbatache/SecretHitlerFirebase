@@ -4,7 +4,7 @@ import { handleInternalError, handleUnauthorizedError } from "../utils"
 import { NextFunction } from "express-serve-static-core"
 
 export async function presidentOnlyHandler(req: Request, res: Response, next: NextFunction) {
-    if (process.env.DEV) return next()
+    if (process.env.DEV === "true") return next()
 
     try {
         if (res.locals.uid != res.locals.gameData[constants.DATABASE_NODE_CURRENT_SESSION][constants.DATABASE_NODE_PRESIDENT_ID]) {

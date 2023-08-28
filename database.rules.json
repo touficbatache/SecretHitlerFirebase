@@ -1,6 +1,12 @@
 {
   "rules": {
-    ".read": true,
-    ".write": true
+    "chambers": {
+      ".read": true,
+      ".write": true
+    },
+    "ongoingGames": {
+      ".read": false,
+      ".write": false
+    }
   }
 }
