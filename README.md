@@ -14,9 +14,30 @@ cd SecretHitlerFirebase
 npm install
 ```
 
-This API is supposed to be deployed to a Firebase project and used with Functions.
+This API is supposed to be deployed to a Firebase project.
 
-To link it, first create a Firebase project, then run the following command:
+I - First, you will need to install the Firebase CLI using the following command:
+
+```shell
+npm install -g firebase-tools
+```
+
+**Note:** The `-g` flag installs a package (here Firebase CLI) globally, which allows you
+to call it from any command line on your local computer.
+
+II - Then, you'll have to create a Firebase project with the following features turned on:
+
+- Authentication
+- Functions
+- Realtime Database
+
+and login:
+
+```shell
+firebase login
+```
+
+III - Link the project you just created by running the following command:
 
 ```shell
 npm run link --project=[PROJECTNAME]
