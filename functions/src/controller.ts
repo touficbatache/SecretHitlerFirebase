@@ -82,13 +82,13 @@ export async function joinGame(req: Request, res: Response): Promise<Response> {
         const gameCode: string = res.locals.gameCode
         const gameData: any = res.locals.gameData
 
-        if (gameData[constants.DATABASE_NODE_STATUS] != ChamberStatus[ChamberStatus.waiting]) {
-            return handleGameStartedError(res)
+        const players: any[] = gameData[constants.DATABASE_NODE_PLAYERS]
+        if (players.some((player: any) => player[constants.DATABASE_NODE_ID] === userId)) {
+            return handlePlayerAlreadyInGame(res)
         }
 
-        const players: any[] = gameData[constants.DATABASE_NODE_PLAYERS]
-        if (players.map((player: any) => player[constants.DATABASE_NODE_ID]).includes(userId)) {
-            return handlePlayerAlreadyInGame(res)
+        if (gameData[constants.DATABASE_NODE_STATUS] != ChamberStatus[ChamberStatus.waiting]) {
+            return handleGameStartedError(res)
         }
 
         const newPlayerRef: Reference = await admin.database().ref()
