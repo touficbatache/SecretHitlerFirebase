@@ -48,6 +48,7 @@ export async function newGame(req: Request, res: Response): Promise<Response> {
                         [constants.DATABASE_NODE_OWNER_ID]: userId,
                         [constants.DATABASE_NODE_CREATED_AT]: Date.now(),
                         [constants.DATABASE_NODE_PLAYERS]: [_user(userId, userName)],
+                        [constants.DATABASE_NODE_CONNECTED]: { [userId]: true },
                         [constants.DATABASE_NODE_STATUS]: ChamberStatus[ChamberStatus.waiting],
                         [constants.DATABASE_NODE_ELECTION_TRACKER]: 0,
                     })
@@ -97,6 +98,13 @@ export async function joinGame(req: Request, res: Response): Promise<Response> {
             .child(constants.DATABASE_NODE_PLAYERS)
             .push()
         await newPlayerRef.setWithPriority(_user(userId, userName), admin.database.ServerValue.TIMESTAMP.toString())
+
+        await admin.database().ref()
+          .child(constants.DATABASE_NODE_ONGOING_GAMES)
+          .child(gameCode)
+          .child(constants.DATABASE_NODE_CONNECTED)
+          .child(userId)
+          .set(true)
 
         return handleSuccess(res, { code: gameCode })
     } catch (err) {
@@ -287,7 +295,7 @@ async function _finishSetup(gameCode: string, gameType: GameType, skipLongIntro:
         .child(constants.DATABASE_NODE_STARTED_AT)
         .set(Date.now())
 
-    const waitTimeInS: number = skipLongIntro ? 5 : gameType == GameType.fiveSix ? 26 : 33
+    const waitTimeInS: number = skipLongIntro ? 5 : 30
     await sleep(waitTimeInS * 1000)
 
     void admin.database().ref()
