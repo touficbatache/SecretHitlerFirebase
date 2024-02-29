@@ -27,6 +27,7 @@ import {
     PlayerMembership,
     PlayerRole,
     Policy,
+    PresidentialPower,
 } from "./objects"
 import { GameDataUpdates, getGameData } from "./handlers/game-data-handler"
 import Reference = database.Reference
@@ -100,11 +101,11 @@ export async function joinGame(req: Request, res: Response): Promise<Response> {
         await newPlayerRef.setWithPriority(_user(userId, userName), admin.database.ServerValue.TIMESTAMP.toString())
 
         await admin.database().ref()
-          .child(constants.DATABASE_NODE_ONGOING_GAMES)
-          .child(gameCode)
-          .child(constants.DATABASE_NODE_CONNECTED)
-          .child(userId)
-          .set(true)
+            .child(constants.DATABASE_NODE_ONGOING_GAMES)
+            .child(gameCode)
+            .child(constants.DATABASE_NODE_CONNECTED)
+            .child(userId)
+            .set(true)
 
         return handleSuccess(res, { code: gameCode })
     } catch (err) {
@@ -517,6 +518,8 @@ async function _nextElection(
         [constants.DATABASE_NODE_SESSIONS]: {
             [sessionCount]: gameData[constants.DATABASE_NODE_CURRENT_SESSION],
         },
+        [constants.DATABASE_NODE_PRESIDENTIAL_POWER]: null,
+        [constants.DATABASE_NODE_SPECIAL_ELECTION_PLAYER]: null,
         [constants.DATABASE_NODE_STATUS]: ChamberStatus[ChamberStatus.election],
         [constants.DATABASE_NODE_SUB_STATUS]: ChamberSubStatus[ChamberSubStatus.election_presidentChoosingChancellor],
     })
@@ -680,7 +683,7 @@ async function _onEnactPolicy(gameCode: string, enactedPolicy: string) {
         const index: number = gameData[constants.DATABASE_NODE_CHAMBER_POLICIES][constants.DATABASE_NODE_BOARD][constants.DATABASE_NODE_FASCIST]
         if (Object.prototype.hasOwnProperty.call(gameData[constants.DATABASE_NODE_EXECUTIVE_ACTIONS], index)) {
             const presidentialPower: ExecutiveAction = gameData[constants.DATABASE_NODE_EXECUTIVE_ACTIONS][index]
-            const subStatus: ChamberSubStatus | undefined = (function (): ChamberSubStatus | undefined {
+            const subStatus: ChamberSubStatus | undefined = (function(): ChamberSubStatus | undefined {
                 switch (presidentialPower) {
                     case ExecutiveAction.POLICY_PEEK:
                         return ChamberSubStatus.presidentialPower_policyPeek
@@ -735,18 +738,25 @@ export async function presidentialPower(req: Request, res: Response): Promise<Re
 
         let responseData: any
 
-        if (gameData[constants.DATABASE_NODE_SUB_STATUS] === ChamberSubStatus[ChamberSubStatus.presidentialPower__consumed]) {
+        if (gameData[constants.DATABASE_NODE_PRESIDENTIAL_POWER] === PresidentialPower.CONSUMED) {
+            await admin.database().ref()
+                .child(constants.DATABASE_NODE_ONGOING_GAMES)
+                .child(gameCode)
+                .update(new GameDataUpdates({
+                    [constants.DATABASE_NODE_PRESIDENTIAL_POWER]: PresidentialPower.DONE,
+                }).updates)
+
             void _nextElection(gameCode)
         } else {
             if (gameData[constants.DATABASE_NODE_SUB_STATUS] === ChamberSubStatus[ChamberSubStatus.presidentialPower_policyPeek]) {
                 responseData = {
-                    policies: gameData[constants.DATABASE_NODE_CHAMBER_POLICIES][constants.DATABASE_NODE_DRAW_PILE].slice(0, 3).join(','),
+                    policies: gameData[constants.DATABASE_NODE_CHAMBER_POLICIES][constants.DATABASE_NODE_DRAW_PILE].slice(0, 3).join(","),
                 }
 
                 await admin.database().ref()
                     .child(constants.DATABASE_NODE_ONGOING_GAMES)
                     .child(gameCode)
-                    .update(new GameDataUpdates({ [constants.DATABASE_NODE_SUB_STATUS]: ChamberSubStatus[ChamberSubStatus.presidentialPower__consumed] }).updates)
+                    .update(new GameDataUpdates({ [constants.DATABASE_NODE_PRESIDENTIAL_POWER]: PresidentialPower.CONSUMED }).updates)
             }
 
             if (gameData[constants.DATABASE_NODE_SUB_STATUS] === ChamberSubStatus[ChamberSubStatus.presidentialPower_investigateLoyalty]) {
@@ -783,7 +793,7 @@ export async function presidentialPower(req: Request, res: Response): Promise<Re
                                 [constants.DATABASE_NODE_IS_INVESTIGATED]: true,
                             },
                         },
-                        [constants.DATABASE_NODE_SUB_STATUS]: ChamberSubStatus[ChamberSubStatus.presidentialPower__consumed],
+                        [constants.DATABASE_NODE_PRESIDENTIAL_POWER]: PresidentialPower.CONSUMED,
                     }).updates)
             }
 
@@ -797,6 +807,14 @@ export async function presidentialPower(req: Request, res: Response): Promise<Re
                 if (playerId === gameData[constants.DATABASE_NODE_CURRENT_SESSION][constants.DATABASE_NODE_PRESIDENT_ID]) {
                     return handleIneligiblePlayerError(res)
                 }
+
+                await admin.database().ref()
+                    .child(constants.DATABASE_NODE_ONGOING_GAMES)
+                    .child(gameCode)
+                    .update(new GameDataUpdates({
+                        [constants.DATABASE_NODE_PRESIDENTIAL_POWER]: PresidentialPower.DONE,
+                        [constants.DATABASE_NODE_SPECIAL_ELECTION_PLAYER]: playerId,
+                    }).updates)
 
                 void _nextElection(gameCode, false, playerId)
             }
@@ -834,6 +852,7 @@ async function _executePlayer(gameCode: string, playerIndex: string) {
                     [constants.DATABASE_NODE_IS_EXECUTED]: true,
                 },
             },
+            [constants.DATABASE_NODE_PRESIDENTIAL_POWER]: PresidentialPower.DONE,
         }).updates)
 
     if (await _endGameIfPossible(gameCode)) {

@@ -13,7 +13,6 @@ export enum ChamberSubStatus {
     presidentialPower_investigateLoyalty,
     presidentialPower_callSpecialElection,
     presidentialPower_execution,
-    presidentialPower__consumed,
     gameEnded_liberal,
     gameEnded_fascist
 }
@@ -55,3 +54,9 @@ export class PlayerGeneratedRoleHolder {
     constructor(readonly role: PlayerRole, readonly assetReference: AssetReference) {
     }
 }
+
+export const PresidentialPower: any = {
+    CONSUMED: "consumed",
+    DONE: "done",
+} as const
+export type PresidentialPower = typeof PresidentialPower[keyof typeof PresidentialPower]

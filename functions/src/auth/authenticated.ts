@@ -1,8 +1,9 @@
 import { Request, Response } from "express"
-import * as admin from "firebase-admin"
-import { handleUnauthorizedError } from "../utils"
-import { DecodedIdToken } from "firebase-admin/lib/auth"
 import { NextFunction } from "express-serve-static-core"
+import * as admin from "firebase-admin"
+import { DecodedIdToken, UserRecord } from "firebase-admin/lib/auth"
+
+import { handleUnauthorizedError } from "../utils"
 
 export async function isAuthenticatedHandler(req: Request, res: Response, next: NextFunction) {
     if (process.env.DEV === "true") return next()
@@ -23,13 +24,12 @@ export async function isAuthenticatedHandler(req: Request, res: Response, next: 
 
     try {
         const decodedToken: DecodedIdToken = await admin.auth().verifyIdToken(token)
+        const userRecord: UserRecord = await admin.auth().getUser(decodedToken.uid)
         res.locals = {
             ...res.locals,
-            uid: decodedToken.uid,
-            name: decodedToken.name,
-            role: decodedToken.role,
-            phone_number: decodedToken.phone_number,
-            email: decodedToken.email,
+            uid: userRecord.uid,
+            name: userRecord.displayName,
+            phoneNumber: userRecord.phoneNumber,
         }
         return next()
     } catch (err: any) {
@@ -55,12 +55,12 @@ export async function isAuthenticated(req: Request, res: Response) {
 
     try {
         const decodedToken: DecodedIdToken = await admin.auth().verifyIdToken(token)
+        const userRecord: UserRecord = await admin.auth().getUser(decodedToken.uid)
         res.locals = {
             ...res.locals,
-            uid: decodedToken.uid,
-            role: decodedToken.role,
-            phone_number: decodedToken.phone_number,
-            email: decodedToken.email,
+            uid: userRecord.uid,
+            name: userRecord.displayName,
+            phoneNumber: userRecord.phoneNumber,
         }
         return true
     } catch (err: any) {
