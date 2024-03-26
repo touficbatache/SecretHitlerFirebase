@@ -1,10 +1,9 @@
 # Secret Hitler - Firebase API
 
-Secret Hitler's Firebase Functions API source code.
+This project is the backend for the Secret Hitler game, intended to be deployed to Firebase Functions. It is designed to
+work with the frontend implemented using SvelteKit, deployed to Firebase Hosting.
 
-## Description
-
-Written using strongly typed TypeScript.
+Secret Hitler Svelte : https://github.com/touficbatache/SecretHitlerSvelte
 
 ## How to install?
 
