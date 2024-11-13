@@ -5,6 +5,10 @@ work with the frontend implemented using SvelteKit, deployed to Firebase Hosting
 
 Secret Hitler Svelte : https://github.com/touficbatache/SecretHitlerSvelte
 
+## Flow sheet
+
+![flowsheet](/images/flowsheet.png)
+
 ## How to install?
 
 ```shell
