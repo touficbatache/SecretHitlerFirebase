@@ -922,7 +922,7 @@ export async function askForVeto(req: Request, res: Response): Promise<Response>
             return handleUnexpectedInternalError(res)
         }
 
-        if (gameData[constants.DATABASE_NODE_CHAMBER_POLICIES][constants.DATABASE_NODE_BOARD][constants.DATABASE_NODE_FASCIST] < 5) {
+        if (gameData[constants.DATABASE_NODE_CHAMBER_POLICIES][constants.DATABASE_NODE_BOARD][constants.DATABASE_NODE_FASCIST] < 5 || gameData[constants.DATABASE_NODE_CURRENT_SESSION][constants.DATABASE_NODE_IS_VETO_REFUSED] === true) {
             return handleGameProgressTamperingError(res)
         }
 
