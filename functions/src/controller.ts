@@ -383,17 +383,16 @@ export async function vote(req: Request, res: Response): Promise<Response> {
             },
         })
 
-        const playerCount: number = gameData[constants.DATABASE_NODE_PLAYERS].length
-        const voteCount: number = Object.values(gameData[constants.DATABASE_NODE_CURRENT_SESSION][constants.DATABASE_NODE_VOTES] ?? []).length + 1
-
-        const hasVoteEnded: boolean = playerCount === voteCount
+        const alivePlayersCount: number = (gameData[constants.DATABASE_NODE_PLAYERS] as any[]).filter((player: any) => !player[constants.DATABASE_NODE_IS_EXECUTED]).length
+        const upcomingVoteCount: number = Object.values(gameData[constants.DATABASE_NODE_CURRENT_SESSION][constants.DATABASE_NODE_VOTES] ?? []).length + 1
+        const hasVoteEnded: boolean = alivePlayersCount === upcomingVoteCount
         let hasSucceeded: boolean = false
 
         if (hasVoteEnded) {
             gameDataUpdates.push({ [constants.DATABASE_NODE_SUB_STATUS]: ChamberSubStatus[ChamberSubStatus.election_votingEnded] })
 
             const yaCount: number = Object.values<boolean>(gameData[constants.DATABASE_NODE_CURRENT_SESSION][constants.DATABASE_NODE_VOTES]).filter((element: boolean) => element).length + (vote ? 1 : 0)
-            hasSucceeded = yaCount > (gameData[constants.DATABASE_NODE_PLAYERS] as any[]).filter((player: any) => !player[constants.DATABASE_NODE_IS_EXECUTED]).length / 2.0
+            hasSucceeded = yaCount > alivePlayersCount / 2.0
             gameDataUpdates.push({
                 [constants.DATABASE_NODE_CURRENT_SESSION]: {
                     [constants.DATABASE_NODE_HAS_SUCCEEDED]: hasSucceeded,
@@ -433,8 +432,11 @@ export async function vote(req: Request, res: Response): Promise<Response> {
 async function _prepareDrawPile(gameCode: string) {
     const gameData: any = await getGameData(gameCode)
 
-    const drawPile: string[] = gameData[constants.DATABASE_NODE_CHAMBER_POLICIES][constants.DATABASE_NODE_DRAW_PILE]
-    const discardPile: any = gameData[constants.DATABASE_NODE_CHAMBER_POLICIES][constants.DATABASE_NODE_DISCARD_PILE]
+    const drawPile: string[] = gameData[constants.DATABASE_NODE_CHAMBER_POLICIES][constants.DATABASE_NODE_DRAW_PILE] ?? []
+    const discardPile: {
+        [constants.DATABASE_NODE_LIBERAL]: number,
+        [constants.DATABASE_NODE_FASCIST]: number
+    } | undefined = gameData[constants.DATABASE_NODE_CHAMBER_POLICIES][constants.DATABASE_NODE_DISCARD_PILE]
 
     if (drawPile.length < 3) {
         const mixedPolicies: string[] = drawPile
