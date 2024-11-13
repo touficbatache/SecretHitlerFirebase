@@ -430,7 +430,11 @@ export async function vote(req: Request, res: Response): Promise<void> {
 
         if (hasVoteEnded) {
             if (hasSucceeded) {
-                void _beginLegislativeSession(gameCode)
+                // End game if 3+ fascist policies are enacted and hitler is chancellor
+                const hasGameEnded: boolean = await _tryEndGameAfterGovernmentElection(gameCode)
+                if (!hasGameEnded) {
+                    void _beginLegislativeSession(gameCode)
+                }
             } else {
                 if (gameData[constants.DATABASE_NODE_ELECTION_TRACKER] + 1 == 3) {
                     void _enactPolicyByFrustratedPopulace(gameCode)
@@ -514,7 +518,13 @@ async function _enactPolicyByFrustratedPopulace(gameCode: string) {
         .child(gameCode)
         .update(gameDataUpdates.updates)
 
-    void _nextElection(gameCode, true)
+    // End game if:
+    // - 5 liberal policies are enacted
+    // - 6 fascist policies are enacted
+    const hasGameEnded: boolean = await _tryEndGameWithBoardCount(gameCode)
+    if (!hasGameEnded) {
+        void _nextElection(gameCode, true)
+    }
 }
 
 async function _nextElection(
@@ -564,10 +574,6 @@ function _nextPresidentId(players: any[], lastPresidentIndex: number): string {
 }
 
 async function _beginLegislativeSession(gameCode: string) {
-    if (await _endGameIfPossible(gameCode)) {
-        return
-    }
-
     await sleep(5000)
 
     await _prepareDrawPile(gameCode)
@@ -684,11 +690,7 @@ export async function chancellorDiscardPolicy(req: Request, res: Response): Prom
                 [constants.DATABASE_NODE_SUB_STATUS]: ChamberSubStatus[ChamberSubStatus.legislativeSession_sessionEndedWithPolicyEnactment],
             }).updates)
 
-        const hasGameEnded: boolean = await _endGameIfPossible(gameCode)
-
-        if (!hasGameEnded) {
-            void _onEnactPolicy(gameCode, boardPolicy)
-        }
+        void _onEnactPolicy(gameCode, boardPolicy)
 
         handleSuccess(res, { code: gameCode })
         return
@@ -753,7 +755,13 @@ async function _onEnactPolicy(gameCode: string, enactedPolicy: string) {
             [constants.DATABASE_NODE_SUB_STATUS]: ChamberSubStatus[ChamberSubStatus.legislativeSession_sessionEndedWithPolicyEnactment],
         }).updates)
 
-    void _nextElection(gameCode)
+    // End game if:
+    // - 5 liberal policies are enacted
+    // - 6 fascist policies are enacted
+    const hasGameEnded: boolean = await _tryEndGameWithBoardCount(gameCode)
+    if (!hasGameEnded) {
+        void _nextElection(gameCode)
+    }
 }
 
 export async function presidentialPower(req: Request, res: Response): Promise<void> {
@@ -893,38 +901,28 @@ async function _executePlayer(gameCode: string, playerIndex: string) {
             [constants.DATABASE_NODE_PRESIDENTIAL_POWER]: PresidentialPower.DONE,
         }).updates)
 
-    if (await _endGameIfPossible(gameCode)) {
+    // End game if hitler is executed
+    if (await _tryEndGameOnExecution(gameCode)) {
         return
     }
 
     void _nextElection(gameCode)
 }
 
-async function _endGameIfPossible(gameCode: string): Promise<boolean> {
+async function _tryEndGameWithBoardCount(gameCode: string): Promise<boolean> {
     const gameData: any = await getGameData(gameCode)
 
-    const hitler: any = gameData[constants.DATABASE_NODE_PLAYERS].find((player: any) => player[constants.DATABASE_NODE_ROLE] === PlayerRole[PlayerRole.hitler])
-
-    // 5 liberal policies are enacted, or hitler is executed
+    // 5 liberal policies are enacted
     const isLiberalWin: boolean =
         (gameData[constants.DATABASE_NODE_CHAMBER_POLICIES] != null &&
             gameData[constants.DATABASE_NODE_CHAMBER_POLICIES][constants.DATABASE_NODE_BOARD] != null &&
-            gameData[constants.DATABASE_NODE_CHAMBER_POLICIES][constants.DATABASE_NODE_BOARD][constants.DATABASE_NODE_LIBERAL] === 5) ||
-        hitler[constants.DATABASE_NODE_IS_EXECUTED]
+            gameData[constants.DATABASE_NODE_CHAMBER_POLICIES][constants.DATABASE_NODE_BOARD][constants.DATABASE_NODE_LIBERAL] === 5)
 
-    // 6 fascist policies are enacted, or 3+ are enacted and  hitler is chancellor
+    // 6 fascist policies are enacted
     const isFascistWin: boolean =
         gameData[constants.DATABASE_NODE_CHAMBER_POLICIES] != null &&
         gameData[constants.DATABASE_NODE_CHAMBER_POLICIES][constants.DATABASE_NODE_BOARD] != null &&
-        (
-            gameData[constants.DATABASE_NODE_CHAMBER_POLICIES][constants.DATABASE_NODE_BOARD][constants.DATABASE_NODE_FASCIST] === 6 ||
-            (
-                gameData[constants.DATABASE_NODE_CHAMBER_POLICIES][constants.DATABASE_NODE_BOARD][constants.DATABASE_NODE_FASCIST] >= 3 &&
-                gameData[constants.DATABASE_NODE_CURRENT_SESSION] != null &&
-                (gameData[constants.DATABASE_NODE_CURRENT_SESSION][constants.DATABASE_NODE_HAS_SUCCEEDED] ?? false) &&
-                gameData[constants.DATABASE_NODE_CURRENT_SESSION][constants.DATABASE_NODE_CHANCELLOR_ID] === hitler[constants.DATABASE_NODE_ID]
-            )
-        )
+        gameData[constants.DATABASE_NODE_CHAMBER_POLICIES][constants.DATABASE_NODE_BOARD][constants.DATABASE_NODE_FASCIST] === 6
 
     const sessionCount: number = (gameData[constants.DATABASE_NODE_SESSIONS] ?? []).length
 
@@ -945,6 +943,66 @@ async function _endGameIfPossible(gameCode: string): Promise<boolean> {
     }
 
     return hasGameEnded
+}
+
+async function _tryEndGameAfterGovernmentElection(gameCode: string): Promise<boolean> {
+    const gameData: any = await getGameData(gameCode)
+
+    const hitler: any = gameData[constants.DATABASE_NODE_PLAYERS].find((player: any) => player[constants.DATABASE_NODE_ROLE] === PlayerRole[PlayerRole.hitler])
+
+    // Check if 3+ fascist policies are enacted and hitler is chancellor
+    const isFascistWin: boolean =
+        gameData[constants.DATABASE_NODE_CHAMBER_POLICIES] != null &&
+        gameData[constants.DATABASE_NODE_CHAMBER_POLICIES][constants.DATABASE_NODE_BOARD] != null &&
+        gameData[constants.DATABASE_NODE_CHAMBER_POLICIES][constants.DATABASE_NODE_BOARD][constants.DATABASE_NODE_FASCIST] >= 3 &&
+        gameData[constants.DATABASE_NODE_CURRENT_SESSION] != null &&
+        (gameData[constants.DATABASE_NODE_CURRENT_SESSION][constants.DATABASE_NODE_HAS_SUCCEEDED] ?? false) &&
+        gameData[constants.DATABASE_NODE_CURRENT_SESSION][constants.DATABASE_NODE_CHANCELLOR_ID] === hitler[constants.DATABASE_NODE_ID]
+
+    const sessionCount: number = (gameData[constants.DATABASE_NODE_SESSIONS] ?? []).length
+
+    if (isFascistWin) {
+        void admin.database().ref()
+            .child(constants.DATABASE_NODE_ONGOING_GAMES)
+            .child(gameCode)
+            .update(new GameDataUpdates({
+                [constants.DATABASE_NODE_SESSIONS]: {
+                    [sessionCount]: gameData[constants.DATABASE_NODE_CURRENT_SESSION],
+                },
+                [`${constants.DATABASE_NODE_CURRENT_SESSION}.override`]: undefined,
+                [constants.DATABASE_NODE_STATUS]: ChamberStatus[ChamberStatus.gameEnded],
+                [constants.DATABASE_NODE_SUB_STATUS]: ChamberSubStatus[ChamberSubStatus.gameEnded_fascist],
+            }).updates)
+    }
+
+    return isFascistWin
+}
+
+async function _tryEndGameOnExecution(gameCode: string): Promise<boolean> {
+    const gameData: any = await getGameData(gameCode)
+
+    const hitler: any = gameData[constants.DATABASE_NODE_PLAYERS].find((player: any) => player[constants.DATABASE_NODE_ROLE] === PlayerRole[PlayerRole.hitler])
+
+    // Check if hitler is executed
+    const isLiberalWin: boolean = hitler[constants.DATABASE_NODE_IS_EXECUTED]
+
+    const sessionCount: number = (gameData[constants.DATABASE_NODE_SESSIONS] ?? []).length
+
+    if (isLiberalWin) {
+        void admin.database().ref()
+            .child(constants.DATABASE_NODE_ONGOING_GAMES)
+            .child(gameCode)
+            .update(new GameDataUpdates({
+                [constants.DATABASE_NODE_SESSIONS]: {
+                    [sessionCount]: gameData[constants.DATABASE_NODE_CURRENT_SESSION],
+                },
+                [`${constants.DATABASE_NODE_CURRENT_SESSION}.override`]: undefined,
+                [constants.DATABASE_NODE_STATUS]: ChamberStatus[ChamberStatus.gameEnded],
+                [constants.DATABASE_NODE_SUB_STATUS]: ChamberSubStatus[ChamberSubStatus.gameEnded_liberal],
+            }).updates)
+    }
+
+    return isLiberalWin
 }
 
 export async function askForVeto(req: Request, res: Response): Promise<void> {
