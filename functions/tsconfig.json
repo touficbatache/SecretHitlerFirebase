@@ -4,6 +4,7 @@
     "noImplicitReturns": true,
     "noUnusedLocals": false,
     "outDir": "lib",
+    "skipLibCheck": true,
     "sourceMap": true,
     "target": "es2017"
   },

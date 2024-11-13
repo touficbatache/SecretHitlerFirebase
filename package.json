@@ -9,7 +9,7 @@
     "typescript": "^4.9.5"
   },
   "dependencies": {
-    "firebase-functions": "^4.4.1",
+    "firebase-functions": "^6.1.0",
     "kill-port": "^2.0.1"
   }
 }

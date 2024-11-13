@@ -4,20 +4,24 @@ import * as constants from "../constants"
 import { handleGameNotFound, handleInternalError, handleMissingFields } from "../utils"
 import { NextFunction } from "express-serve-static-core"
 
-export async function gameDataHandler(req: Request, res: Response, next: NextFunction) {
+export async function gameDataHandler(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
         const { code } = req.body
         if (!(typeof code === "string") || !code) {
-            return handleMissingFields(res)
+            handleMissingFields(res)
+            return
         }
         const data: any = await getGameData(code)
         if (data == null) {
-            return handleGameNotFound(res)
+            handleGameNotFound(res)
+            return
         }
         res.locals = { ...res.locals, gameCode: code, gameData: data }
-        return next()
+        next()
+        return
     } catch (err: any) {
-        return handleInternalError(res, err)
+        handleInternalError(res, err)
+        return
     }
 }
 
@@ -46,11 +50,11 @@ export async function getGameData(gameCode: string) {
 }
 
 function _stringToStringList(str: string) {
-    return str.split(',')
+    return str.split(",")
 }
 
 function _stringListToString(strList: string[]) {
-    return strList.join(',')
+    return strList.join(",")
 }
 
 export class GameDataUpdates {
@@ -76,9 +80,9 @@ export class GameDataUpdates {
                 const value: any = updateData[key]
                 const newKey: string = parentKey ? `${parentKey}/${key}` : key
 
-                if (typeof value === 'object'
+                if (typeof value === "object"
                     && value !== null
-                    && !Object.prototype.hasOwnProperty.call(value, '.sv')
+                    && !Object.prototype.hasOwnProperty.call(value, ".sv")
                     && !/^.*\.override$/.test(key)
                     && !Array.isArray(value)
                 ) {

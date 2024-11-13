@@ -1,6 +1,5 @@
 // Firebase imports
 import * as functions from "firebase-functions"
-import { HttpsFunction } from "firebase-functions"
 import * as admin from "firebase-admin"
 
 // Express.js imports
@@ -32,4 +31,4 @@ routesConfig(app)
  * Expose Express API as a single Cloud Function,
  * accessible via "/api/"
  */
-export const api: HttpsFunction = functions.https.onRequest(app)
+export const api = functions.https.onRequest(app)

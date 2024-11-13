@@ -5,20 +5,29 @@ import { DecodedIdToken, UserRecord } from "firebase-admin/lib/auth"
 
 import { handleUnauthorizedError } from "../utils"
 
-export async function isAuthenticatedHandler(req: Request, res: Response, next: NextFunction) {
-    if (process.env.DEV === "true") return next()
+export async function isAuthenticatedHandler(req: Request, res: Response, next: NextFunction): Promise<void> {
+    if (process.env.DEV === "true") {
+        next()
+        return
+    }
 
     const { authorization } = req.headers
 
-    if (!authorization)
-        return handleUnauthorizedError(res)
+    if (!authorization) {
+        handleUnauthorizedError(res)
+        return
+    }
 
-    if (!authorization.startsWith("Bearer"))
-        return handleUnauthorizedError(res)
+    if (!authorization.startsWith("Bearer")) {
+        handleUnauthorizedError(res)
+        return
+    }
 
     const split: string[] = authorization.split("Bearer ")
-    if (split.length !== 2)
-        return handleUnauthorizedError(res)
+    if (split.length !== 2) {
+        handleUnauthorizedError(res)
+        return
+    }
 
     const token: string = split[1]
 
@@ -31,14 +40,16 @@ export async function isAuthenticatedHandler(req: Request, res: Response, next: 
             name: userRecord.displayName,
             phoneNumber: userRecord.phoneNumber,
         }
-        return next()
+        next()
+        return
     } catch (err: any) {
         console.error(`${err.code} -  ${err.message}`)
-        return handleUnauthorizedError(res)
+        handleUnauthorizedError(res)
+        return
     }
 }
 
-export async function isAuthenticated(req: Request, res: Response) {
+export async function isAuthenticated(req: Request, res: Response): Promise<boolean> {
     const { authorization } = req.headers
 
     if (!authorization)

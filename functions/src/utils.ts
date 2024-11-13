@@ -1,16 +1,4 @@
 import { Response } from "express"
-import { DocumentReference, Query } from "@google-cloud/firestore"
-import { firestore } from "firebase-admin"
-
-export function generateIdAppendedObject(doc: firestore.DocumentSnapshot) {
-    const idAppendedObject: any = doc.data()
-    idAppendedObject.id = doc.id
-    return idAppendedObject
-}
-
-export function removeDuplicates(array: any[]) {
-    return Array.from(new Set(array))
-}
 
 export function handleSuccess(res: Response, body?: any) {
     if (body != null) {
@@ -28,22 +16,8 @@ export function handleNotFoundError(res: Response) {
     return res.status(400).send({ message: "400 - Not found" })
 }
 
-export class NotFoundError extends Error {
-    constructor() {
-        super()
-        throw new Error("Not found")
-    }
-}
-
 export function handleUnauthorizedError(res: Response) {
     return res.status(401).send({ message: "401 - Unauthorized" })
-}
-
-export class UnauthorizedError extends Error {
-    constructor() {
-        super()
-        throw new Error("Not found")
-    }
 }
 
 export function handleForbiddenError(res: Response) {
@@ -99,35 +73,6 @@ export function handleUnexpectedInternalError(res: Response) {
 }
 
 ///////////////////////////////
-
-declare module "@google-cloud/firestore" {
-    export interface Query<T> {
-        getSerialized(): Promise<any[]>;
-    }
-}
-
-Query.prototype.getSerialized = async function () {
-    const objects: any[] = []
-
-    const snapshot: firestore.QuerySnapshot = await this.get()
-    snapshot.forEach((object: firestore.QueryDocumentSnapshot) => objects.push(generateIdAppendedObject(object)))
-
-    return objects
-}
-
-declare module "@google-cloud/firestore" {
-    export interface DocumentReference<T> {
-        getSerialized(): Promise<any>;
-    }
-}
-
-DocumentReference.prototype.getSerialized = async function () {
-    const snapshot: firestore.DocumentSnapshot = await this.get()
-    if (!snapshot.exists) {
-        throw NotFoundError
-    }
-    return generateIdAppendedObject(snapshot)
-}
 
 export function shuffle(array: any[]) {
     array.sort(() => Math.random() - 0.5)

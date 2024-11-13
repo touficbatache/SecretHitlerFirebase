@@ -32,7 +32,7 @@ import {
 import { GameDataUpdates, getGameData } from "./handlers/game-data-handler"
 import Reference = database.Reference
 
-export async function newGame(req: Request, res: Response): Promise<Response> {
+export async function newGame(req: Request, res: Response): Promise<void> {
     try {
         const userId: string = process.env.DEV === "true" ? "randId0" : res.locals.uid
         const userName: string = process.env.DEV === "true" ? "randName0" : res.locals.name
@@ -54,13 +54,13 @@ export async function newGame(req: Request, res: Response): Promise<Response> {
                         [constants.DATABASE_NODE_ELECTION_TRACKER]: 0,
                     })
 
-                return handleCreated(res, { code: temp })
+                handleCreated(res, { code: temp })
             }
         }
 
-        return handleInternalErrorWithMessage(res, "Game creation failed")
+        handleInternalErrorWithMessage(res, "Game creation failed")
     } catch (err) {
-        return handleInternalError(res, err)
+        handleInternalError(res, err)
     }
 }
 
@@ -77,7 +77,7 @@ function _randomGameCode() {
     return parseInt(generated)
 }
 
-export async function joinGame(req: Request, res: Response): Promise<Response> {
+export async function joinGame(req: Request, res: Response): Promise<void> {
     try {
         const userId: string = process.env.DEV === "true" ? `randId${res.locals.gameData[constants.DATABASE_NODE_PLAYERS].length}` : res.locals.uid
         const userName: string = process.env.DEV === "true" ? `randName${res.locals.gameData[constants.DATABASE_NODE_PLAYERS].length}` : res.locals.name
@@ -86,11 +86,13 @@ export async function joinGame(req: Request, res: Response): Promise<Response> {
 
         const players: any[] = gameData[constants.DATABASE_NODE_PLAYERS]
         if (players.some((player: any) => player[constants.DATABASE_NODE_ID] === userId)) {
-            return handlePlayerAlreadyInGame(res)
+            handlePlayerAlreadyInGame(res)
+            return
         }
 
         if (gameData[constants.DATABASE_NODE_STATUS] != ChamberStatus[ChamberStatus.waiting]) {
-            return handleGameStartedError(res)
+            handleGameStartedError(res)
+            return
         }
 
         const newPlayerRef: Reference = await admin.database().ref()
@@ -107,9 +109,11 @@ export async function joinGame(req: Request, res: Response): Promise<Response> {
             .child(userId)
             .set(true)
 
-        return handleSuccess(res, { code: gameCode })
+        handleSuccess(res, { code: gameCode })
+        return
     } catch (err) {
-        return handleInternalError(res, err)
+        handleInternalError(res, err)
+        return
     }
 }
 
@@ -120,7 +124,7 @@ function _user(id: string, name: string) {
     }
 }
 
-export async function startGame(req: Request, res: Response): Promise<Response> {
+export async function startGame(req: Request, res: Response): Promise<void> {
     try {
         const gameCode: string = res.locals.gameCode
         const gameData: any = res.locals.gameData
@@ -130,16 +134,19 @@ export async function startGame(req: Request, res: Response): Promise<Response> 
 
         if (hidePicsGameInfo == null || typeof hidePicsGameInfo !== "boolean"
             || skipLongIntro == null || typeof skipLongIntro !== "boolean") {
-            return handleMissingFields(res)
+            handleMissingFields(res)
+            return
         }
 
         if (gameData[constants.DATABASE_NODE_STATUS] != ChamberStatus[ChamberStatus.waiting]) {
-            return handleGameStartedError(res)
+            handleGameStartedError(res)
+            return
         }
 
         const playerCount: number = gameData[constants.DATABASE_NODE_PLAYERS].length
         if (playerCount < 5) {
-            return handleNotEnoughPlayersError(res)
+            handleNotEnoughPlayersError(res)
+            return
         }
         let liberals: number = 0
         let fascists: number = 0
@@ -232,9 +239,11 @@ export async function startGame(req: Request, res: Response): Promise<Response> 
 
         void _finishSetup(gameCode, gameType, skipLongIntro)
 
-        return handleSuccess(res, { code: gameCode })
+        handleSuccess(res, { code: gameCode })
+        return
     } catch (err) {
-        return handleInternalError(res, err)
+        handleInternalError(res, err)
+        return
     }
 }
 
@@ -308,7 +317,7 @@ async function _finishSetup(gameCode: string, gameType: GameType, skipLongIntro:
         }).updates)
 }
 
-export async function chooseChancellor(req: Request, res: Response): Promise<Response> {
+export async function chooseChancellor(req: Request, res: Response): Promise<void> {
     try {
         const gameCode: string = res.locals.gameCode
         const gameData: any = res.locals.gameData
@@ -316,18 +325,21 @@ export async function chooseChancellor(req: Request, res: Response): Promise<Res
         const chancellorId: any = req.body[constants.REQUEST_CHANCELLOR_ID]
 
         if (chancellorId == null || typeof chancellorId !== "string") {
-            return handleMissingFields(res)
+            handleMissingFields(res)
+            return
         }
 
         if (gameData[constants.DATABASE_NODE_CURRENT_SESSION][constants.DATABASE_NODE_CHANCELLOR_ID] != null) {
-            return handleGameProgressTamperingError(res)
+            handleGameProgressTamperingError(res)
+            return
         }
 
         const presidentId: string = gameData[constants.DATABASE_NODE_CURRENT_SESSION][constants.DATABASE_NODE_PRESIDENT_ID]
         const lastSuccessfulChancellorId: string = gameData[constants.DATABASE_NODE_LAST_SUCCESSFUL_CHANCELLOR_ID]
         const players: any[] = gameData[constants.DATABASE_NODE_PLAYERS]
         if (chancellorId == presidentId || chancellorId == lastSuccessfulChancellorId || !players.map((player: any) => player[constants.DATABASE_NODE_ID]).includes(chancellorId)) {
-            return handleIneligiblePlayerError(res)
+            handleIneligiblePlayerError(res)
+            return
         }
 
         void admin.database().ref()
@@ -341,13 +353,15 @@ export async function chooseChancellor(req: Request, res: Response): Promise<Res
                 [constants.DATABASE_NODE_SUB_STATUS]: ChamberSubStatus[ChamberSubStatus.election_voting],
             }).updates)
 
-        return handleSuccess(res, { code: gameCode })
+        handleSuccess(res, { code: gameCode })
+        return
     } catch (err) {
-        return handleInternalError(res, err)
+        handleInternalError(res, err)
+        return
     }
 }
 
-export async function vote(req: Request, res: Response): Promise<Response> {
+export async function vote(req: Request, res: Response): Promise<void> {
     try {
         const gameCode: string = res.locals.gameCode
         const gameData: any = res.locals.gameData
@@ -355,7 +369,8 @@ export async function vote(req: Request, res: Response): Promise<Response> {
         const vote: any = req.body[constants.REQUEST_VOTE]
 
         if (vote == null || typeof vote !== "boolean") {
-            return handleMissingFields(res)
+            handleMissingFields(res)
+            return
         }
 
         if (
@@ -363,14 +378,16 @@ export async function vote(req: Request, res: Response): Promise<Response> {
             || gameData[constants.DATABASE_NODE_CURRENT_SESSION][constants.DATABASE_NODE_CHANCELLOR_ID] == null
             || gameData[constants.DATABASE_NODE_SUB_STATUS] != ChamberSubStatus[ChamberSubStatus.election_voting]
         ) {
-            return handleGameProgressTamperingError(res)
+            handleGameProgressTamperingError(res)
+            return
         }
 
         const userId: string = process.env.DEV === "true" ? `randId${Object.values(gameData[constants.DATABASE_NODE_CURRENT_SESSION][constants.DATABASE_NODE_VOTES] ?? {}).length}` : res.locals.uid
 
         if (gameData[constants.DATABASE_NODE_CURRENT_SESSION][constants.DATABASE_NODE_VOTES] != null
             && gameData[constants.DATABASE_NODE_CURRENT_SESSION][constants.DATABASE_NODE_VOTES][userId] != null) {
-            return handleGameProgressTamperingError(res)
+            handleGameProgressTamperingError(res)
+            return
         }
 
         const gameDataUpdates: GameDataUpdates = new GameDataUpdates()
@@ -423,9 +440,11 @@ export async function vote(req: Request, res: Response): Promise<Response> {
             }
         }
 
-        return handleSuccess(res, { code: gameCode })
+        handleSuccess(res, { code: gameCode })
+        return
     } catch (err) {
-        return handleInternalError(res, err)
+        handleInternalError(res, err)
+        return
     }
 }
 
@@ -434,8 +453,8 @@ async function _prepareDrawPile(gameCode: string) {
 
     const drawPile: string[] = gameData[constants.DATABASE_NODE_CHAMBER_POLICIES][constants.DATABASE_NODE_DRAW_PILE] ?? []
     const discardPile: {
-        [constants.DATABASE_NODE_LIBERAL]: number,
-        [constants.DATABASE_NODE_FASCIST]: number
+        liberal: number,
+        fascist: number
     } | undefined = gameData[constants.DATABASE_NODE_CHAMBER_POLICIES][constants.DATABASE_NODE_DISCARD_PILE]
 
     if (drawPile.length < 3) {
@@ -573,7 +592,7 @@ async function _beginLegislativeSession(gameCode: string) {
         }).updates)
 }
 
-export async function presidentDiscardPolicy(req: Request, res: Response): Promise<Response> {
+export async function presidentDiscardPolicy(req: Request, res: Response): Promise<void> {
     try {
         const gameCode: string = res.locals.gameCode
         const gameData: any = res.locals.gameData
@@ -581,7 +600,8 @@ export async function presidentDiscardPolicy(req: Request, res: Response): Promi
         const discardedPolicy: any = req.body[constants.REQUEST_POLICY]
 
         if (discardedPolicy == null || typeof discardedPolicy !== "string") {
-            return handleMissingFields(res)
+            handleMissingFields(res)
+            return
         }
 
         const presidentPolicies: string[] = gameData[constants.DATABASE_NODE_CURRENT_SESSION][constants.DATABASE_NODE_PRESIDENT_POLICIES]
@@ -591,7 +611,8 @@ export async function presidentDiscardPolicy(req: Request, res: Response): Promi
             || presidentPolicies.length !== 3
             || !presidentPolicies.includes(discardedPolicy)
         ) {
-            return handleGameProgressTamperingError(res)
+            handleGameProgressTamperingError(res)
+            return
         }
 
         presidentPolicies.splice(presidentPolicies.indexOf(discardedPolicy), 1)
@@ -612,13 +633,15 @@ export async function presidentDiscardPolicy(req: Request, res: Response): Promi
                 [constants.DATABASE_NODE_SUB_STATUS]: ChamberSubStatus[ChamberSubStatus.legislativeSession_chancellorDiscardingPolicy],
             }).updates)
 
-        return handleSuccess(res, { code: gameCode })
+        handleSuccess(res, { code: gameCode })
+        return
     } catch (err) {
-        return handleInternalError(res, err)
+        handleInternalError(res, err)
+        return
     }
 }
 
-export async function chancellorDiscardPolicy(req: Request, res: Response): Promise<Response> {
+export async function chancellorDiscardPolicy(req: Request, res: Response): Promise<void> {
     try {
         const gameCode: string = res.locals.gameCode
         const gameData: any = res.locals.gameData
@@ -626,7 +649,8 @@ export async function chancellorDiscardPolicy(req: Request, res: Response): Prom
         const discardedPolicy: any = req.body[constants.REQUEST_POLICY]
 
         if (discardedPolicy == null || typeof discardedPolicy !== "string") {
-            return handleMissingFields(res)
+            handleMissingFields(res)
+            return
         }
 
         const chancellorPolicies: string[] = gameData[constants.DATABASE_NODE_CURRENT_SESSION][constants.DATABASE_NODE_CHANCELLOR_POLICIES]
@@ -636,7 +660,8 @@ export async function chancellorDiscardPolicy(req: Request, res: Response): Prom
             || chancellorPolicies.length !== 2
             || !chancellorPolicies.includes(discardedPolicy)
         ) {
-            return handleGameProgressTamperingError(res)
+            handleGameProgressTamperingError(res)
+            return
         }
 
         chancellorPolicies.splice(chancellorPolicies.indexOf(discardedPolicy), 1)
@@ -665,9 +690,11 @@ export async function chancellorDiscardPolicy(req: Request, res: Response): Prom
             void _onEnactPolicy(gameCode, boardPolicy)
         }
 
-        return handleSuccess(res, { code: gameCode })
+        handleSuccess(res, { code: gameCode })
+        return
     } catch (err) {
-        return handleInternalError(res, err)
+        handleInternalError(res, err)
+        return
     }
 }
 
@@ -729,13 +756,14 @@ async function _onEnactPolicy(gameCode: string, enactedPolicy: string) {
     void _nextElection(gameCode)
 }
 
-export async function presidentialPower(req: Request, res: Response): Promise<Response> {
+export async function presidentialPower(req: Request, res: Response): Promise<void> {
     try {
         const gameCode: string = res.locals.gameCode
         const gameData: any = res.locals.gameData
 
         if (gameData[constants.DATABASE_NODE_STATUS] !== ChamberStatus[ChamberStatus.presidentialPower]) {
-            return handleGameProgressTamperingError(res)
+            handleGameProgressTamperingError(res)
+            return
         }
 
         let responseData: any
@@ -765,14 +793,16 @@ export async function presidentialPower(req: Request, res: Response): Promise<Re
                 const playerId: any = req.body[constants.REQUEST_PLAYER]
 
                 if (playerId === undefined || typeof playerId !== "string") {
-                    return handleMissingFields(res)
+                    handleMissingFields(res)
+                    return
                 }
 
                 const player: any = gameData[constants.DATABASE_NODE_PLAYERS].find((p: any) => p[constants.DATABASE_NODE_ID] === playerId)
 
                 if (playerId === gameData[constants.DATABASE_NODE_CURRENT_SESSION][constants.DATABASE_NODE_PRESIDENT_ID] ||
                     player[constants.DATABASE_NODE_IS_INVESTIGATED] === true) {
-                    return handleIneligiblePlayerError(res)
+                    handleIneligiblePlayerError(res)
+                    return
                 }
 
                 const role: string = player[constants.DATABASE_NODE_ROLE]
@@ -803,11 +833,13 @@ export async function presidentialPower(req: Request, res: Response): Promise<Re
                 const playerId: any = req.body[constants.REQUEST_PLAYER]
 
                 if (playerId === undefined || typeof playerId !== "string") {
-                    return handleMissingFields(res)
+                    handleMissingFields(res)
+                    return
                 }
 
                 if (playerId === gameData[constants.DATABASE_NODE_CURRENT_SESSION][constants.DATABASE_NODE_PRESIDENT_ID]) {
-                    return handleIneligiblePlayerError(res)
+                    handleIneligiblePlayerError(res)
+                    return
                 }
 
                 await admin.database().ref()
@@ -825,11 +857,13 @@ export async function presidentialPower(req: Request, res: Response): Promise<Re
                 const playerId: any = req.body[constants.REQUEST_PLAYER]
 
                 if (playerId === undefined || typeof playerId !== "string") {
-                    return handleMissingFields(res)
+                    handleMissingFields(res)
+                    return
                 }
 
                 if (playerId === gameData[constants.DATABASE_NODE_CURRENT_SESSION][constants.DATABASE_NODE_PRESIDENT_ID]) {
-                    return handleIneligiblePlayerError(res)
+                    handleIneligiblePlayerError(res)
+                    return
                 }
 
                 const playerIndex: string = gameData[constants.DATABASE_NODE_PLAYERS].findIndex((player: any) => player[constants.DATABASE_NODE_ID] == playerId)
@@ -838,9 +872,11 @@ export async function presidentialPower(req: Request, res: Response): Promise<Re
             }
         }
 
-        return handleSuccess(res, { code: gameCode, ...responseData })
+        handleSuccess(res, { code: gameCode, ...responseData })
+        return
     } catch (err) {
-        return handleInternalError(res, err)
+        handleInternalError(res, err)
+        return
     }
 }
 
@@ -911,7 +947,7 @@ async function _endGameIfPossible(gameCode: string): Promise<boolean> {
     return hasGameEnded
 }
 
-export async function askForVeto(req: Request, res: Response): Promise<Response> {
+export async function askForVeto(req: Request, res: Response): Promise<void> {
     try {
         const gameCode: string = res.locals.gameCode
         const gameData: any = res.locals.gameData
@@ -919,11 +955,13 @@ export async function askForVeto(req: Request, res: Response): Promise<Response>
         if (gameData[constants.DATABASE_NODE_CHAMBER_POLICIES] == null ||
             gameData[constants.DATABASE_NODE_CHAMBER_POLICIES][constants.DATABASE_NODE_BOARD] == null ||
             gameData[constants.DATABASE_NODE_CHAMBER_POLICIES][constants.DATABASE_NODE_BOARD][constants.DATABASE_NODE_FASCIST] == null) {
-            return handleUnexpectedInternalError(res)
+            handleUnexpectedInternalError(res)
+            return
         }
 
         if (gameData[constants.DATABASE_NODE_CHAMBER_POLICIES][constants.DATABASE_NODE_BOARD][constants.DATABASE_NODE_FASCIST] < 5 || gameData[constants.DATABASE_NODE_CURRENT_SESSION][constants.DATABASE_NODE_IS_VETO_REFUSED] === true) {
-            return handleGameProgressTamperingError(res)
+            handleGameProgressTamperingError(res)
+            return
         }
 
         void admin.database().ref()
@@ -934,30 +972,35 @@ export async function askForVeto(req: Request, res: Response): Promise<Response>
                 [constants.DATABASE_NODE_SUB_STATUS]: ChamberSubStatus[ChamberSubStatus.legislativeSession_chancellorSeekingVeto],
             }).updates)
 
-        return handleSuccess(res, { code: gameCode })
+        handleSuccess(res, { code: gameCode })
+        return
     } catch (err) {
-        return handleInternalError(res, err)
+        handleInternalError(res, err)
+        return
     }
 }
 
-export async function answerVeto(req: Request, res: Response): Promise<Response> {
+export async function answerVeto(req: Request, res: Response): Promise<void> {
     try {
         const gameCode: string = res.locals.gameCode
         const gameData: any = res.locals.gameData
 
         if (gameData[constants.DATABASE_NODE_STATUS] == null ||
             gameData[constants.DATABASE_NODE_SUB_STATUS] == null) {
-            return handleUnexpectedInternalError(res)
+            handleUnexpectedInternalError(res)
+            return
         }
 
         if (gameData[constants.DATABASE_NODE_SUB_STATUS] !== ChamberSubStatus[ChamberSubStatus.legislativeSession_chancellorSeekingVeto]) {
-            return handleGameProgressTamperingError(res)
+            handleGameProgressTamperingError(res)
+            return
         }
 
         const refuseVeto: any = req.body[constants.REQUEST_REFUSE_VETO]
 
         if (refuseVeto == null || typeof refuseVeto !== "boolean") {
-            return handleMissingFields(res)
+            handleMissingFields(res)
+            return
         }
 
         const gameDataUpdates: GameDataUpdates = new GameDataUpdates()
@@ -999,8 +1042,10 @@ export async function answerVeto(req: Request, res: Response): Promise<Response>
             void _nextElection(gameCode)
         }
 
-        return handleSuccess(res, { code: gameCode })
+        handleSuccess(res, { code: gameCode })
+        return
     } catch (err) {
-        return handleInternalError(res, err)
+        handleInternalError(res, err)
+        return
     }
 }
