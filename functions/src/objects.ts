@@ -1,4 +1,11 @@
-export enum ChamberStatus { waiting, settingUp, election, legislativeSession, presidentialPower, gameEnded }
+export enum ChamberStatus {
+    waiting = "waiting",
+    settingUp = "settingUp",
+    election = "election",
+    legislativeSession = "legislativeSession",
+    presidentialPower = "presidentialPower",
+    gameEnded = "gameEnded"
+}
 
 export enum ChamberSubStatus {
     election_presidentChoosingChancellor,
