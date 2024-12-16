@@ -1,9 +1,10 @@
 {
   "name": "functions",
   "scripts": {
-    "lint": "eslint --ext .js,.ts .",
     "build": "tsc",
     "build:watch": "tsc --watch",
+    "lint": "prettier --check . && eslint . --fix",
+    "format": "prettier --write .",
     "serve": "kill-port --port 9099,4001,5001,9000 && npm run build:watch & firebase emulators:start",
     "shell": "npm run build && firebase functions:shell",
     "start": "npm run shell",

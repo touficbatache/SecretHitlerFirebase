@@ -1,12 +1,13 @@
-// Firebase imports
-import * as functions from "firebase-functions"
-import * as admin from "firebase-admin"
-
-// Express.js imports
-import * as express from "express"
+// Firebase & Express.js imports
 import * as cors from "cors"
-import { routesConfig } from "./routes-config"
+import * as express from "express"
 import { Express } from "express-serve-static-core"
+import * as admin from "firebase-admin"
+import * as functions from "firebase-functions"
+
+// import { onSchedule } from "firebase-functions/v2/scheduler"
+import { routesConfig } from "./routes-config"
+// import { getGameData, getInactiveGameCodes } from "./handlers/game-data-handler"
 
 /**
  * Initialize Express API,
@@ -31,4 +32,4 @@ routesConfig(app)
  * Expose Express API as a single Cloud Function,
  * accessible via "/api/"
  */
-export const api = functions.https.onRequest(app)
+export const api: functions.https.HttpsFunction = functions.https.onRequest(app)

@@ -56,7 +56,6 @@ export const DATABASE_NODE_FASCIST: string = "fascist"
 export const DATABASE_NODE_HIDE_PICS_GAME_INFO: string = "hidePicsGameInfo"
 export const DATABASE_NODE_SKIP_LONG_INTRO: string = "skipLongIntro"
 
-
 /**
  * POST request constants
  */
