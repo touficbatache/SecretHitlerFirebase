@@ -10,6 +10,7 @@ import {
   ChamberSubStatus,
   ExecutiveAction,
   GameType,
+  GameVisibility,
   PlayerGeneratedRoleHolder,
   PlayerMembership,
   PlayerRole,
@@ -18,6 +19,7 @@ import {
 } from "./objects"
 import {
   handleCreated,
+  handleForbiddenError,
   handleGameProgressTamperingError,
   handleGameStartedError,
   handleIneligiblePlayerError,
@@ -96,6 +98,13 @@ export async function joinGame(req: Request, res: Response): Promise<void> {
     const gameData: any = res.locals.gameData
 
     const players: any[] = gameData[constants.DATABASE_NODE_PLAYERS]
+
+    // should never be > 10 but just in case...
+    if (players.length >= 10) {
+      handleForbiddenError(res)
+      return
+    }
+
     if (players.some((player: any) => player[constants.DATABASE_NODE_ID] === userId)) {
       handlePlayerAlreadyInGame(res)
       return
