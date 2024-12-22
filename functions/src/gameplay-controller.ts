@@ -41,7 +41,7 @@ export async function newGame(req: Request, res: Response): Promise<void> {
     const userName: string = process.env.DEV === "true" ? "randName0" : res.locals.name
     const temp: string = _randomGameCode().toString()
 
-    const gameCreationTries: number = 1
+    let gameCreationTries: number = 1
     while (gameCreationTries <= 3) {
       const gameCodeAvailable: boolean = !(
         await admin.database().ref().child(constants.DATABASE_NODE_ONGOING_GAMES).child(temp).get()
@@ -57,17 +57,23 @@ export async function newGame(req: Request, res: Response): Promise<void> {
             [constants.DATABASE_NODE_CREATED_AT]: Date.now(),
             [constants.DATABASE_NODE_PLAYERS]: [_user(userId, userName)],
             [constants.DATABASE_NODE_CONNECTED]: { [userId]: true },
+            [constants.DATABASE_NODE_VISIBILITY]: GameVisibility.PRIVATE,
             [constants.DATABASE_NODE_STATUS]: ChamberStatus[ChamberStatus.waiting],
             [constants.DATABASE_NODE_ELECTION_TRACKER]: 0,
           })
 
         handleCreated(res, { code: temp })
+        return
+      } else {
+        gameCreationTries++
       }
     }
 
     handleInternalErrorWithMessage(res, "Game creation failed")
+    return
   } catch (err) {
     handleInternalError(res, err)
+    return
   }
 }
 
@@ -82,6 +88,40 @@ function _randomGameCode() {
   }
 
   return parseInt(generated)
+}
+
+export async function setGameVisibility(req: Request, res: Response): Promise<void> {
+  try {
+    const gameCode: string = res.locals.gameCode
+
+    const visibility: any = req.body[constants.REQUEST_VISIBILITY]
+
+    if (
+      visibility == null ||
+      typeof visibility !== "string" ||
+      !Object.values(GameVisibility).includes(visibility)
+    ) {
+      handleMissingFields(res)
+      return
+    }
+
+    await admin
+      .database()
+      .ref()
+      .child(constants.DATABASE_NODE_ONGOING_GAMES)
+      .child(gameCode)
+      .update(
+        new GameDataUpdates({
+          [constants.DATABASE_NODE_VISIBILITY]: visibility as GameVisibility,
+        }).updates,
+      )
+
+    handleSuccess(res, { code: gameCode })
+    return
+  } catch (err) {
+    handleInternalError(res, err)
+    return
+  }
 }
 
 export async function joinGame(req: Request, res: Response): Promise<void> {
@@ -122,10 +162,7 @@ export async function joinGame(req: Request, res: Response): Promise<void> {
       .child(gameCode)
       .child(constants.DATABASE_NODE_PLAYERS)
       .push()
-    await newPlayerRef.setWithPriority(
-      _user(userId, userName),
-      admin.database.ServerValue.TIMESTAMP.toString(),
-    )
+    await newPlayerRef.setWithPriority(_user(userId, userName), Date.now())
 
     await admin
       .database()
@@ -148,6 +185,66 @@ function _user(id: string, name: string) {
   return {
     [constants.DATABASE_NODE_ID]: id,
     [constants.DATABASE_NODE_NAME]: name,
+  }
+}
+
+export async function unJoinGame(req: Request, res: Response): Promise<void> {
+  try {
+    const userId: string =
+      process.env.DEV === "true"
+        ? `randId${res.locals.gameData[constants.DATABASE_NODE_PLAYERS].length}`
+        : res.locals.uid
+    const gameCode: string = res.locals.gameCode
+    const gameData: any = res.locals.gameData
+
+    if (gameData[constants.DATABASE_NODE_STATUS] != ChamberStatus[ChamberStatus.waiting]) {
+      handleGameStartedError(res)
+      return
+    }
+
+    if (gameData[constants.DATABASE_NODE_OWNER_ID] === userId) {
+      await admin
+        .database()
+        .ref()
+        .child(constants.DATABASE_NODE_ONGOING_GAMES)
+        .child(gameCode)
+        .update(
+          new GameDataUpdates({
+            [`${constants.DATABASE_NODE_PLAYERS}.override`]: [],
+          }).updates,
+        )
+      await sleep(2000)
+      await admin
+        .database()
+        .ref()
+        .child(constants.DATABASE_NODE_ONGOING_GAMES)
+        .child(gameCode)
+        .remove()
+    } else {
+      const playersWithoutCurrent: any[] = gameData[constants.DATABASE_NODE_PLAYERS].filter(
+        (e: any) => e.id !== userId,
+      )
+
+      await admin
+        .database()
+        .ref()
+        .child(constants.DATABASE_NODE_ONGOING_GAMES)
+        .child(gameCode)
+        .update(
+          new GameDataUpdates({
+            [constants.DATABASE_NODE_CONNECTED]: {
+              [userId]: null,
+            },
+            [`${constants.DATABASE_NODE_PLAYERS}.override`]: playersWithoutCurrent,
+          }).updates,
+        )
+    }
+
+    handleSuccess(res, { code: gameCode })
+    return
+  } catch (err) {
+    handleInternalError(res, err)
+    return
   }
 }
 

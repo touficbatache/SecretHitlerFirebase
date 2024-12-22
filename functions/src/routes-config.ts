@@ -2,7 +2,7 @@ import { Application } from "express"
 
 import { appCheckVerification } from "./appcheck/app-check-verification"
 import { isAuthenticatedHandler } from "./auth/authenticated"
-import { getGamesForUser } from "./gameinfo-controller"
+import { getActivePublicGames, getGamesForUser } from "./game-info-controller"
 import {
   answerVeto,
   askForVeto,
@@ -12,7 +12,9 @@ import {
   newGame,
   presidentDiscardPolicy,
   presidentialPower,
+  setGameVisibility,
   startGame,
+  unJoinGame,
   vote,
 } from "./gameplay-controller"
 import { chancellorOnlyHandler } from "./handlers/chancellor-only-handler"
@@ -24,7 +26,24 @@ import { verifyInGameHandler } from "./handlers/verify-in-game-handler"
 export function routesConfig(app: Application): void {
   app.post("/newGame", [appCheckVerification, isAuthenticatedHandler, newGame])
 
+  app.post("/setGameVisibility", [
+    appCheckVerification,
+    isAuthenticatedHandler,
+    gameDataHandler,
+    verifyInGameHandler,
+    ownerOnlyHandler,
+    setGameVisibility,
+  ])
+
   app.post("/joinGame", [appCheckVerification, isAuthenticatedHandler, gameDataHandler, joinGame])
+
+  app.post("/unJoinGame", [
+    appCheckVerification,
+    isAuthenticatedHandler,
+    gameDataHandler,
+    verifyInGameHandler,
+    unJoinGame,
+  ])
 
   app.post("/startGame", [
     appCheckVerification,
@@ -98,4 +117,10 @@ export function routesConfig(app: Application): void {
   ])
 
   app.post("/getGamesForSelf", [appCheckVerification, isAuthenticatedHandler, getGamesForUser])
+
+  app.post("/getActivePublicGames", [
+    appCheckVerification,
+    isAuthenticatedHandler,
+    getActivePublicGames,
+  ])
 }

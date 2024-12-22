@@ -55,6 +55,7 @@ export const DATABASE_NODE_FASCIST: string = "fascist"
 /// Settings
 export const DATABASE_NODE_HIDE_PICS_GAME_INFO: string = "hidePicsGameInfo"
 export const DATABASE_NODE_SKIP_LONG_INTRO: string = "skipLongIntro"
+export const DATABASE_NODE_VISIBILITY: string = "visibility"
 
 /**
  * POST request constants
@@ -67,3 +68,4 @@ export const REQUEST_POLICY: string = "policy"
 export const REQUEST_PLAYER: string = "player"
 export const REQUEST_IS_DONE: string = "done"
 export const REQUEST_REFUSE_VETO: string = "refuseVeto"
+export const REQUEST_VISIBILITY: string = "visibility"
