@@ -550,9 +550,12 @@ export async function vote(req: Request, res: Response): Promise<void> {
         : res.locals.uid
 
     if (
-      gameData[constants.DATABASE_NODE_CURRENT_SESSION][constants.DATABASE_NODE_VOTES] != null &&
-      gameData[constants.DATABASE_NODE_CURRENT_SESSION][constants.DATABASE_NODE_VOTES][userId] !=
-        null
+      (gameData[constants.DATABASE_NODE_CURRENT_SESSION][constants.DATABASE_NODE_VOTES] != null &&
+        gameData[constants.DATABASE_NODE_CURRENT_SESSION][constants.DATABASE_NODE_VOTES][userId] !=
+          null) ||
+      (gameData[constants.DATABASE_NODE_PLAYERS] as any[]).find(
+        (player: any) => player[constants.DATABASE_NODE_ID] === userId,
+      )[constants.DATABASE_NODE_IS_EXECUTED] === true
     ) {
       handleGameProgressTamperingError(res)
       return
