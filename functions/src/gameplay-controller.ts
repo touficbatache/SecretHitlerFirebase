@@ -1174,9 +1174,16 @@ export async function presidentialPower(req: Request, res: Response): Promise<vo
           return
         }
 
+        const player: any = gameData[constants.DATABASE_NODE_PLAYERS].find(
+          (player: any) => player[constants.DATABASE_NODE_ID] == playerId,
+        )
+
         if (
           playerId ===
-          gameData[constants.DATABASE_NODE_CURRENT_SESSION][constants.DATABASE_NODE_PRESIDENT_ID]
+            gameData[constants.DATABASE_NODE_CURRENT_SESSION][
+              constants.DATABASE_NODE_PRESIDENT_ID
+            ] ||
+          player[constants.DATABASE_NODE_IS_EXECUTED] === true
         ) {
           handleIneligiblePlayerError(res)
           return
