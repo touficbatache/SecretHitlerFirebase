@@ -643,44 +643,6 @@ export async function vote(req: Request, res: Response): Promise<void> {
   }
 }
 
-async function _prepareDrawPile(gameCode: string) {
-  const gameData: any = await getGameData(gameCode)
-
-  const drawPile: string[] =
-    gameData[constants.DATABASE_NODE_CHAMBER_POLICIES][constants.DATABASE_NODE_DRAW_PILE] ?? []
-  const discardPile:
-    | {
-        liberal: number
-        fascist: number
-      }
-    | undefined =
-    gameData[constants.DATABASE_NODE_CHAMBER_POLICIES][constants.DATABASE_NODE_DISCARD_PILE]
-
-  if (drawPile.length < 3) {
-    const mixedPolicies: string[] = drawPile
-    mixedPolicies.push(
-      ..._generateDrawPile(
-        discardPile[constants.DATABASE_NODE_LIBERAL] ?? 0,
-        discardPile[constants.DATABASE_NODE_FASCIST] ?? 0,
-      ),
-    )
-
-    void admin
-      .database()
-      .ref()
-      .child(constants.DATABASE_NODE_ONGOING_GAMES)
-      .child(gameCode)
-      .update(
-        new GameDataUpdates({
-          [constants.DATABASE_NODE_CHAMBER_POLICIES]: {
-            [constants.DATABASE_NODE_DRAW_PILE]: mixedPolicies,
-            [constants.DATABASE_NODE_DISCARD_PILE]: null,
-          },
-        }).updates,
-      )
-  }
-}
-
 async function _enactPolicyByFrustratedPopulace(gameCode: string) {
   await sleep(5000)
 
@@ -792,15 +754,13 @@ function _nextPresidentId(players: any[], lastPresidentIndex: number): string {
 async function _beginLegislativeSession(gameCode: string) {
   await sleep(5000)
 
-  await _prepareDrawPile(gameCode)
-
   const gameData: any = await getGameData(gameCode)
 
   const topPolicies: string[] =
     gameData[constants.DATABASE_NODE_CHAMBER_POLICIES][constants.DATABASE_NODE_DRAW_PILE]
   const otherPolicies: string[] = topPolicies.splice(3)
 
-  void admin
+  await admin
     .database()
     .ref()
     .child(constants.DATABASE_NODE_ONGOING_GAMES)
@@ -818,6 +778,46 @@ async function _beginLegislativeSession(gameCode: string) {
           ChamberSubStatus[ChamberSubStatus.legislativeSession_presidentDiscardingPolicy],
       }).updates,
     )
+
+  await _prepareDrawPile(gameCode)
+}
+
+async function _prepareDrawPile(gameCode: string) {
+  const gameData: any = await getGameData(gameCode)
+
+  const drawPile: string[] =
+    gameData[constants.DATABASE_NODE_CHAMBER_POLICIES][constants.DATABASE_NODE_DRAW_PILE] ?? []
+  const discardPile:
+    | {
+        liberal: number
+        fascist: number
+      }
+    | undefined =
+    gameData[constants.DATABASE_NODE_CHAMBER_POLICIES][constants.DATABASE_NODE_DISCARD_PILE]
+
+  if (drawPile.length < 3) {
+    const mixedPolicies: string[] = drawPile
+    mixedPolicies.push(
+      ..._generateDrawPile(
+        discardPile[constants.DATABASE_NODE_LIBERAL] ?? 0,
+        discardPile[constants.DATABASE_NODE_FASCIST] ?? 0,
+      ),
+    )
+
+    void admin
+      .database()
+      .ref()
+      .child(constants.DATABASE_NODE_ONGOING_GAMES)
+      .child(gameCode)
+      .update(
+        new GameDataUpdates({
+          [constants.DATABASE_NODE_CHAMBER_POLICIES]: {
+            [constants.DATABASE_NODE_DRAW_PILE]: mixedPolicies,
+            [constants.DATABASE_NODE_DISCARD_PILE]: null,
+          },
+        }).updates,
+      )
+  }
 }
 
 export async function presidentDiscardPolicy(req: Request, res: Response): Promise<void> {
