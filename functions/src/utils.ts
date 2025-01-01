@@ -74,8 +74,22 @@ export function handleUnexpectedInternalError(res: Response) {
 
 ///////////////////////////////
 
-export function shuffle(array: any[]) {
-  array.sort(() => Math.random() - 0.5)
+// https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle#JavaScript_Implementation
+export function shuffle<T>(array: T[]) {
+  for (let i: number = array.length - 1; i >= 0; i--) {
+    const j: number = Math.floor(Math.random() * (i + 1))
+    ;[array[i], array[j]] = [array[j], array[i]]
+  }
+}
+
+// https://github.com/JDSherbert/Fisher-Yates-Shuffle/blob/main/JavaScript/Shuffle.js
+export function toShuffled<T>(array: T[]): T[] {
+  const shuffled: T[] = array.slice()
+  for (let i: number = shuffled.length - 1; i >= 0; i--) {
+    const j: number = Math.floor(Math.random() * (i + 1))
+    ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+  }
+  return shuffled
 }
 
 export function sleep(ms: number) {
