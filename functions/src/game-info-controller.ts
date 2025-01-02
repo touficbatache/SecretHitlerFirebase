@@ -72,7 +72,8 @@ export async function getActivePublicGames(req: Request, res: Response): Promise
       if (
         gameData[constants.DATABASE_NODE_VISIBILITY] === GameVisibility.PUBLIC &&
         gameData.connected !== undefined &&
-        Object.values(gameData.connected).some((status: boolean) => status === true)
+        Object.values(gameData.connected).some((status: boolean) => status === true) &&
+        gameData[constants.DATABASE_NODE_STATUS] !== ChamberStatus[ChamberStatus.gameEnded]
       ) {
         const playerCount: number = Object.keys(gameData.connected).length
         activePublicGames.push({
