@@ -912,6 +912,9 @@ export async function chancellorDiscardPolicy(req: Request, res: Response): Prom
       .child(gameCode)
       .update(
         new GameDataUpdates({
+          [constants.DATABASE_NODE_CURRENT_SESSION]: {
+            [constants.DATABASE_NODE_ENACTED_POLICY]: boardPolicy,
+          },
           [constants.DATABASE_NODE_CHAMBER_POLICIES]: {
             [constants.DATABASE_NODE_DISCARD_PILE]: {
               [discardedPolicy]: admin.database.ServerValue.increment(1),
@@ -987,6 +990,9 @@ async function _onEnactPolicy(gameCode: string, enactedPolicy: string) {
         .child(gameCode)
         .update(
           new GameDataUpdates({
+            [constants.DATABASE_NODE_CURRENT_SESSION]: {
+              [constants.DATABASE_NODE_PRESIDENTIAL_POWER]: ChamberSubStatus[subStatus],
+            },
             [constants.DATABASE_NODE_STATUS]: ChamberStatus[ChamberStatus.presidentialPower],
             [constants.DATABASE_NODE_SUB_STATUS]: ChamberSubStatus[subStatus],
           }).updates,
@@ -1249,29 +1255,10 @@ async function _tryEndGameWithBoardCount(gameCode: string): Promise<boolean> {
       constants.DATABASE_NODE_FASCIST
     ] === 6
 
-  const sessionCount: number = (gameData[constants.DATABASE_NODE_SESSIONS] ?? []).length
-
   const hasGameEnded: boolean = isLiberalWin || isFascistWin
 
   if (hasGameEnded) {
-    void admin
-      .database()
-      .ref()
-      .child(constants.DATABASE_NODE_ONGOING_GAMES)
-      .child(gameCode)
-      .update(
-        new GameDataUpdates({
-          [constants.DATABASE_NODE_SESSIONS]: {
-            [sessionCount]: gameData[constants.DATABASE_NODE_CURRENT_SESSION],
-          },
-          [`${constants.DATABASE_NODE_CURRENT_SESSION}.override`]: undefined,
-          [constants.DATABASE_NODE_STATUS]: ChamberStatus[ChamberStatus.gameEnded],
-          [constants.DATABASE_NODE_SUB_STATUS]:
-            ChamberSubStatus[
-              isLiberalWin ? ChamberSubStatus.gameEnded_liberal : ChamberSubStatus.gameEnded_fascist
-            ],
-        }).updates,
-      )
+    void _updatePreviousSessionsOnGameEnd(gameCode, isLiberalWin)
   }
 
   return hasGameEnded
@@ -1297,25 +1284,8 @@ async function _tryEndGameAfterGovernmentElection(gameCode: string): Promise<boo
     gameData[constants.DATABASE_NODE_CURRENT_SESSION][constants.DATABASE_NODE_CHANCELLOR_ID] ===
       hitler[constants.DATABASE_NODE_ID]
 
-  const sessionCount: number = (gameData[constants.DATABASE_NODE_SESSIONS] ?? []).length
-
   if (isFascistWin) {
-    void admin
-      .database()
-      .ref()
-      .child(constants.DATABASE_NODE_ONGOING_GAMES)
-      .child(gameCode)
-      .update(
-        new GameDataUpdates({
-          [constants.DATABASE_NODE_SESSIONS]: {
-            [sessionCount]: gameData[constants.DATABASE_NODE_CURRENT_SESSION],
-          },
-          [`${constants.DATABASE_NODE_CURRENT_SESSION}.override`]: undefined,
-          [constants.DATABASE_NODE_STATUS]: ChamberStatus[ChamberStatus.gameEnded],
-          [constants.DATABASE_NODE_SUB_STATUS]:
-            ChamberSubStatus[ChamberSubStatus.gameEnded_fascist],
-        }).updates,
-      )
+    void _updatePreviousSessionsOnGameEnd(gameCode, false)
   }
 
   return isFascistWin
@@ -1331,28 +1301,39 @@ async function _tryEndGameOnExecution(gameCode: string): Promise<boolean> {
   // Check if hitler is executed
   const isLiberalWin: boolean = hitler[constants.DATABASE_NODE_IS_EXECUTED]
 
-  const sessionCount: number = (gameData[constants.DATABASE_NODE_SESSIONS] ?? []).length
-
   if (isLiberalWin) {
-    void admin
-      .database()
-      .ref()
-      .child(constants.DATABASE_NODE_ONGOING_GAMES)
-      .child(gameCode)
-      .update(
-        new GameDataUpdates({
-          [constants.DATABASE_NODE_SESSIONS]: {
-            [sessionCount]: gameData[constants.DATABASE_NODE_CURRENT_SESSION],
-          },
-          [`${constants.DATABASE_NODE_CURRENT_SESSION}.override`]: undefined,
-          [constants.DATABASE_NODE_STATUS]: ChamberStatus[ChamberStatus.gameEnded],
-          [constants.DATABASE_NODE_SUB_STATUS]:
-            ChamberSubStatus[ChamberSubStatus.gameEnded_liberal],
-        }).updates,
-      )
+    void _updatePreviousSessionsOnGameEnd(gameCode, true)
   }
 
   return isLiberalWin
+}
+
+async function _updatePreviousSessionsOnGameEnd(
+  gameCode: string,
+  isLiberalWin: boolean,
+): Promise<void> {
+  const gameData: any = await getGameData(gameCode)
+
+  const sessionCount: number = (gameData[constants.DATABASE_NODE_SESSIONS] ?? []).length
+
+  await admin
+    .database()
+    .ref()
+    .child(constants.DATABASE_NODE_ONGOING_GAMES)
+    .child(gameCode)
+    .update(
+      new GameDataUpdates({
+        [constants.DATABASE_NODE_SESSIONS]: {
+          [sessionCount]: gameData[constants.DATABASE_NODE_CURRENT_SESSION],
+        },
+        [`${constants.DATABASE_NODE_CURRENT_SESSION}.override`]: undefined,
+        [constants.DATABASE_NODE_STATUS]: ChamberStatus[ChamberStatus.gameEnded],
+        [constants.DATABASE_NODE_SUB_STATUS]:
+          ChamberSubStatus[
+            isLiberalWin ? ChamberSubStatus.gameEnded_liberal : ChamberSubStatus.gameEnded_fascist
+          ],
+      }).updates,
+    )
 }
 
 export async function askForVeto(req: Request, res: Response): Promise<void> {
