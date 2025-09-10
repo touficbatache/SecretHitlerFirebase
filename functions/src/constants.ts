@@ -45,6 +45,7 @@ export const DATABASE_NODE_ENACTED_POLICY: string = "enactedPolicy"
 export const DATABASE_NODE_HAS_SUCCEEDED: string = "hasSucceeded"
 export const DATABASE_NODE_IS_VETO_REFUSED: string = "isVetoRefused"
 export const DATABASE_NODE_BEING_INVESTIGATED_PLAYER_ID: string = "beingInvestigatedPlayerId"
+export const DATABASE_NODE_EXECUTED_PLAYER_ID: string = "executedPlayerId"
 
 /// Policies
 export const DATABASE_NODE_DRAW_PILE: string = "drawPile"

@@ -1,6 +1,7 @@
 import { Request, Response } from "express"
 import * as admin from "firebase-admin"
 import { database } from "firebase-admin"
+import { ServerValue } from "firebase-admin/database"
 
 import * as constants from "./constants"
 import { GameDataUpdates, getGameData } from "./handlers/game-data-handler"
@@ -607,7 +608,7 @@ export async function vote(req: Request, res: Response): Promise<void> {
         })
       } else {
         gameDataUpdates.push({
-          [constants.DATABASE_NODE_ELECTION_TRACKER]: admin.database.ServerValue.increment(1),
+          [constants.DATABASE_NODE_ELECTION_TRACKER]: ServerValue.increment(1),
         })
       }
     }
@@ -676,7 +677,7 @@ async function _enactPolicyByFrustratedPopulace(gameCode: string) {
   gameDataUpdates.push({
     [constants.DATABASE_NODE_CHAMBER_POLICIES]: {
       [constants.DATABASE_NODE_BOARD]: {
-        [firstPolicyPileNode]: admin.database.ServerValue.increment(1),
+        [firstPolicyPileNode]: ServerValue.increment(1),
       },
     },
   })
@@ -859,7 +860,7 @@ export async function presidentDiscardPolicy(req: Request, res: Response): Promi
           },
           [constants.DATABASE_NODE_CHAMBER_POLICIES]: {
             [constants.DATABASE_NODE_DISCARD_PILE]: {
-              [discardedPolicy]: admin.database.ServerValue.increment(1),
+              [discardedPolicy]: ServerValue.increment(1),
             },
           },
           [constants.DATABASE_NODE_STATUS]: ChamberStatus[ChamberStatus.legislativeSession],
@@ -917,10 +918,10 @@ export async function chancellorDiscardPolicy(req: Request, res: Response): Prom
           },
           [constants.DATABASE_NODE_CHAMBER_POLICIES]: {
             [constants.DATABASE_NODE_DISCARD_PILE]: {
-              [discardedPolicy]: admin.database.ServerValue.increment(1),
+              [discardedPolicy]: ServerValue.increment(1),
             },
             [constants.DATABASE_NODE_BOARD]: {
-              [boardPolicy]: admin.database.ServerValue.increment(1),
+              [boardPolicy]: ServerValue.increment(1),
             },
           },
           [constants.DATABASE_NODE_STATUS]: ChamberStatus[ChamberStatus.legislativeSession],
@@ -1030,7 +1031,8 @@ export async function presidentialPower(req: Request, res: Response): Promise<vo
     const gameData: any = res.locals.gameData
 
     if (
-      gameData[constants.DATABASE_NODE_STATUS] !== ChamberStatus[ChamberStatus.presidentialPower]
+      gameData[constants.DATABASE_NODE_STATUS] !== ChamberStatus[ChamberStatus.presidentialPower] ||
+      gameData[constants.DATABASE_NODE_PRESIDENTIAL_POWER] === PresidentialPower.DONE
     ) {
       handleGameProgressTamperingError(res)
       return
@@ -1199,7 +1201,7 @@ export async function presidentialPower(req: Request, res: Response): Promise<vo
           (player: any) => player[constants.DATABASE_NODE_ID] == playerId,
         )
 
-        void _executePlayer(gameCode, playerIndex)
+        void _executePlayer(gameCode, playerId, playerIndex)
       }
     }
 
@@ -1211,7 +1213,7 @@ export async function presidentialPower(req: Request, res: Response): Promise<vo
   }
 }
 
-async function _executePlayer(gameCode: string, playerIndex: string) {
+async function _executePlayer(gameCode: string, playerId: string, playerIndex: string) {
   await admin
     .database()
     .ref()
@@ -1224,6 +1226,7 @@ async function _executePlayer(gameCode: string, playerIndex: string) {
             [constants.DATABASE_NODE_IS_EXECUTED]: true,
           },
         },
+        [constants.DATABASE_NODE_EXECUTED_PLAYER_ID]: playerId,
         [constants.DATABASE_NODE_PRESIDENTIAL_POWER]: PresidentialPower.DONE,
       }).updates,
     )
@@ -1439,14 +1442,15 @@ export async function answerVeto(req: Request, res: Response): Promise<void> {
       gameDataUpdates.push({
         [constants.DATABASE_NODE_CHAMBER_POLICIES]: {
           [constants.DATABASE_NODE_DISCARD_PILE]: {
-            [constants.DATABASE_NODE_LIBERAL]: admin.database.ServerValue.increment(
+            [constants.DATABASE_NODE_LIBERAL]: ServerValue.increment(
               policiesCount[Policy.LIBERAL] ?? 0,
             ),
-            [constants.DATABASE_NODE_FASCIST]: admin.database.ServerValue.increment(
+            [constants.DATABASE_NODE_FASCIST]: ServerValue.increment(
               policiesCount[Policy.FASCIST] ?? 0,
             ),
           },
         },
+        [constants.DATABASE_NODE_ELECTION_TRACKER]: ServerValue.increment(1),
         [constants.DATABASE_NODE_STATUS]: ChamberStatus[ChamberStatus.legislativeSession],
         [constants.DATABASE_NODE_SUB_STATUS]:
           ChamberSubStatus[ChamberSubStatus.legislativeSession_sessionEndedWithVeto],
@@ -1461,7 +1465,11 @@ export async function answerVeto(req: Request, res: Response): Promise<void> {
       .update(gameDataUpdates.updates)
 
     if (!refuseVeto) {
-      void _nextElection(gameCode)
+      if (gameData[constants.DATABASE_NODE_ELECTION_TRACKER] + 1 == 3) {
+        void _enactPolicyByFrustratedPopulace(gameCode)
+      } else {
+        void _nextElection(gameCode)
+      }
     }
 
     handleSuccess(res, { code: gameCode })
