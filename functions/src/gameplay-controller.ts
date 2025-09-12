@@ -1365,6 +1365,14 @@ export async function askForVeto(req: Request, res: Response): Promise<void> {
     const gameData: any = res.locals.gameData
 
     if (
+      gameData[constants.DATABASE_NODE_SUB_STATUS] !==
+      ChamberSubStatus[ChamberSubStatus.legislativeSession_chancellorDiscardingPolicy]
+    ) {
+      handleGameProgressTamperingError(res)
+      return
+    }
+
+    if (
       gameData[constants.DATABASE_NODE_CHAMBER_POLICIES] == null ||
       gameData[constants.DATABASE_NODE_CHAMBER_POLICIES][constants.DATABASE_NODE_BOARD] == null ||
       gameData[constants.DATABASE_NODE_CHAMBER_POLICIES][constants.DATABASE_NODE_BOARD][
