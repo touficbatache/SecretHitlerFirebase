@@ -682,6 +682,21 @@ async function _enactPolicyByFrustratedPopulace(gameCode: string) {
     },
   })
 
+  const sessionCount: number = (gameData[constants.DATABASE_NODE_SESSIONS] ?? []).length
+  gameDataUpdates.push({
+    [constants.DATABASE_NODE_SESSIONS]: {
+      [sessionCount]: {
+        [constants.DATABASE_NODE_PRESIDENT_ID]: null,
+        [constants.DATABASE_NODE_CHANCELLOR_ID]: null,
+        [constants.DATABASE_NODE_VOTES]: null,
+        [constants.DATABASE_NODE_IS_SPECIAL_ELECTION]: false,
+        [constants.DATABASE_NODE_HAS_SUCCEEDED]: false,
+        [constants.DATABASE_NODE_ENACTED_POLICY]: firstPolicyPileNode,
+        [constants.DATABASE_NODE_ENACTMENT_BY_FRUSTRATED_POPULACE]: true,
+      },
+    },
+  })
+
   await admin
     .database()
     .ref()
@@ -1058,12 +1073,12 @@ export async function presidentialPower(req: Request, res: Response): Promise<vo
         gameData[constants.DATABASE_NODE_SUB_STATUS] ===
         ChamberSubStatus[ChamberSubStatus.presidentialPower_policyPeek]
       ) {
+        const topThreePolicies = gameData[constants.DATABASE_NODE_CHAMBER_POLICIES][
+          constants.DATABASE_NODE_DRAW_PILE
+        ].slice(0, 3)
+
         responseData = {
-          policies: gameData[constants.DATABASE_NODE_CHAMBER_POLICIES][
-            constants.DATABASE_NODE_DRAW_PILE
-          ]
-            .slice(0, 3)
-            .join(","),
+          policies: topThreePolicies.join(","),
         }
 
         await admin
@@ -1073,6 +1088,9 @@ export async function presidentialPower(req: Request, res: Response): Promise<vo
           .child(gameCode)
           .update(
             new GameDataUpdates({
+              [constants.DATABASE_NODE_CURRENT_SESSION]: {
+                [constants.DATABASE_NODE_POLICY_PEEK_THREE_POLICIES]: topThreePolicies,
+              },
               [constants.DATABASE_NODE_PRESIDENTIAL_POWER]: PresidentialPower.CONSUMED,
             }).updates,
           )
@@ -1221,12 +1239,14 @@ async function _executePlayer(gameCode: string, playerId: string, playerIndex: s
     .child(gameCode)
     .update(
       new GameDataUpdates({
+        [constants.DATABASE_NODE_CURRENT_SESSION]: {
+          [constants.DATABASE_NODE_EXECUTED_PLAYER_ID]: playerId,
+        },
         [constants.DATABASE_NODE_PLAYERS]: {
           [playerIndex]: {
             [constants.DATABASE_NODE_IS_EXECUTED]: true,
           },
         },
-        [constants.DATABASE_NODE_EXECUTED_PLAYER_ID]: playerId,
         [constants.DATABASE_NODE_PRESIDENTIAL_POWER]: PresidentialPower.DONE,
       }).updates,
     )
@@ -1415,6 +1435,8 @@ export async function answerVeto(req: Request, res: Response): Promise<void> {
       return
     }
 
+    const electionTracker: number = gameData[constants.DATABASE_NODE_ELECTION_TRACKER]
+
     const gameDataUpdates: GameDataUpdates = new GameDataUpdates()
 
     if (refuseVeto) {
@@ -1427,12 +1449,12 @@ export async function answerVeto(req: Request, res: Response): Promise<void> {
           ChamberSubStatus[ChamberSubStatus.legislativeSession_chancellorDiscardingPolicy],
       })
     } else {
-      const presidentPolicies: string[] =
+      const chancellorPolicies: string[] =
         gameData[constants.DATABASE_NODE_CURRENT_SESSION][
-          constants.DATABASE_NODE_PRESIDENT_POLICIES
+          constants.DATABASE_NODE_CHANCELLOR_POLICIES
         ]
 
-      const policiesCount: any = presidentPolicies.reduce(
+      const policiesCount: any = chancellorPolicies.reduce(
         (count: any, currentValue: string) => (
           count[currentValue] ? ++count[currentValue] : (count[currentValue] = 1), count
         ),
@@ -1440,6 +1462,9 @@ export async function answerVeto(req: Request, res: Response): Promise<void> {
       )
 
       gameDataUpdates.push({
+        [constants.DATABASE_NODE_CURRENT_SESSION]: {
+          [constants.DATABASE_NODE_IS_VETO_REFUSED]: refuseVeto,
+        },
         [constants.DATABASE_NODE_CHAMBER_POLICIES]: {
           [constants.DATABASE_NODE_DISCARD_PILE]: {
             [constants.DATABASE_NODE_LIBERAL]: ServerValue.increment(
@@ -1465,7 +1490,7 @@ export async function answerVeto(req: Request, res: Response): Promise<void> {
       .update(gameDataUpdates.updates)
 
     if (!refuseVeto) {
-      if (gameData[constants.DATABASE_NODE_ELECTION_TRACKER] + 1 == 3) {
+      if (electionTracker + 1 == 3) {
         void _enactPolicyByFrustratedPopulace(gameCode)
       } else {
         void _nextElection(gameCode)
