@@ -6,6 +6,7 @@ import { ServerValue } from "firebase-admin/database"
 import * as constants from "./constants"
 import { isDevMode } from "./dev-mode"
 import { DiscardPile, reshuffledDrawPile } from "./draw-pile"
+import { findPlayer, isEligibleForChancellor, isValidPowerTarget } from "./eligibility"
 import { GameDataUpdates, getGameData } from "./handlers/game-data-handler"
 import {
   AssetReference,
@@ -472,22 +473,24 @@ export async function chooseChancellor(req: Request, res: Response): Promise<voi
     }
 
     if (
-      gameData[constants.DATABASE_NODE_CURRENT_SESSION][constants.DATABASE_NODE_CHANCELLOR_ID] !=
-      null
+      gameData[constants.DATABASE_NODE_SUB_STATUS] !==
+        ChamberSubStatus[ChamberSubStatus.election_presidentChoosingChancellor] ||
+      gameData[constants.DATABASE_NODE_CURRENT_SESSION]?.[constants.DATABASE_NODE_CHANCELLOR_ID] !=
+        null
     ) {
       handleGameProgressTamperingError(res)
       return
     }
 
-    const presidentId: string =
-      gameData[constants.DATABASE_NODE_CURRENT_SESSION][constants.DATABASE_NODE_PRESIDENT_ID]
-    const lastSuccessfulChancellorId: string =
-      gameData[constants.DATABASE_NODE_LAST_SUCCESSFUL_CHANCELLOR_ID]
-    const players: any[] = gameData[constants.DATABASE_NODE_PLAYERS]
     if (
-      chancellorId == presidentId ||
-      chancellorId == lastSuccessfulChancellorId ||
-      !players.map((player: any) => player[constants.DATABASE_NODE_ID]).includes(chancellorId)
+      !isEligibleForChancellor({
+        players: gameData[constants.DATABASE_NODE_PLAYERS],
+        candidateId: chancellorId,
+        presidentId:
+          gameData[constants.DATABASE_NODE_CURRENT_SESSION][constants.DATABASE_NODE_PRESIDENT_ID],
+        lastElectedPresidentId: gameData[constants.DATABASE_NODE_LAST_SUCCESSFUL_PRESIDENT_ID],
+        lastElectedChancellorId: gameData[constants.DATABASE_NODE_LAST_SUCCESSFUL_CHANCELLOR_ID],
+      })
     ) {
       handleIneligiblePlayerError(res)
       return
@@ -596,8 +599,11 @@ export async function vote(req: Request, res: Response): Promise<void> {
         },
       })
       if (hasSucceeded) {
-        gameDataUpdates.push({ [constants.DATABASE_NODE_ELECTION_TRACKER]: 0 })
+        // The election tracker is not reset here: per the rules it resets when a policy is
+        // enacted, so a vetoed government still advances it (see answerVeto).
         gameDataUpdates.push({
+          [constants.DATABASE_NODE_LAST_SUCCESSFUL_PRESIDENT_ID]:
+            gameData[constants.DATABASE_NODE_CURRENT_SESSION][constants.DATABASE_NODE_PRESIDENT_ID],
           [constants.DATABASE_NODE_LAST_SUCCESSFUL_CHANCELLOR_ID]:
             gameData[constants.DATABASE_NODE_CURRENT_SESSION][
               constants.DATABASE_NODE_CHANCELLOR_ID
@@ -658,7 +664,9 @@ async function _enactPolicyByFrustratedPopulace(gameCode: string) {
     return
   }
 
+  // Chaos resets the tracker and makes everyone eligible again (term limits are forgotten).
   gameDataUpdates.push({ [constants.DATABASE_NODE_ELECTION_TRACKER]: 0 })
+  gameDataUpdates.push({ [constants.DATABASE_NODE_LAST_SUCCESSFUL_PRESIDENT_ID]: null })
   gameDataUpdates.push({ [constants.DATABASE_NODE_LAST_SUCCESSFUL_CHANCELLOR_ID]: null })
 
   gameDataUpdates.push({
@@ -682,10 +690,13 @@ async function _enactPolicyByFrustratedPopulace(gameCode: string) {
     },
   })
 
+  // History order: the government that caused the chaos first, then the chaos enactment.
+  // _nextElection is told not to archive the current session again.
   const sessionCount: number = (gameData[constants.DATABASE_NODE_SESSIONS] ?? []).length
   gameDataUpdates.push({
     [constants.DATABASE_NODE_SESSIONS]: {
-      [sessionCount]: {
+      [sessionCount]: gameData[constants.DATABASE_NODE_CURRENT_SESSION],
+      [sessionCount + 1]: {
         [constants.DATABASE_NODE_PRESIDENT_ID]: null,
         [constants.DATABASE_NODE_CHANCELLOR_ID]: null,
         [constants.DATABASE_NODE_VOTES]: null,
@@ -712,7 +723,7 @@ async function _enactPolicyByFrustratedPopulace(gameCode: string) {
   // - 6 fascist policies are enacted
   const hasGameEnded: boolean = await _tryEndGameWithBoardCount(gameCode)
   if (!hasGameEnded) {
-    void _nextElection(gameCode, true)
+    void _nextElection(gameCode, true, undefined, false)
   }
 }
 
@@ -720,6 +731,7 @@ async function _nextElection(
   gameCode: string,
   skipWaitTime: boolean = false,
   specialElectionPresidentId: string | undefined = undefined,
+  archiveCurrentSession: boolean = true,
 ) {
   if (!skipWaitTime) await sleep(5000)
 
@@ -739,15 +751,20 @@ async function _nextElection(
       [constants.DATABASE_NODE_PRESIDENT_ID]: nextPresidentId,
       [constants.DATABASE_NODE_IS_SPECIAL_ELECTION]: specialElectionPresidentId !== undefined,
     },
-    [constants.DATABASE_NODE_SESSIONS]: {
-      [sessionCount]: gameData[constants.DATABASE_NODE_CURRENT_SESSION],
-    },
     [constants.DATABASE_NODE_PRESIDENTIAL_POWER]: null,
     [constants.DATABASE_NODE_SPECIAL_ELECTION_PLAYER]: null,
     [constants.DATABASE_NODE_STATUS]: ChamberStatus[ChamberStatus.election],
     [constants.DATABASE_NODE_SUB_STATUS]:
       ChamberSubStatus[ChamberSubStatus.election_presidentChoosingChancellor],
   })
+
+  if (archiveCurrentSession) {
+    gameDataUpdates.push({
+      [constants.DATABASE_NODE_SESSIONS]: {
+        [sessionCount]: gameData[constants.DATABASE_NODE_CURRENT_SESSION],
+      },
+    })
+  }
 
   if (specialElectionPresidentId === undefined) {
     gameDataUpdates.push({ [constants.DATABASE_NODE_LAST_PRESIDENT_ID]: nextPresidentId })
@@ -929,6 +946,7 @@ export async function chancellorDiscardPolicy(req: Request, res: Response): Prom
           [constants.DATABASE_NODE_CURRENT_SESSION]: {
             [constants.DATABASE_NODE_ENACTED_POLICY]: boardPolicy,
           },
+          [constants.DATABASE_NODE_ELECTION_TRACKER]: 0,
           [constants.DATABASE_NODE_CHAMBER_POLICIES]: {
             [constants.DATABASE_NODE_DISCARD_PILE]: {
               [discardedPolicy]: ServerValue.increment(1),
@@ -1109,22 +1127,18 @@ export async function presidentialPower(req: Request, res: Response): Promise<vo
           return
         }
 
-        const player: any = gameData[constants.DATABASE_NODE_PLAYERS].find(
-          (p: any) => p[constants.DATABASE_NODE_ID] === playerId,
-        )
-
+        const players: any[] = gameData[constants.DATABASE_NODE_PLAYERS]
+        const presidentId: string =
+          gameData[constants.DATABASE_NODE_CURRENT_SESSION][constants.DATABASE_NODE_PRESIDENT_ID]
         if (
-          playerId ===
-            gameData[constants.DATABASE_NODE_CURRENT_SESSION][
-              constants.DATABASE_NODE_PRESIDENT_ID
-            ] ||
-          player[constants.DATABASE_NODE_IS_INVESTIGATED] === true
+          !isValidPowerTarget(players, playerId, presidentId) ||
+          findPlayer(players, playerId)[constants.DATABASE_NODE_IS_INVESTIGATED] === true
         ) {
           handleIneligiblePlayerError(res)
           return
         }
 
-        const role: string = player[constants.DATABASE_NODE_ROLE]
+        const role: string = findPlayer(players, playerId)[constants.DATABASE_NODE_ROLE]
 
         responseData = {
           membership:
@@ -1169,8 +1183,11 @@ export async function presidentialPower(req: Request, res: Response): Promise<vo
         }
 
         if (
-          playerId ===
-          gameData[constants.DATABASE_NODE_CURRENT_SESSION][constants.DATABASE_NODE_PRESIDENT_ID]
+          !isValidPowerTarget(
+            gameData[constants.DATABASE_NODE_PLAYERS],
+            playerId,
+            gameData[constants.DATABASE_NODE_CURRENT_SESSION][constants.DATABASE_NODE_PRESIDENT_ID],
+          )
         ) {
           handleIneligiblePlayerError(res)
           return
@@ -1202,16 +1219,12 @@ export async function presidentialPower(req: Request, res: Response): Promise<vo
           return
         }
 
-        const player: any = gameData[constants.DATABASE_NODE_PLAYERS].find(
-          (player: any) => player[constants.DATABASE_NODE_ID] == playerId,
-        )
-
         if (
-          playerId ===
-            gameData[constants.DATABASE_NODE_CURRENT_SESSION][
-              constants.DATABASE_NODE_PRESIDENT_ID
-            ] ||
-          player[constants.DATABASE_NODE_IS_EXECUTED] === true
+          !isValidPowerTarget(
+            gameData[constants.DATABASE_NODE_PLAYERS],
+            playerId,
+            gameData[constants.DATABASE_NODE_CURRENT_SESSION][constants.DATABASE_NODE_PRESIDENT_ID],
+          )
         ) {
           handleIneligiblePlayerError(res)
           return
