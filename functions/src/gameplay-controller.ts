@@ -5,6 +5,7 @@ import { ServerValue } from "firebase-admin/database"
 
 import * as constants from "./constants"
 import { isDevMode } from "./dev-mode"
+import { DiscardPile, reshuffledDrawPile } from "./draw-pile"
 import { GameDataUpdates, getGameData } from "./handlers/game-data-handler"
 import {
   AssetReference,
@@ -643,6 +644,9 @@ export async function vote(req: Request, res: Response): Promise<void> {
 async function _enactPolicyByFrustratedPopulace(gameCode: string) {
   await sleep(5000)
 
+  // The pile should already hold 3+ policies; this only guards against an empty pile.
+  await _prepareDrawPile(gameCode)
+
   const gameData: any = await getGameData(gameCode)
   const gameDataUpdates: GameDataUpdates = new GameDataUpdates()
 
@@ -699,6 +703,9 @@ async function _enactPolicyByFrustratedPopulace(gameCode: string) {
     .child(constants.DATABASE_NODE_ONGOING_GAMES)
     .child(gameCode)
     .update(gameDataUpdates.updates)
+
+  // Taking the top policy can leave fewer than 3 in the pile.
+  await _prepareDrawPile(gameCode)
 
   // End game if:
   // - 5 liberal policies are enacted
@@ -766,6 +773,9 @@ function _nextPresidentId(players: any[], lastPresidentIndex: number): string {
 async function _beginLegislativeSession(gameCode: string) {
   await sleep(5000)
 
+  // The pile is reshuffled at the end of each session, so this is only a safety net.
+  await _prepareDrawPile(gameCode)
+
   const gameData: any = await getGameData(gameCode)
 
   const topPolicies: string[] =
@@ -790,46 +800,38 @@ async function _beginLegislativeSession(gameCode: string) {
           ChamberSubStatus[ChamberSubStatus.legislativeSession_presidentDiscardingPolicy],
       }).updates,
     )
-
-  await _prepareDrawPile(gameCode)
 }
 
+/**
+ * Reshuffles the draw pile with the discard pile when fewer than 3 policies remain.
+ * Call it at the end of every legislative session and after a chaos enactment.
+ */
 async function _prepareDrawPile(gameCode: string) {
   const gameData: any = await getGameData(gameCode)
 
   const drawPile: string[] =
-    gameData[constants.DATABASE_NODE_CHAMBER_POLICIES][constants.DATABASE_NODE_DRAW_PILE] ?? []
-  const discardPile:
-    | {
-        liberal: number
-        fascist: number
-      }
-    | undefined =
-    gameData[constants.DATABASE_NODE_CHAMBER_POLICIES][constants.DATABASE_NODE_DISCARD_PILE]
+    gameData[constants.DATABASE_NODE_CHAMBER_POLICIES]?.[constants.DATABASE_NODE_DRAW_PILE] ?? []
+  const discardPile: DiscardPile | undefined =
+    gameData[constants.DATABASE_NODE_CHAMBER_POLICIES]?.[constants.DATABASE_NODE_DISCARD_PILE]
 
-  if (drawPile.length < 3) {
-    const mixedPolicies: string[] = drawPile
-    mixedPolicies.push(
-      ..._generateDrawPile(
-        discardPile[constants.DATABASE_NODE_LIBERAL] ?? 0,
-        discardPile[constants.DATABASE_NODE_FASCIST] ?? 0,
-      ),
-    )
-
-    void admin
-      .database()
-      .ref()
-      .child(constants.DATABASE_NODE_ONGOING_GAMES)
-      .child(gameCode)
-      .update(
-        new GameDataUpdates({
-          [constants.DATABASE_NODE_CHAMBER_POLICIES]: {
-            [constants.DATABASE_NODE_DRAW_PILE]: mixedPolicies,
-            [constants.DATABASE_NODE_DISCARD_PILE]: null,
-          },
-        }).updates,
-      )
+  const newDrawPile: string[] | undefined = reshuffledDrawPile(drawPile, discardPile)
+  if (newDrawPile === undefined) {
+    return
   }
+
+  await admin
+    .database()
+    .ref()
+    .child(constants.DATABASE_NODE_ONGOING_GAMES)
+    .child(gameCode)
+    .update(
+      new GameDataUpdates({
+        [constants.DATABASE_NODE_CHAMBER_POLICIES]: {
+          [constants.DATABASE_NODE_DRAW_PILE]: newDrawPile,
+          [constants.DATABASE_NODE_DISCARD_PILE]: null,
+        },
+      }).updates,
+    )
 }
 
 export async function presidentDiscardPolicy(req: Request, res: Response): Promise<void> {
@@ -952,6 +954,10 @@ export async function chancellorDiscardPolicy(req: Request, res: Response): Prom
 }
 
 async function _onEnactPolicy(gameCode: string, enactedPolicy: string) {
+  // End of the legislative session: reshuffle now, after both discards, so that a
+  // policy peek right after this enactment always sees 3 policies.
+  await _prepareDrawPile(gameCode)
+
   const gameData: any = await getGameData(gameCode)
 
   const policy: Policy = enactedPolicy
@@ -1494,6 +1500,9 @@ export async function answerVeto(req: Request, res: Response): Promise<void> {
       .update(gameDataUpdates.updates)
 
     if (!refuseVeto) {
+      // The veto ended the legislative session with both policies discarded.
+      await _prepareDrawPile(gameCode)
+
       if (electionTracker + 1 == 3) {
         void _enactPolicyByFrustratedPopulace(gameCode)
       } else {
