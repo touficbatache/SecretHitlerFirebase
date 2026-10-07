@@ -3,6 +3,7 @@ import { NextFunction } from "express-serve-static-core"
 import * as admin from "firebase-admin"
 import { DecodedIdToken, UserRecord } from "firebase-admin/lib/auth"
 
+import { isDevMode } from "../dev-mode"
 import { handleUnauthorizedError } from "../utils"
 
 export async function isAuthenticatedHandler(
@@ -10,7 +11,7 @@ export async function isAuthenticatedHandler(
   res: Response,
   next: NextFunction,
 ): Promise<void> {
-  if (process.env.DEV === "true") {
+  if (isDevMode()) {
     next()
     return
   }

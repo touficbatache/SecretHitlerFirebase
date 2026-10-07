@@ -6,8 +6,13 @@ import * as admin from "firebase-admin"
 import * as functions from "firebase-functions"
 
 // import { onSchedule } from "firebase-functions/v2/scheduler"
+import { isDevMode } from "./dev-mode"
 import { routesConfig } from "./routes-config"
 // import { getGameData, getInactiveGameCodes } from "./handlers/game-data-handler"
+
+if (process.env.DEV === "true" && !isDevMode()) {
+  console.warn("DEV=true is ignored outside the Firebase emulator. Authentication stays enabled.")
+}
 
 /**
  * Initialize Express API,

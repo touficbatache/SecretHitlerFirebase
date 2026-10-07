@@ -4,6 +4,7 @@ import { database } from "firebase-admin"
 import { ServerValue } from "firebase-admin/database"
 
 import * as constants from "./constants"
+import { isDevMode } from "./dev-mode"
 import { GameDataUpdates, getGameData } from "./handlers/game-data-handler"
 import {
   AssetReference,
@@ -38,8 +39,8 @@ import Reference = database.Reference
 
 export async function newGame(req: Request, res: Response): Promise<void> {
   try {
-    const userId: string = process.env.DEV === "true" ? "randId0" : res.locals.uid
-    const userName: string = process.env.DEV === "true" ? "randName0" : res.locals.name
+    const userId: string = isDevMode() ? "randId0" : res.locals.uid
+    const userName: string = isDevMode() ? "randName0" : res.locals.name
     const temp: string = _randomGameCode().toString()
 
     let gameCreationTries: number = 1
@@ -127,14 +128,12 @@ export async function setGameVisibility(req: Request, res: Response): Promise<vo
 
 export async function joinGame(req: Request, res: Response): Promise<void> {
   try {
-    const userId: string =
-      process.env.DEV === "true"
-        ? `randId${res.locals.gameData[constants.DATABASE_NODE_PLAYERS].length}`
-        : res.locals.uid
-    const userName: string =
-      process.env.DEV === "true"
-        ? `randName${res.locals.gameData[constants.DATABASE_NODE_PLAYERS].length}`
-        : res.locals.name
+    const userId: string = isDevMode()
+      ? `randId${res.locals.gameData[constants.DATABASE_NODE_PLAYERS].length}`
+      : res.locals.uid
+    const userName: string = isDevMode()
+      ? `randName${res.locals.gameData[constants.DATABASE_NODE_PLAYERS].length}`
+      : res.locals.name
     const gameCode: string = res.locals.gameCode
     const gameData: any = res.locals.gameData
 
@@ -191,10 +190,9 @@ function _user(id: string, name: string) {
 
 export async function unJoinGame(req: Request, res: Response): Promise<void> {
   try {
-    const userId: string =
-      process.env.DEV === "true"
-        ? `randId${res.locals.gameData[constants.DATABASE_NODE_PLAYERS].length}`
-        : res.locals.uid
+    const userId: string = isDevMode()
+      ? `randId${res.locals.gameData[constants.DATABASE_NODE_PLAYERS].length}`
+      : res.locals.uid
     const gameCode: string = res.locals.gameCode
     const gameData: any = res.locals.gameData
 
@@ -540,15 +538,13 @@ export async function vote(req: Request, res: Response): Promise<void> {
       return
     }
 
-    const userId: string =
-      process.env.DEV === "true"
-        ? `randId${
-            Object.values(
-              gameData[constants.DATABASE_NODE_CURRENT_SESSION][constants.DATABASE_NODE_VOTES] ??
-                {},
-            ).length
-          }`
-        : res.locals.uid
+    const userId: string = isDevMode()
+      ? `randId${
+          Object.values(
+            gameData[constants.DATABASE_NODE_CURRENT_SESSION][constants.DATABASE_NODE_VOTES] ?? {},
+          ).length
+        }`
+      : res.locals.uid
 
     if (
       (gameData[constants.DATABASE_NODE_CURRENT_SESSION][constants.DATABASE_NODE_VOTES] != null &&
