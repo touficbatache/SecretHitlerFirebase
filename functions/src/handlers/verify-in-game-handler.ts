@@ -2,6 +2,7 @@ import { Request, Response } from "express"
 import { NextFunction } from "express-serve-static-core"
 
 import * as constants from "../constants"
+import { isDevMode } from "../dev-mode"
 import { handleInternalError, handlePlayerNotInGame } from "../utils"
 
 export async function verifyInGameHandler(
@@ -9,7 +10,7 @@ export async function verifyInGameHandler(
   res: Response,
   next: NextFunction,
 ): Promise<void> {
-  if (process.env.DEV === "true") return next()
+  if (isDevMode()) return next()
 
   try {
     if (

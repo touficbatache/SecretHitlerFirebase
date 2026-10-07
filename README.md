@@ -59,6 +59,10 @@ npm run serve
 
 The Emulator UI can be accessed using the URL shown in the terminal, usually http://localhost:4002/.
 
+`DEV=true` turns on dev mode: authentication and role checks are skipped and fake player ids are generated, so one
+client can simulate a whole game. It only works inside the emulator. Deployed functions ignore it, so a `DEV=true`
+copied into `.env.[PROJECTNAME]` by `npm run link` can't disable authentication in production.
+
 ## Deploy to production
 
 Inside to the `functions/` directory, make sure to set the correct environment variable values for production

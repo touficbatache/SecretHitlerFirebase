@@ -2,6 +2,7 @@ import { Request, Response } from "express"
 import { NextFunction } from "express-serve-static-core"
 
 import * as constants from "../constants"
+import { isDevMode } from "../dev-mode"
 import { handleInternalError, handleUnauthorizedError } from "../utils"
 
 export async function ownerOnlyHandler(
@@ -9,7 +10,7 @@ export async function ownerOnlyHandler(
   res: Response,
   next: NextFunction,
 ): Promise<void> {
-  if (process.env.DEV === "true") {
+  if (isDevMode()) {
     next()
     return
   }

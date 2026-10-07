@@ -3,6 +3,7 @@ import { Request, Response } from "express"
 import * as admin from "firebase-admin"
 
 import * as constants from "./constants"
+import { isDevMode } from "./dev-mode"
 import { ChamberStatus, ChamberSubStatus, GameVisibility } from "./objects"
 import { handleInternalError, handleSuccess } from "./utils"
 
@@ -18,10 +19,9 @@ interface GameInfo {
 
 export async function getGamesForUser(req: Request, res: Response): Promise<void> {
   try {
-    const userId: string =
-      process.env.DEV === "true"
-        ? `randId${res.locals.gameData[constants.DATABASE_NODE_PLAYERS].length}`
-        : res.locals.uid
+    // In dev mode the game creator is always "randId0" (see newGame).
+    // This route loads no game data, so it can't derive an id from a player count.
+    const userId: string = isDevMode() ? "randId0" : res.locals.uid
 
     const gamesSnapshot: DataSnapshot = await admin
       .database()
