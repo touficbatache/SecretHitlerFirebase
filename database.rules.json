@@ -1,12 +1,15 @@
 {
   "rules": {
-    "chambers": {
-      ".read": true,
-      ".write": true
-    },
     "ongoingGames": {
-      ".read": false,
-      ".write": false
+      "$gameCode": {
+        ".read": "data.child('connected').child(auth.uid).exists()",
+        ".write": false,
+        "connected": {
+          "$userId": {
+            ".write": "$userId === auth.uid && root.child('ongoingGames').child($gameCode).child('connected').child(auth.uid).exists()"
+          }
+        }
+      }
     }
   }
 }
