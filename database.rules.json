@@ -6,7 +6,7 @@
         ".write": false,
         "connected": {
           "$userId": {
-            ".write": "$userId === auth.uid && root.child('ongoingGames').child($gameCode).child('connected').child(auth.uid).exists()"
+            ".write": "$userId === auth.uid && data.exists() && newData.isBoolean()"
           }
         }
       }
