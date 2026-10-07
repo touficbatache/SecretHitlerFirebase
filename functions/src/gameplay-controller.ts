@@ -373,7 +373,7 @@ export async function startGame(req: Request, res: Response): Promise<void> {
         }).updates,
       )
 
-    void _finishSetup(gameCode, gameType, skipLongIntro)
+    await _finishSetup(gameCode, gameType, skipLongIntro)
 
     handleSuccess(res, { code: gameCode })
     return
@@ -435,7 +435,7 @@ function _randomPresidentPlayerId(players: any[]) {
 }
 
 async function _finishSetup(gameCode: string, gameType: GameType, skipLongIntro: boolean) {
-  void admin
+  await admin
     .database()
     .ref()
     .child(constants.DATABASE_NODE_ONGOING_GAMES)
@@ -446,7 +446,7 @@ async function _finishSetup(gameCode: string, gameType: GameType, skipLongIntro:
   const waitTimeInS: number = skipLongIntro ? 5 : 30
   await sleep(waitTimeInS * 1000)
 
-  void admin
+  await admin
     .database()
     .ref()
     .child(constants.DATABASE_NODE_ONGOING_GAMES)
@@ -496,7 +496,7 @@ export async function chooseChancellor(req: Request, res: Response): Promise<voi
       return
     }
 
-    void admin
+    await admin
       .database()
       .ref()
       .child(constants.DATABASE_NODE_ONGOING_GAMES)
@@ -628,13 +628,13 @@ export async function vote(req: Request, res: Response): Promise<void> {
         // End game if 3+ fascist policies are enacted and hitler is chancellor
         const hasGameEnded: boolean = await _tryEndGameAfterGovernmentElection(gameCode)
         if (!hasGameEnded) {
-          void _beginLegislativeSession(gameCode)
+          await _beginLegislativeSession(gameCode)
         }
       } else {
         if (gameData[constants.DATABASE_NODE_ELECTION_TRACKER] + 1 == 3) {
-          void _enactPolicyByFrustratedPopulace(gameCode)
+          await _enactPolicyByFrustratedPopulace(gameCode)
         } else {
-          void _nextElection(gameCode)
+          await _nextElection(gameCode)
         }
       }
     }
@@ -723,7 +723,7 @@ async function _enactPolicyByFrustratedPopulace(gameCode: string) {
   // - 6 fascist policies are enacted
   const hasGameEnded: boolean = await _tryEndGameWithBoardCount(gameCode)
   if (!hasGameEnded) {
-    void _nextElection(gameCode, true, undefined, false)
+    await _nextElection(gameCode, true, undefined, false)
   }
 }
 
@@ -770,7 +770,7 @@ async function _nextElection(
     gameDataUpdates.push({ [constants.DATABASE_NODE_LAST_PRESIDENT_ID]: nextPresidentId })
   }
 
-  void admin
+  await admin
     .database()
     .ref()
     .child(constants.DATABASE_NODE_ONGOING_GAMES)
@@ -961,7 +961,7 @@ export async function chancellorDiscardPolicy(req: Request, res: Response): Prom
         }).updates,
       )
 
-    void _onEnactPolicy(gameCode, boardPolicy)
+    await _onEnactPolicy(gameCode, boardPolicy)
 
     handleSuccess(res, { code: gameCode })
     return
@@ -1019,7 +1019,7 @@ async function _onEnactPolicy(gameCode: string, enactedPolicy: string) {
         return
       }
 
-      void admin
+      await admin
         .database()
         .ref()
         .child(constants.DATABASE_NODE_ONGOING_GAMES)
@@ -1056,7 +1056,7 @@ async function _onEnactPolicy(gameCode: string, enactedPolicy: string) {
   // - 6 fascist policies are enacted
   const hasGameEnded: boolean = await _tryEndGameWithBoardCount(gameCode)
   if (!hasGameEnded) {
-    void _nextElection(gameCode)
+    await _nextElection(gameCode)
   }
 }
 
@@ -1087,7 +1087,7 @@ export async function presidentialPower(req: Request, res: Response): Promise<vo
           }).updates,
         )
 
-      void _nextElection(gameCode)
+      await _nextElection(gameCode)
     } else {
       if (
         gameData[constants.DATABASE_NODE_SUB_STATUS] ===
@@ -1205,7 +1205,7 @@ export async function presidentialPower(req: Request, res: Response): Promise<vo
             }).updates,
           )
 
-        void _nextElection(gameCode, false, playerId)
+        await _nextElection(gameCode, false, playerId)
       }
 
       if (
@@ -1234,7 +1234,7 @@ export async function presidentialPower(req: Request, res: Response): Promise<vo
           (player: any) => player[constants.DATABASE_NODE_ID] == playerId,
         )
 
-        void _executePlayer(gameCode, playerId, playerIndex)
+        await _executePlayer(gameCode, playerId, playerIndex)
       }
     }
 
@@ -1271,7 +1271,7 @@ async function _executePlayer(gameCode: string, playerId: string, playerIndex: s
     return
   }
 
-  void _nextElection(gameCode)
+  await _nextElection(gameCode)
 }
 
 async function _tryEndGameWithBoardCount(gameCode: string): Promise<boolean> {
@@ -1296,7 +1296,7 @@ async function _tryEndGameWithBoardCount(gameCode: string): Promise<boolean> {
   const hasGameEnded: boolean = isLiberalWin || isFascistWin
 
   if (hasGameEnded) {
-    void _updatePreviousSessionsOnGameEnd(gameCode, isLiberalWin)
+    await _updatePreviousSessionsOnGameEnd(gameCode, isLiberalWin)
   }
 
   return hasGameEnded
@@ -1323,7 +1323,7 @@ async function _tryEndGameAfterGovernmentElection(gameCode: string): Promise<boo
       hitler[constants.DATABASE_NODE_ID]
 
   if (isFascistWin) {
-    void _updatePreviousSessionsOnGameEnd(gameCode, false)
+    await _updatePreviousSessionsOnGameEnd(gameCode, false)
   }
 
   return isFascistWin
@@ -1340,7 +1340,7 @@ async function _tryEndGameOnExecution(gameCode: string): Promise<boolean> {
   const isLiberalWin: boolean = hitler[constants.DATABASE_NODE_IS_EXECUTED]
 
   if (isLiberalWin) {
-    void _updatePreviousSessionsOnGameEnd(gameCode, true)
+    await _updatePreviousSessionsOnGameEnd(gameCode, true)
   }
 
   return isLiberalWin
@@ -1409,7 +1409,7 @@ export async function askForVeto(req: Request, res: Response): Promise<void> {
       return
     }
 
-    void admin
+    await admin
       .database()
       .ref()
       .child(constants.DATABASE_NODE_ONGOING_GAMES)
@@ -1517,9 +1517,9 @@ export async function answerVeto(req: Request, res: Response): Promise<void> {
       await _prepareDrawPile(gameCode)
 
       if (electionTracker + 1 == 3) {
-        void _enactPolicyByFrustratedPopulace(gameCode)
+        await _enactPolicyByFrustratedPopulace(gameCode)
       } else {
-        void _nextElection(gameCode)
+        await _nextElection(gameCode)
       }
     }
 
