@@ -3,8 +3,24 @@ import { NextFunction } from "express-serve-static-core"
 import * as admin from "firebase-admin"
 
 import * as constants from "../constants"
-import { handleGameNotFound, handleInternalError, handleMissingFields } from "../utils"
+import {
+  handleGameBusyError,
+  handleGameNotFound,
+  handleInternalError,
+  handleMissingFields,
+} from "../utils"
 
+import { acquireGameLock, releaseGameLock } from "./game-lock"
+
+/**
+ * Loads the game for the rest of the request, after taking the game's lock.
+ *
+ * Requests on the same game run one at a time: a request holds the lock until its
+ * response is sent, which (since every request finishes its work before responding)
+ * covers all of its reads and writes. A concurrent request waits, then reads the
+ * updated game. This prevents double votes, double taps, joins past 10 players and
+ * any other read-then-write race.
+ */
 export async function gameDataHandler(
   req: Request,
   res: Response,
@@ -16,6 +32,14 @@ export async function gameDataHandler(
       handleMissingFields(res)
       return
     }
+
+    const lockToken: string | undefined = await acquireGameLock(code)
+    if (lockToken === undefined) {
+      handleGameBusyError(res)
+      return
+    }
+    releaseLockBeforeResponding(res, code, lockToken)
+
     const data: any = await getGameData(code)
     if (data == null) {
       handleGameNotFound(res)
@@ -28,6 +52,28 @@ export async function gameDataHandler(
     handleInternalError(res, err)
     return
   }
+}
+
+/**
+ * Delays the end of the response until the lock is released. Releasing after the
+ * response would run with no guaranteed CPU, and could leave the game locked until
+ * the lock expires. This also covers every way a request ends: success, an error
+ * response from any middleware, or a client that disconnected mid-request.
+ */
+function releaseLockBeforeResponding(res: Response, gameCode: string, lockToken: string): void {
+  const end: Response["end"] = res.end.bind(res)
+  let released: boolean = false
+
+  res.end = ((...args: any[]) => {
+    if (released) {
+      return (end as any)(...args)
+    }
+    released = true
+    releaseGameLock(gameCode, lockToken)
+      .catch((err: any) => console.error(`Failed to release lock for game ${gameCode}`, err))
+      .finally(() => (end as any)(...args))
+    return res
+  }) as Response["end"]
 }
 
 export async function getInactiveGameCodes(): Promise<string[]> {
