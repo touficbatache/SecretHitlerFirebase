@@ -3,6 +3,7 @@ import * as assert from "node:assert/strict"
 import { test } from "node:test"
 
 import {
+  act,
   advanceWhenDue,
   api,
   ApiResult,
@@ -17,6 +18,9 @@ import {
 
 const statuses: (results: ApiResult[]) => number[] = (results: ApiResult[]) =>
   results.map((result: ApiResult) => result.status).sort()
+
+const errors: (results: ApiResult[]) => (string | undefined)[] = (results: ApiResult[]) =>
+  results.map((result: ApiResult) => result.error).filter((error?: string) => error !== undefined)
 
 test("7 simultaneous votes, then 7 simultaneous /advance: one session, 3 cards drawn once", async () => {
   const code: string = "920001"
@@ -33,7 +37,7 @@ test("7 simultaneous votes, then 7 simultaneous /advance: one session, 3 cards d
     }),
   )
   const results: ApiResult[] = await Promise.all(
-    Array.from({ length: 7 }, () => api("vote", { code, vote: true })),
+    Array.from({ length: 7 }, () => act(code, { type: "vote", ja: true })),
   )
   assert.deepEqual(statuses(results), Array(7).fill(200))
   const results7: any = await getGame(code)
@@ -53,8 +57,7 @@ test("7 simultaneous votes, then 7 simultaneous /advance: one session, 3 cards d
 
 test("a player who double-taps their vote only votes once", async () => {
   const code: string = "920002"
-  // Dev mode gives requests the ids randId0, randId1... in order: with 5 votes already in,
-  // both requests race for the 6th voter.
+  // randId5 casts the 6th and last vote twice at once
   await putGame(
     code,
     game(
@@ -75,10 +78,11 @@ test("a player who double-taps their vote only votes once", async () => {
     ),
   )
   const results: ApiResult[] = await Promise.all([
-    api("vote", { code, vote: true }),
-    api("vote", { code, vote: true }),
+    act(code, { type: "vote", ja: true }, { as: "randId5" }),
+    act(code, { type: "vote", ja: true }, { as: "randId5" }),
   ])
-  assert.deepEqual(statuses(results), [200, 457])
+  assert.deepEqual(statuses(results), [200, 409])
+  assert.deepEqual(errors(results), ["PAUSED"], "the second arrives once the votes show")
   assert.equal(Object.keys((await getGame(code)).currentSession.votes).length, 6)
   assert.equal(cards((await advanceWhenDue(code)).policies.drawPile).length, 1, "drew once")
 })
@@ -119,11 +123,11 @@ test("a Chancellor who double-taps a discard enacts one policy", async () => {
     }),
   )
   const results: ApiResult[] = await Promise.all([
-    api("chancellorDiscardPolicy", { code, policy: "fascist" }),
-    api("chancellorDiscardPolicy", { code, policy: "fascist" }),
+    act(code, { type: "discard", policy: "fascist" }),
+    act(code, { type: "discard", policy: "fascist" }),
   ])
   assert.equal((await getGame(code)).policies.board.liberal, 1)
-  assert.deepEqual(statuses(results), [200, 457])
+  assert.deepEqual(errors(results), ["PAUSED"], "the second arrives once the policy shows")
 })
 
 test("a President who double-taps an execution executes one player", async () => {
@@ -138,8 +142,8 @@ test("a President who double-taps an execution executes one player", async () =>
     }),
   )
   await Promise.all([
-    api("presidentialPower", { code, player: "randId5" }),
-    api("presidentialPower", { code, player: "randId6" }),
+    act(code, { type: "usePower", targetId: "randId5" }),
+    act(code, { type: "usePower", targetId: "randId6" }),
   ])
   const after: any = await advanceWhenDue(code)
   const executed: string[] = Object.values(after.players)
@@ -152,7 +156,7 @@ test("a President who double-taps an execution executes one player", async () =>
 test("the lock is released after each request, including failed ones", async () => {
   assert.equal(await lockOf("920001"), null, "after the votes")
   assert.equal(await lockOf("920003"), null, "after rejected joins")
-  assert.equal((await api("vote", { code: "999999", vote: true })).status, 452)
+  assert.equal((await act("999999", { type: "vote", ja: true })).status, 404)
   assert.equal(await lockOf("999999"), null, "for a game that doesn't exist")
 })
 
@@ -177,9 +181,9 @@ test("an action sent while the votes are shown is rejected right away", async ()
       5,
     ),
   )
-  assert.equal((await api("vote", { code, vote: true })).status, 200)
-  const early: ApiResult = await api("presidentDiscardPolicy", { code, policy: "liberal" })
-  assert.equal(early.status, 457, early.body)
+  assert.equal((await act(code, { type: "vote", ja: true })).status, 200)
+  const early: ApiResult = await act(code, { type: "discard", policy: "liberal" })
+  assert.equal(early.error, "PAUSED", early.body)
   assert.ok(early.ms < 2000, `the rejection took ${early.ms}ms`)
   assert.equal(
     (await advanceWhenDue(code)).subStatus,

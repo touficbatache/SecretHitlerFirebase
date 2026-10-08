@@ -3,12 +3,7 @@ import { NextFunction } from "express-serve-static-core"
 import * as admin from "firebase-admin"
 
 import * as constants from "../constants"
-import {
-  handleGameBusyError,
-  handleGameNotFound,
-  handleInternalError,
-  handleMissingFields,
-} from "../utils"
+import { sendError, sendInternalError } from "../errors"
 
 import { acquireGameLock, GameLockContext, releaseGameLock } from "./game-lock"
 
@@ -32,13 +27,13 @@ export async function gameDataHandler(
   try {
     const { code } = req.body
     if (!(typeof code === "string") || !code) {
-      handleMissingFields(res)
+      sendError(res, "INVALID_REQUEST")
       return
     }
 
     const lockToken: string | undefined = await acquireGameLock(code)
     if (lockToken === undefined) {
-      handleGameBusyError(res)
+      sendError(res, "GAME_BUSY")
       return
     }
     const lock: GameLockContext = { gameCode: code, token: lockToken }
@@ -46,14 +41,14 @@ export async function gameDataHandler(
 
     const data: any = await getGameData(code)
     if (data == null) {
-      handleGameNotFound(res)
+      sendError(res, "GAME_NOT_FOUND")
       return
     }
     res.locals = { ...res.locals, gameCode: code, gameData: data }
     next()
     return
   } catch (err: any) {
-    handleInternalError(res, err)
+    sendInternalError(res, err)
     return
   }
 }

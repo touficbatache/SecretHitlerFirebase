@@ -3,6 +3,7 @@ import * as assert from "node:assert/strict"
 import { test } from "node:test"
 
 import {
+  act,
   advanceWhenDue,
   api,
   ApiResult,
@@ -33,7 +34,7 @@ test("chaos with 3 cards left reshuffles, and the next President still gets 3 ca
     }),
   )
   for (let i: number = 0; i < 7; i++) {
-    const res: ApiResult = await api("vote", { code, vote: false })
+    const res: ApiResult = await act(code, { type: "vote", ja: false })
     assert.equal(res.status, 200, res.body)
   }
   const afterChaos: any = await waitForGame(
@@ -58,9 +59,9 @@ test("chaos with 3 cards left reshuffles, and the next President still gets 3 ca
   const candidate: string = ["randId3", "randId4", "randId5", "randId6"].find(
     (id: string) => id !== president,
   ) as string
-  assert.equal((await api("chooseChancellor", { code, chancellorId: candidate })).status, 200)
+  assert.equal((await act(code, { type: "nominate", chancellorId: candidate })).status, 200)
   for (let i: number = 0; i < 7; i++) {
-    assert.equal((await api("vote", { code, vote: true })).status, 200)
+    assert.equal((await act(code, { type: "vote", ja: true })).status, 200)
   }
   const legislative: any = await waitForGame(
     code,
@@ -92,7 +93,7 @@ test("the end-of-session reshuffle includes this session's discards", async () =
       electionTracker: 1,
     }),
   )
-  const res: ApiResult = await api("chancellorDiscardPolicy", { code, policy: "fascist" })
+  const res: ApiResult = await act(code, { type: "discard", policy: "fascist" })
   assert.equal(res.status, 200, res.body)
   const reshuffled: any = await waitForGame(
     code,
@@ -119,13 +120,13 @@ test("a nomination sent during the intro is rejected", async () => {
   assert.equal(intro.status, "settingUp")
   const other: string = intro.players.find((p: any) => p.id !== intro.currentSession.presidentId).id
 
-  const early: ApiResult = await api("chooseChancellor", { code, chancellorId: other })
-  assert.equal(early.status, 457, early.body)
+  const early: ApiResult = await act(code, { type: "nominate", chancellorId: other })
+  assert.equal(early.error, "PAUSED", early.body)
 
   const started: any = await advanceWhenDue(code)
   assert.equal(started.subStatus, "election_presidentChoosingChancellor")
   assert.equal(started.currentSession.chancellorId, undefined)
-  assert.equal((await api("chooseChancellor", { code, chancellorId: other })).status, 200)
+  assert.equal((await act(code, { type: "nominate", chancellorId: other })).status, 200)
 })
 
 test("Chancellor eligibility: dead players, term limits, and the 5-alive exception", async () => {
@@ -138,19 +139,21 @@ test("Chancellor eligibility: dead players, term limits, and the 5-alive excepti
     lastSuccessfulChancellorId: "randId3",
     policies: { drawPile: "liberal,liberal,liberal", board: { liberal: 0, fascist: 0 } },
   }
-  const nominate: (id: string) => Promise<number> = async (id: string) =>
-    (await api("chooseChancellor", { code, chancellorId: id })).status
+  const nominate: (id: string) => Promise<string | number> = async (id: string) => {
+    const res: ApiResult = await act(code, { type: "nominate", chancellorId: id })
+    return res.error ?? res.status
+  }
 
   await putGame(code, game(choosing, 7, { 6: { isExecuted: true } }))
-  assert.equal(await nominate("randId6"), 458, "dead")
-  assert.equal(await nominate("randId3"), 458, "last Chancellor")
-  assert.equal(await nominate("randId2"), 458, "last President, 6 alive")
-  assert.equal(await nominate("nobody"), 458, "unknown player")
-  assert.equal(await nominate("randId1"), 458, "the President")
+  assert.equal(await nominate("randId6"), "INELIGIBLE", "dead")
+  assert.equal(await nominate("randId3"), "INELIGIBLE", "last Chancellor")
+  assert.equal(await nominate("randId2"), "INELIGIBLE", "last President, 6 alive")
+  assert.equal(await nominate("nobody"), "INELIGIBLE", "unknown player")
+  assert.equal(await nominate("randId1"), "INELIGIBLE", "the President")
 
   // 7 players, 2 dead: with 5 alive, the last President becomes eligible
   await putGame(code, game(choosing, 7, { 5: { isExecuted: true }, 6: { isExecuted: true } }))
-  assert.equal(await nominate("randId3"), 458, "last Chancellor, 5 alive")
+  assert.equal(await nominate("randId3"), "INELIGIBLE", "last Chancellor, 5 alive")
   assert.equal(await nominate("randId2"), 200, "last President, 5 alive")
 })
 
@@ -170,7 +173,7 @@ test("a veto with the election tracker at 2 triggers chaos", async () => {
     }),
   )
   for (let i: number = 0; i < 7; i++) {
-    assert.equal((await api("vote", { code, vote: true })).status, 200)
+    assert.equal((await act(code, { type: "vote", ja: true })).status, 200)
   }
   const legislative: any = await waitForGame(
     code,
@@ -179,14 +182,14 @@ test("a veto with the election tracker at 2 triggers chaos", async () => {
   )
   assert.equal(legislative.electionTracker, 2, "an election alone doesn't reset the tracker")
   assert.equal(legislative.lastSuccessfulPresidentId, "randId1")
-  assert.equal((await api("presidentDiscardPolicy", { code, policy: "liberal" })).status, 200)
-  assert.equal((await api("askForVeto", { code })).status, 200)
+  assert.equal((await act(code, { type: "discard", policy: "liberal" })).status, 200)
+  assert.equal((await act(code, { type: "proposeVeto" })).status, 200)
   await waitForGame(
     code,
     (g: any) => g.subStatus === "legislativeSession_chancellorSeekingVeto",
     "veto request",
   )
-  assert.equal((await api("answerVeto", { code, refuseVeto: false })).status, 200)
+  assert.equal((await act(code, { type: "answerVeto", accept: true })).status, 200)
   const afterChaos: any = await waitForGame(
     code,
     (g: any) => g.policies?.board?.liberal === 1,
@@ -216,10 +219,10 @@ test("presidential power targets must be living players other than the President
       ),
     )
     for (const target of ["nobody", "randId6", "randId1"]) {
-      const res: ApiResult = await api("presidentialPower", { code, player: target })
-      assert.equal(res.status, 458, `${subStatus} on ${target}: ${res.status} ${res.body}`)
+      const res: ApiResult = await act(code, { type: "usePower", targetId: target })
+      assert.equal(res.error, "INELIGIBLE", `${subStatus} on ${target}: ${res.status} ${res.body}`)
     }
-    const valid: ApiResult = await api("presidentialPower", { code, player: "randId4" })
+    const valid: ApiResult = await act(code, { type: "usePower", targetId: "randId4" })
     assert.equal(valid.status, 200, `${subStatus}: ${valid.body}`)
   }
 })

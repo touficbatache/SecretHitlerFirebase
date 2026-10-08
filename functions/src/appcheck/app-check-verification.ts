@@ -2,7 +2,7 @@ import { Request, Response } from "express"
 import { NextFunction } from "express-serve-static-core"
 import * as admin from "firebase-admin"
 
-import { handleUnauthorizedError } from "../utils"
+import { sendError } from "../errors"
 
 export async function appCheckVerification(
   req: Request,
@@ -17,7 +17,7 @@ export async function appCheckVerification(
   const appCheckToken: string = req.header("X-Firebase-AppCheck")
 
   if (!appCheckToken) {
-    handleUnauthorizedError(res)
+    sendError(res, "UNAUTHENTICATED")
     return
   }
 
@@ -27,6 +27,6 @@ export async function appCheckVerification(
     // function in the stack.
     next()
   } catch {
-    handleUnauthorizedError(res)
+    sendError(res, "UNAUTHENTICATED")
   }
 }

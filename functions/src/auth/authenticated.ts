@@ -3,8 +3,8 @@ import { NextFunction } from "express-serve-static-core"
 import * as admin from "firebase-admin"
 import { DecodedIdToken, UserRecord } from "firebase-admin/lib/auth"
 
-import { isDevMode } from "../dev-mode"
-import { handleUnauthorizedError } from "../utils"
+import { DEV_UID_HEADER, isDevMode } from "../dev-mode"
+import { sendError } from "../errors"
 
 export async function isAuthenticatedHandler(
   req: Request,
@@ -12,6 +12,8 @@ export async function isAuthenticatedHandler(
   next: NextFunction,
 ): Promise<void> {
   if (isDevMode()) {
+    const devUid: string | undefined = req.header(DEV_UID_HEADER)
+    if (devUid) res.locals = { ...res.locals, uid: devUid, name: devUid }
     next()
     return
   }
@@ -19,18 +21,18 @@ export async function isAuthenticatedHandler(
   const { authorization } = req.headers
 
   if (!authorization) {
-    handleUnauthorizedError(res)
+    sendError(res, "UNAUTHENTICATED")
     return
   }
 
   if (!authorization.startsWith("Bearer")) {
-    handleUnauthorizedError(res)
+    sendError(res, "UNAUTHENTICATED")
     return
   }
 
   const split: string[] = authorization.split("Bearer ")
   if (split.length !== 2) {
-    handleUnauthorizedError(res)
+    sendError(res, "UNAUTHENTICATED")
     return
   }
 
@@ -49,35 +51,7 @@ export async function isAuthenticatedHandler(
     return
   } catch (err: any) {
     console.error(`${err.code} -  ${err.message}`)
-    handleUnauthorizedError(res)
+    sendError(res, "UNAUTHENTICATED")
     return
-  }
-}
-
-export async function isAuthenticated(req: Request, res: Response): Promise<boolean> {
-  const { authorization } = req.headers
-
-  if (!authorization) return false
-
-  if (!authorization.startsWith("Bearer")) return false
-
-  const split: string[] = authorization.split("Bearer ")
-  if (split.length !== 2) return false
-
-  const token: string = split[1]
-
-  try {
-    const decodedToken: DecodedIdToken = await admin.auth().verifyIdToken(token)
-    const userRecord: UserRecord = await admin.auth().getUser(decodedToken.uid)
-    res.locals = {
-      ...res.locals,
-      uid: userRecord.uid,
-      name: userRecord.displayName,
-      phoneNumber: userRecord.phoneNumber,
-    }
-    return true
-  } catch (err: any) {
-    console.error(`${err.code} -  ${err.message}`)
-    return false
   }
 }

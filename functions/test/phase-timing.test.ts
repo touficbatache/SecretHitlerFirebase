@@ -6,6 +6,7 @@ import * as assert from "node:assert/strict"
 import { test } from "node:test"
 
 import {
+  act,
   advanceWhenDue,
   api,
   ApiResult,
@@ -69,7 +70,7 @@ test("the last vote responds right away, and the votes stay up for 5 seconds", a
   const code: string = "910001"
   await putGame(code, votingGame())
 
-  const lastVote: ApiResult = await api("vote", { code, vote: true })
+  const lastVote: ApiResult = await act(code, { type: "vote", ja: true })
   assert.equal(lastVote.status, 200, lastVote.body)
   assert.ok(lastVote.ms < 3000, `the last vote took ${lastVote.ms}ms`)
 
@@ -79,8 +80,8 @@ test("the last vote responds right away, and the votes stay up for 5 seconds", a
   const pause: number = results.pendingTransition.at - Date.now()
   assert.ok(pause > 3000 && pause <= 5000, `${pause}ms of pause left`)
 
-  const early: ApiResult = await api("presidentDiscardPolicy", { code, policy: "liberal" })
-  assert.equal(early.status, 457, "an action during the pause is rejected")
+  const early: ApiResult = await act(code, { type: "discard", policy: "liberal" })
+  assert.equal(early.error, "PAUSED", "an action during the pause is rejected")
   assert.ok(early.ms < 2000, `the rejection took ${early.ms}ms`)
 
   const legislative: any = await advanceWhenDue(code)
@@ -91,11 +92,11 @@ test("the last vote responds right away, and the votes stay up for 5 seconds", a
 test("a transition that is due is applied by the next request, even without /advance", async () => {
   const code: string = "910002"
   await putGame(code, votingGame())
-  await api("vote", { code, vote: true })
+  await act(code, { type: "vote", ja: true })
   const results: any = await getGame(code)
   await sleep(results.pendingTransition.at - Date.now() + 200)
 
-  const discard: ApiResult = await api("presidentDiscardPolicy", { code, policy: "liberal" })
+  const discard: ApiResult = await act(code, { type: "discard", policy: "liberal" })
   assert.equal(discard.status, 200, discard.body)
   assert.equal(
     (await getGame(code)).subStatus,
@@ -113,7 +114,7 @@ test("a third failed government: chaos after the pause, then the next election",
       currentSession: { presidentId: "randId1", chancellorId: "randId2" },
     }),
   )
-  for (let i: number = 0; i < 5; i++) await api("vote", { code, vote: false })
+  for (let i: number = 0; i < 5; i++) await act(code, { type: "vote", ja: false })
 
   const results: any = await getGame(code)
   assert.equal(results.pendingTransition.kind, "frustratedPopulace")
@@ -143,7 +144,7 @@ test("after an enactment without a power, the next election starts after the pau
       5,
     ),
   )
-  assert.equal((await api("chancellorDiscardPolicy", { code, policy: "fascist" })).status, 200)
+  assert.equal((await act(code, { type: "discard", policy: "fascist" })).status, 200)
   const enacted: any = await getGame(code)
   assert.equal(enacted.subStatus, "legislativeSession_sessionEndedWithPolicyEnactment")
   assert.equal(enacted.pendingTransition.kind, "nextElection")
@@ -164,7 +165,7 @@ test("a special election makes the chosen player President after the pause", asy
       policies: { drawPile: "liberal,liberal,liberal", board: { liberal: 0, fascist: 3 } },
     }),
   )
-  assert.equal((await api("presidentialPower", { code, player: "randId5" })).status, 200)
+  assert.equal((await act(code, { type: "usePower", targetId: "randId5" })).status, 200)
   assert.equal((await getGame(code)).pendingTransition.specialElectionPresidentId, "randId5")
 
   const next: any = await advanceWhenDue(code)
@@ -186,7 +187,7 @@ test("a game that ends leaves no transition pending", async () => {
       policies: { drawPile: "liberal,liberal,liberal", board: { liberal: 0, fascist: 3 } },
     }),
   )
-  await api("vote", { code, vote: true })
+  await act(code, { type: "vote", ja: true })
   const ended: any = await getGame(code)
   assert.equal(ended.subStatus, "gameEnded_fascist")
   assert.equal(ended.pendingTransition, undefined)

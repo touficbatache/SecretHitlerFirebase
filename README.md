@@ -63,6 +63,9 @@ The Emulator UI can be accessed using the URL shown in the terminal, usually htt
 client can simulate a whole game. It only works inside the emulator. Deployed functions ignore it, so a `DEV=true`
 copied into `.env.[PROJECTNAME]` by `npm run link` can't disable authentication in production.
 
+In dev mode, a request with an `X-Dev-Uid: [PLAYER_ID]` header acts as that player instead, with every check applied,
+as if they were logged in. The tests use it to check whose turn it is.
+
 ## Tests
 
 The rules engine (`functions/src/engine`, see its [README](functions/src/engine/README.md)) has its own
@@ -168,20 +171,36 @@ content-type: application/json
 { "code": "[GAMECODE]" }
 ```
 
-### ==== President: choose a chancellor ====
+### ==== Play a move ====
 
-*⚠️ PRESIDENT ONLY ⚠️*
+Every game move goes through this endpoint. The player is the one logged in, and the rules engine
+decides whether it's their turn (see [the engine's README](functions/src/engine/README.md)).
 
 **Request:**
 
-`POST /chooseChancellor/`
+`POST /action/`
 
 ```json
 {
   "code": "[GAMECODE]",
-  "chancellorId": "[PLAYER_ID]"
+  "actionId": "[A NEW ID FOR EACH MOVE, LIKE A UUID]",
+  "action": { "type": "vote", "ja": true }
 }
 ```
+
+| `action` | Who | When |
+|---|---|---|
+| `{ "type": "nominate", "chancellorId": "[PLAYER_ID]" }` | President | Choosing a Chancellor |
+| `{ "type": "vote", "ja": [BOOLEAN] }` | Every living player, once | Voting |
+| `{ "type": "discard", "policy": "liberal" \| "fascist" }` | President, then Chancellor | Legislative session |
+| `{ "type": "proposeVeto" }` | Chancellor | Discarding, with 5 fascist policies enacted |
+| `{ "type": "answerVeto", "accept": [BOOLEAN] }` | President | A veto was proposed |
+| `{ "type": "usePower", "targetId": "[PLAYER_ID]" }` | President | A presidential power. No target for the policy peek |
+| `{ "type": "endPower" }` | President | Closing the policy peek or the investigation result |
+
+`actionId` is optional but recommended (up to 64 letters, digits, `-` or `_`). Once a move has
+succeeded, sending the same request again with the same `actionId` gets the same response and
+changes nothing, so a client can safely retry a request whose response it never received.
 
 **Response:**
 
@@ -192,218 +211,12 @@ content-type: application/json
 { "code": "[GAMECODE]" }
 ```
 
-### ==== Vote: cast a ballot ====
-
-**Request:**
-
-`POST /vote/`
-
-```json
-{
-  "code": "[GAMECODE]",
-  "vote": "[BOOLEAN]"
-}
-```
-
-**Response:**
-
-```http request
-HTTP/1.1 200 OK
-content-type: application/json
-
-{ "code": "[GAMECODE]" }
-```
-
-### ==== President: discard a policy ====
-
-*⚠️ PRESIDENT ONLY ⚠️*
-
-**Request:**
-
-`POST /presidentDiscardPolicy/`
-
-```json
-{
-  "code": "[GAMECODE]",
-  "policy": "[POLICY]"
-}
-```
-
-**Response:**
-
-```http request
-HTTP/1.1 200 OK
-content-type: application/json
-
-{ "code": "[GAMECODE]" }
-```
-
-### ==== Chancellor: discard a policy ====
-
-*⚠️ CHANCELLOR ONLY ⚠️*
-
-**Request:**
-
-`POST /chancellorDiscardPolicy/`
-
-```json
-{
-  "code": "[GAMECODE]",
-  "policy": "[POLICY]"
-}
-```
-
-**Response:**
-
-```http request
-HTTP/1.1 200 OK
-content-type: application/json
-
-{ "code": "[GAMECODE]" }
-```
-
-### ==== Presidential Power: Policy Peek ====
-
-*⚠️ PRESIDENT ONLY ⚠️*
-
-**Request:**
-
-`POST /presidentialPower/`
-
-```json
-{
-  "code": "[GAMECODE]"
-}
-```
-
-**Response:**
-
-```http request
-HTTP/1.1 200 OK
-content-type: application/json
-
-{
-    "code": "[GAMECODE]",
-    "policies": "[POLICY],[POLICY],[POLICY]"
-}
-```
-
-*❗ Call again to continue game progress ❗*
-
-### ==== Presidential Power: Investigation ====
-
-*⚠️ PRESIDENT ONLY ⚠️*
-
-**Request:**
-
-```json
-{
-  "code": "[GAMECODE]",
-  "player": "[PLAYER_ID]"
-}
-```
-
-**Response:**
-
-```http request
-HTTP/1.1 200 OK
-content-type: application/json
-
-{ "code": "[GAMECODE]" }
-```
-
-*❗ Call again to continue game progress ❗*
-
-### ==== Presidential Power: Special Election ====
-
-*⚠️ PRESIDENT ONLY ⚠️*
-
-**Request:**
-
-```json
-{
-  "code": "[GAMECODE]",
-  "player": "[PLAYER_ID]"
-}
-```
-
-**Response:**
-
-```http request
-HTTP/1.1 200 OK
-content-type: application/json
-
-{ "code": "[GAMECODE]" }
-```
-
-### ==== Presidential Power: Execution ====
-
-*⚠️ PRESIDENT ONLY ⚠️*
-
-**Request:**
-
-```json
-{
-  "code": "[GAMECODE]",
-  "player": "[PLAYER_ID]"
-}
-```
-
-**Response:**
-
-```http request
-HTTP/1.1 200 OK
-content-type: application/json
-
-{ "code": "[GAMECODE]" }
-```
-
-### ==== Chancellor: ask for a veto ====
-
-*⚠️ CHANCELLOR ONLY ⚠️*
-
-**Request:**
-
-`POST /askForVeto/`
-
-```json
-{
-  "code": "[GAMECODE]"
-}
-```
-
-**Response:**
-
-```http request
-HTTP/1.1 200 OK
-content-type: application/json
-
-{ "code": "[GAMECODE]" }
-```
-
-### ==== President: answer the veto ====
-
-*⚠️ PRESIDENT ONLY ⚠️*
-
-**Request:**
-
-`POST /answerVeto/`
-
-```json
-{
-  "code": "[GAMECODE]",
-  "refuseVeto": "[BOOLEAN]"
-}
-```
-
-**Response:**
-
-```http request
-HTTP/1.1 200 OK
-content-type: application/json
-
-{ "code": "[GAMECODE]" }
-```
+A policy peek also returns `"policies": "[POLICY],[POLICY],[POLICY]"`, and an investigation
+`"membership": "liberal" | "fascist"`.
+
+The routes from before `/action` (`/chooseChancellor`, `/vote`, `/presidentDiscardPolicy`,
+`/chancellorDiscardPolicy`, `/askForVeto`, `/answerVeto`, `/presidentialPower`) still work, so apps
+loaded before a deploy keep working. They will be removed.
 
 ### ==== Move on after a pause ====
 
@@ -412,8 +225,8 @@ votes, an enacted policy or a power's result. The server doesn't wait during a p
 next step in the game's `pendingTransition` node, as `{ "at": [SERVER TIME IN MS], "kind": "..." }`.
 
 Clients show the pause until `at` (on the server's clock, with `.info/serverTimeOffset`), then call
-this endpoint to apply it. Any request on the game also applies it once it's due. Actions sent
-during a pause get a 457.
+this endpoint to apply it. Any request on the game also applies it once it's due. Moves sent
+during a pause get a `PAUSED` error.
 
 **Request:**
 
@@ -450,103 +263,30 @@ Game will end automatically and a team will win depending on one of these condit
 
 ### Error responses
 
-#### Unauthorized
-
-```http request
-HTTP/1.1 401 Unauthorized
-content-type: application/json
-
-{ "message": "401 - Unauthorized" }
-```
-
-#### Forbidden
+Every error has a standard HTTP status and a code to act on:
 
 ```http request
 HTTP/1.1 403 Forbidden
 content-type: application/json
 
-{ "message": "403 - Forbidden" }
+{ "error": { "code": "NOT_YOUR_TURN", "message": "It's not this player's turn" } }
 ```
 
-#### Game is busy
-
-Requests on the same game run one at a time. A request that waits more than 15 seconds for its turn gets:
-
-```http request
-HTTP/1.1 409 Conflict
-content-type: application/json
-
-{ "message": "409 - Game is busy, try again" }
-```
-
-#### Missing fields
-
-```http request
-HTTP/1.1 422 Missing fields
-content-type: application/json
-
-{ "message": "422 - Missing fields" }
-```
-
-#### Game not found
-
-```http request
-HTTP/1.1 452 Unknown
-content-type: application/json
-
-{ "message": "452 - Game not found" }
-```
-
-#### Player already in game
-
-```http request
-HTTP/1.1 453 Unknown
-content-type: application/json
-
-{ "message": "453 - Player already in game" }
-```
-
-#### Player not in game
-
-```http request
-HTTP/1.1 454 Unknown
-content-type: application/json
-
-{ "message": "454 - Player not in game" }
-```
-
-#### Not enough players
-
-```http request
-HTTP/1.1 455 Unknown
-content-type: application/json
-
-{ "message": "455 - Not enough players" }
-```
-
-#### Game has already started
-
-```http request
-HTTP/1.1 456 Unknown
-content-type: application/json
-
-{ "message": "456 - Game has already started" }
-```
-
-#### Game progress tampering: illegal action
-
-```http request
-HTTP/1.1 457 Unknown
-content-type: application/json
-
-{ "message": "457 - Game progress can't be tampered with" }
-```
-
-#### Ineligible player
-
-```http request
-HTTP/1.1 458 Unknown
-content-type: application/json
-
-{ "message": "458 - Player is ineligible" }
-```
+| Code | Status | Meaning |
+|---|---|---|
+| `UNAUTHENTICATED` | 401 | Not logged in, or the login or App Check token is invalid |
+| `INVALID_REQUEST` | 400 | A field is missing or has the wrong type |
+| `GAME_NOT_FOUND` | 404 | No game with this code |
+| `NOT_IN_GAME` | 403 | The player isn't in this game |
+| `NOT_OWNER` | 403 | Only the game's owner can do this |
+| `NOT_YOUR_TURN` | 403 | Another player has to act now |
+| `WRONG_PHASE` | 409 | The game has moved on, or hasn't started: the move was meant for another phase |
+| `PAUSED` | 409 | A result is showing: moves resume when the pause is over |
+| `GAME_BUSY` | 409 | Another request on this game took more than 15 seconds. Retrying is safe |
+| `ALREADY_IN_GAME` | 409 | The player already joined this game |
+| `GAME_FULL` | 409 | The game has 10 players |
+| `GAME_STARTED` | 409 | The game has already started |
+| `INELIGIBLE` | 422 | This player can't be chosen: dead, term-limited, investigated before... |
+| `INVALID_ACTION` | 422 | This move isn't possible, like discarding a policy that isn't in hand |
+| `NOT_ENOUGH_PLAYERS` | 422 | A game needs at least 5 players |
+| `INTERNAL` | 500 | Something went wrong. The details are only in the function logs |
