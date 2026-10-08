@@ -3,7 +3,11 @@ import { NextFunction } from "express-serve-static-core"
 
 import * as constants from "../constants"
 import { isDevMode } from "../dev-mode"
-import { handleInternalError, handleUnauthorizedError } from "../utils"
+import {
+  handleGameProgressTamperingError,
+  handleInternalError,
+  handleUnauthorizedError,
+} from "../utils"
 
 export async function chancellorOnlyHandler(
   req: Request,
@@ -13,12 +17,15 @@ export async function chancellorOnlyHandler(
   if (isDevMode()) return next()
 
   try {
-    if (
-      res.locals.uid !=
-      res.locals.gameData[constants.DATABASE_NODE_CURRENT_SESSION][
-        constants.DATABASE_NODE_CHANCELLOR_ID
-      ]
-    ) {
+    const currentSession: any = res.locals.gameData[constants.DATABASE_NODE_CURRENT_SESSION]
+
+    // No current session: the game hasn't started its first election yet, or it has ended.
+    if (currentSession == null) {
+      handleGameProgressTamperingError(res)
+      return
+    }
+
+    if (res.locals.uid != currentSession[constants.DATABASE_NODE_CHANCELLOR_ID]) {
       handleUnauthorizedError(res)
       return
     }

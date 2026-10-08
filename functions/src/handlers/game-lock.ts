@@ -12,10 +12,13 @@ import { sleep } from "../utils"
 const LOCKS_NODE: string = "gameLocks"
 
 /**
- * Longer than the function timeout (120s), so a live request never loses its lock.
- * Only a lock left behind by a killed instance ever expires.
+ * How long a lock lives if its request never releases it, e.g. a killed instance.
+ *
+ * The lock is released during pauses (see pauseGame), so a request only holds it for a
+ * few quick database reads and writes in a row. 20s is far longer than that, and caps
+ * how long a crash can freeze a game.
  */
-export const LOCK_TTL_MS: number = 125_000
+export const LOCK_TTL_MS: number = 20_000
 
 /** How long a request waits for its turn before giving up. Covers the 30s long intro. */
 export const LOCK_MAX_WAIT_MS: number = 60_000
