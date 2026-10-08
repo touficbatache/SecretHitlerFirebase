@@ -1,7 +1,6 @@
 import { Request, Response } from "express"
 import { NextFunction } from "express-serve-static-core"
 import * as admin from "firebase-admin"
-import { VerifyAppCheckTokenResponse } from "firebase-admin/lib/app-check"
 
 import { handleUnauthorizedError } from "../utils"
 
@@ -19,16 +18,15 @@ export async function appCheckVerification(
 
   if (!appCheckToken) {
     handleUnauthorizedError(res)
+    return
   }
 
   try {
-    const appCheckClaims: VerifyAppCheckTokenResponse = await admin
-      .appCheck()
-      .verifyToken(appCheckToken)
+    await admin.appCheck().verifyToken(appCheckToken)
     // If verifyToken() succeeds, continue with the next middleware
     // function in the stack.
     next()
-  } catch (err) {
+  } catch {
     handleUnauthorizedError(res)
   }
 }

@@ -85,6 +85,10 @@ This runs the engine tests, then builds the functions, starts the emulators on t
 `functions/.env.demo-shtest`), runs every file in `functions/test/` and stops the emulators. A
 `functions/.env.local` file also applies to the emulator: make sure it doesn't set `DEV=false`.
 
+`npm run lint` checks the formatting and the lint rules (`npm run lint:fix` fixes what it can). GitHub
+Actions runs the lint and all the tests on every pull request and on `master`
+(`.github/workflows/ci.yml`).
+
 ## Deploy to production
 
 Inside to the `functions/` directory, make sure to set the correct environment variable values for production
