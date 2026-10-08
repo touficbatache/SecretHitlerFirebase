@@ -10,7 +10,7 @@ import {
   handleMissingFields,
 } from "../utils"
 
-import { acquireGameLock, GameLockContext, releaseGameLock, runWithGameLock } from "./game-lock"
+import { acquireGameLock, GameLockContext, releaseGameLock } from "./game-lock"
 
 /**
  * Loads the game for the rest of the request, after taking the game's lock.
@@ -21,8 +21,8 @@ import { acquireGameLock, GameLockContext, releaseGameLock, runWithGameLock } fr
  * updated game. This prevents double votes, double taps, joins past 10 players and
  * any other read-then-write race.
  *
- * The lock is released during pauses between phases (see pauseGame), so an action
- * sent during the intro or a reveal is rejected immediately rather than queued.
+ * Requests never wait out the pauses between phases (see pending-transition.ts), so the
+ * lock is only held for a few quick reads and writes.
  */
 export async function gameDataHandler(
   req: Request,
@@ -50,7 +50,7 @@ export async function gameDataHandler(
       return
     }
     res.locals = { ...res.locals, gameCode: code, gameData: data }
-    runWithGameLock(lock, next)
+    next()
     return
   } catch (err: any) {
     handleInternalError(res, err)

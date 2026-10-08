@@ -77,7 +77,10 @@ export const putGame: (code: string, game: unknown) => Promise<void> = (
 
 export const lockOf: (code: string) => Promise<any> = (code: string) => read(`gameLocks/${code}`)
 
-/** Polls the game until `predicate` holds, and returns it. */
+/**
+ * Polls the game until `predicate` holds, and returns it. Like a client, calls /advance when a
+ * pause between phases is over.
+ */
 export async function waitForGame(
   code: string,
   predicate: (game: any) => boolean,
@@ -88,9 +91,54 @@ export async function waitForGame(
   while (Date.now() - start < timeoutMs) {
     const game: any = await getGame(code)
     if (game !== null && predicate(game)) return game
-    await sleep(300)
+    if (game?.pendingTransition !== undefined && game.pendingTransition.at <= Date.now()) {
+      await api("advance", { code })
+    } else {
+      await sleep(200)
+    }
   }
   throw new Error(`Timed out waiting for: ${what}`)
+}
+
+/** Waits for the game's pause to end and moves it on, like clients do. Returns the game. */
+export async function advanceWhenDue(code: string): Promise<any> {
+  return waitForGame(code, (g: any) => g.pendingTransition === undefined, "the end of the pause")
+}
+
+/** Records the events the database sends a listener of `path`, through its streaming API. */
+export function recordEvents(path: string): {
+  events: { type: string; data: any }[]
+  stop: () => void
+} {
+  const events: { type: string; data: any }[] = []
+  const controller: AbortController = new AbortController()
+  const listen: () => Promise<void> = async () => {
+    const res: Response = await fetch(`${DATABASE_URL}/${path}.json?${FUNCTIONS_NAMESPACE}`, {
+      headers: { ...ADMIN, Accept: "text/event-stream" },
+      signal: controller.signal,
+    })
+    const reader: ReadableStreamDefaultReader<Uint8Array> = (
+      res.body as ReadableStream<Uint8Array>
+    ).getReader()
+    const decoder: TextDecoder = new TextDecoder()
+    let buffer: string = ""
+    for (;;) {
+      const { done, value } = await reader.read()
+      if (done) return
+      buffer += decoder.decode(value, { stream: true })
+      let end: number
+      while ((end = buffer.indexOf("\n\n")) >= 0) {
+        const [typeLine, dataLine] = buffer.slice(0, end).split("\n")
+        buffer = buffer.slice(end + 2)
+        const type: string = typeLine.replace("event: ", "")
+        if (type === "put" || type === "patch") {
+          events.push({ type, data: JSON.parse(dataLine.replace("data: ", "")).data })
+        }
+      }
+    }
+  }
+  listen().catch(() => undefined)
+  return { events, stop: () => controller.abort() }
 }
 
 export const cards: (pile: unknown) => string[] = (pile: unknown) =>

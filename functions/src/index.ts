@@ -37,11 +37,8 @@ routesConfig(app)
  * Expose Express API as a single Cloud Function,
  * accessible via "/api/"
  *
- * Every request finishes all of its work, including the pauses between game phases,
- * before it responds: Cloud Functions only guarantees CPU while a request is open.
- * The longest request is startGame with the long intro (30s pause), hence the timeout.
+ * Every request finishes all of its work before it responds: Cloud Functions only guarantees
+ * CPU while a request is open. Requests never wait out the pauses between game phases (see
+ * pending-transition.ts), so they all respond quickly.
  */
-export const api: functions.https.HttpsFunction = functions.https.onRequest(
-  { timeoutSeconds: 120 },
-  app,
-)
+export const api: functions.https.HttpsFunction = functions.https.onRequest(app)

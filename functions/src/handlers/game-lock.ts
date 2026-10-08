@@ -1,4 +1,3 @@
-import { AsyncLocalStorage } from "async_hooks"
 import { randomUUID } from "crypto"
 
 import * as admin from "firebase-admin"
@@ -14,14 +13,14 @@ const LOCKS_NODE: string = "gameLocks"
 /**
  * How long a lock lives if its request never releases it, e.g. a killed instance.
  *
- * The lock is released during pauses (see pauseGame), so a request only holds it for a
- * few quick database reads and writes in a row. 20s is far longer than that, and caps
- * how long a crash can freeze a game.
+ * Requests never pause (see pending-transition.ts), so a request only holds the lock for a few
+ * quick database reads and writes in a row. 10s is far longer than that, and caps how long a
+ * crash can freeze a game.
  */
-export const LOCK_TTL_MS: number = 20_000
+export const LOCK_TTL_MS: number = 10_000
 
-/** How long a request waits for its turn before giving up. Covers the 30s long intro. */
-export const LOCK_MAX_WAIT_MS: number = 60_000
+/** How long a request waits for its turn before giving up. Longer than a crashed lock lives. */
+export const LOCK_MAX_WAIT_MS: number = 15_000
 
 const LOCK_RETRY_MS: number = 100
 
@@ -30,44 +29,10 @@ interface GameLock {
   expiresAt: number
 }
 
-/** The lock held by the current request. `token` is undefined while the request is paused. */
+/** The lock held by the current request. `token` is undefined once released. */
 export interface GameLockContext {
   gameCode: string
   token: string | undefined
-}
-
-const lockContext: AsyncLocalStorage<GameLockContext> = new AsyncLocalStorage<GameLockContext>()
-
-/** Runs `fn`, and everything it awaits, as the holder of `context`'s lock. */
-export function runWithGameLock(context: GameLockContext, fn: () => void): void {
-  lockContext.run(context, fn)
-}
-
-/**
- * Pauses the game for `ms` between two phases, such as the intro or the vote reveal.
- *
- * The lock is released during the pause, so actions that arrive in the meantime are
- * checked against the paused phase and rejected right away, instead of waiting and
- * being applied to a phase they were never meant for. The lock is taken back before
- * continuing, so callers must re-read the game after pausing.
- */
-export async function pauseGame(ms: number): Promise<void> {
-  const context: GameLockContext | undefined = lockContext.getStore()
-  if (context?.token === undefined) {
-    await sleep(ms)
-    return
-  }
-
-  await releaseGameLock(context.gameCode, context.token)
-  context.token = undefined
-
-  await sleep(ms)
-
-  const token: string | undefined = await acquireGameLock(context.gameCode)
-  if (token === undefined) {
-    throw new Error(`Could not take back the lock of game ${context.gameCode} after a pause`)
-  }
-  context.token = token
 }
 
 /**

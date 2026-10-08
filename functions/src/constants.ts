@@ -27,6 +27,7 @@ export const DATABASE_NODE_SPECIAL_ELECTION_PLAYER: string = "specialElectionPla
 export const DATABASE_NODE_SETTINGS: string = "settings"
 export const DATABASE_NODE_STATUS: string = "status"
 export const DATABASE_NODE_SUB_STATUS: string = "subStatus"
+export const DATABASE_NODE_PENDING_TRANSITION: string = "pendingTransition"
 
 /// Player
 export const DATABASE_NODE_NAME: string = "name"
