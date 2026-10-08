@@ -25,6 +25,7 @@ import {
 import {
   handleCreated,
   handleForbiddenError,
+  handleGameNotFound,
   handleGameProgressTamperingError,
   handleGameStartedError,
   handleIneligiblePlayerError,
@@ -147,6 +148,11 @@ export async function joinGame(req: Request, res: Response): Promise<void> {
       return
     }
 
+    if (gameData[constants.DATABASE_NODE_STATUS] === ChamberStatus[ChamberStatus.deleted]) {
+      handleGameNotFound(res)
+      return
+    }
+
     if (players.some((player: any) => player[constants.DATABASE_NODE_ID] === userId)) {
       handlePlayerAlreadyInGame(res)
       return
@@ -212,8 +218,11 @@ export async function unJoinGame(req: Request, res: Response): Promise<void> {
         .update(
           new GameDataUpdates({
             [`${constants.DATABASE_NODE_PLAYERS}.override`]: [],
+            // Marked in the same write, so a join arriving during the pause is rejected.
+            [constants.DATABASE_NODE_STATUS]: ChamberStatus[ChamberStatus.deleted],
           }).updates,
         )
+      // Gives clients a moment to see the game was closed before it disappears.
       await pauseGame(2000)
       await admin
         .database()
@@ -863,8 +872,12 @@ export async function presidentDiscardPolicy(req: Request, res: Response): Promi
       return
     }
 
+    // Empty when there's no current session (game not started or ended): the phase check
+    // below then rejects the request.
     const presidentPolicies: string[] =
-      gameData[constants.DATABASE_NODE_CURRENT_SESSION][constants.DATABASE_NODE_PRESIDENT_POLICIES]
+      gameData[constants.DATABASE_NODE_CURRENT_SESSION]?.[
+        constants.DATABASE_NODE_PRESIDENT_POLICIES
+      ] ?? []
 
     if (
       gameData[constants.DATABASE_NODE_SUB_STATUS] !=
@@ -919,8 +932,12 @@ export async function chancellorDiscardPolicy(req: Request, res: Response): Prom
       return
     }
 
+    // Empty when there's no current session (game not started or ended): the phase check
+    // below then rejects the request.
     const chancellorPolicies: string[] =
-      gameData[constants.DATABASE_NODE_CURRENT_SESSION][constants.DATABASE_NODE_CHANCELLOR_POLICIES]
+      gameData[constants.DATABASE_NODE_CURRENT_SESSION]?.[
+        constants.DATABASE_NODE_CHANCELLOR_POLICIES
+      ] ?? []
 
     if (
       gameData[constants.DATABASE_NODE_SUB_STATUS] !=

@@ -3,6 +3,8 @@
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc --watch",
+    "test": "npm run build && firebase emulators:exec --only functions,database --project demo-shtest \"npm run test:run\"",
+    "test:run": "tsc -p tsconfig.test.json && node --test --test-concurrency=1 lib-test/*.test.js",
     "lint": "prettier --check . && eslint . --fix",
     "format": "prettier --write .",
     "serve": "kill-port --port 9099,4001,5001,9000 && npm run build:watch & firebase emulators:start",

@@ -68,6 +68,8 @@ node_modules/
 .env
 *.env.*
 !example.env
+# Emulator-only settings for the tests
+!functions/.env.demo-shtest
 
 # IntelliJ folder
 .idea

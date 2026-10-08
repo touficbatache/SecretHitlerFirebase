@@ -119,7 +119,8 @@ export async function getGameData(gameCode: string) {
   if (data == null) {
     return
   }
-  data[constants.DATABASE_NODE_PLAYERS] = Object.values(data[constants.DATABASE_NODE_PLAYERS])
+  // A lobby being closed has no players left (see unJoinGame)
+  data[constants.DATABASE_NODE_PLAYERS] = Object.values(data[constants.DATABASE_NODE_PLAYERS] ?? {})
   if (data[constants.DATABASE_NODE_SESSIONS] != null) {
     data[constants.DATABASE_NODE_SESSIONS] = Object.values(data[constants.DATABASE_NODE_SESSIONS])
   }

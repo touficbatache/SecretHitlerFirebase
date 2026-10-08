@@ -5,6 +5,8 @@ export enum ChamberStatus {
   legislativeSession = "legislativeSession",
   presidentialPower = "presidentialPower",
   gameEnded = "gameEnded",
+  /** The owner left the lobby; the game is removed a moment later. */
+  deleted = "deleted",
 }
 
 export enum ChamberSubStatus {

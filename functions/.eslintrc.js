@@ -7,11 +7,12 @@ module.exports = {
   extends: ["eslint:recommended", "plugin:@typescript-eslint/recommended", "prettier"],
   parser: "@typescript-eslint/parser",
   parserOptions: {
-    project: ["tsconfig.json", "tsconfig.dev.json"],
+    project: ["tsconfig.json", "tsconfig.test.json", "tsconfig.dev.json"],
     sourceType: "module",
   },
   ignorePatterns: [
     "/lib/**/*", // Ignore built files.
+    "/lib-test/**/*",
   ],
   plugins: ["@typescript-eslint", "import"],
   rules: {
