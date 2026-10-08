@@ -63,6 +63,20 @@ The Emulator UI can be accessed using the URL shown in the terminal, usually htt
 client can simulate a whole game. It only works inside the emulator. Deployed functions ignore it, so a `DEV=true`
 copied into `.env.[PROJECTNAME]` by `npm run link` can't disable authentication in production.
 
+## Tests
+
+The tests play games through the API against the Firebase emulators (functions and database), in
+dev mode. They cover the game rules, concurrent requests, phase timing, lobbies and the database
+security rules. From `functions/`:
+
+```shell
+npm test
+```
+
+This builds the functions, starts the emulators on the `demo-shtest` project (`DEV=true` comes from
+`functions/.env.demo-shtest`), runs every file in `functions/test/` and stops the emulators. A
+`functions/.env.local` file also applies to the emulator: make sure it doesn't set `DEV=false`.
+
 ## Deploy to production
 
 Inside to the `functions/` directory, make sure to set the correct environment variable values for production

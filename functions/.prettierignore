@@ -7,3 +7,4 @@ node_modules
 
 # Ignore files for NPM
 package-lock.json
+/lib-test
