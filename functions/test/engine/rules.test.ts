@@ -372,6 +372,7 @@ describe("veto", () => {
       { type: "answerVeto", by: "p1", accept: true },
     )
     assert.equal(accepted.phase.name, "vetoAccepted")
+    assert.equal(accepted.session?.vetoRefused, false)
     assert.equal(accepted.electionTracker, 1)
     assert.deepEqual(accepted.board, { liberal: 0, fascist: 5 })
     assert.equal(totalCards(accepted), 10)
@@ -407,6 +408,7 @@ describe("presidential powers", () => {
       "fascist",
     )
     assert.deepEqual(peek.phase, { name: "power", power: "policyPeek", used: false, done: false })
+    assert.equal(peek.session?.power, "policyPeek")
     const pile: Policy[] = [...peek.drawPile]
     const used: GameState = must(peek, { type: "usePower", by: "p1" })
     assert.deepEqual(used.session?.peekedPolicies, pile.slice(0, 3))

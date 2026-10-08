@@ -119,6 +119,14 @@ export async function getGameData(gameCode: string) {
   if (data == null) {
     return
   }
+  return decodeGameData(data)
+}
+
+/**
+ * A game as stored, in the shape the code works with: players and sessions as arrays, and policy
+ * lists split from their comma-separated strings. Changes `data` in place.
+ */
+export function decodeGameData(data: any) {
   // A lobby being closed has no players left (see unJoinGame)
   data[constants.DATABASE_NODE_PLAYERS] = Object.values(data[constants.DATABASE_NODE_PLAYERS] ?? {})
   if (data[constants.DATABASE_NODE_SESSIONS] != null) {

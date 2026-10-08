@@ -1,0 +1,3455 @@
+[
+  {
+    "scenario": "session",
+    "after": "nominate",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 0, "liberal": 0 },
+        "drawPile": "liberal,fascist,fascist,liberal,liberal,fascist,fascist,liberal,liberal,liberal,fascist"
+      },
+      "electionTracker": 0,
+      "lastPresidentId": "randId1",
+      "currentSession": { "chancellorId": "randId3", "presidentId": "randId1" },
+      "status": "election",
+      "subStatus": "election_voting"
+    }
+  },
+  {
+    "scenario": "session",
+    "after": "votes",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 0, "liberal": 0 },
+        "drawPile": "liberal,fascist,fascist,liberal,liberal,fascist,fascist,liberal,liberal,liberal,fascist"
+      },
+      "electionTracker": 0,
+      "lastPresidentId": "randId1",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId3",
+      "currentSession": {
+        "chancellorId": "randId3",
+        "hasSucceeded": true,
+        "presidentId": "randId1",
+        "votes": {
+          "randId0": true,
+          "randId1": true,
+          "randId2": true,
+          "randId3": true,
+          "randId4": true,
+          "randId5": true,
+          "randId6": true
+        }
+      },
+      "status": "election",
+      "subStatus": "election_votingEnded",
+      "pendingTransition": { "at": "<time>", "kind": "beginLegislativeSession" }
+    }
+  },
+  {
+    "scenario": "session",
+    "after": "advance",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 0, "liberal": 0 },
+        "drawPile": "liberal,liberal,fascist,fascist,liberal,liberal,liberal,fascist"
+      },
+      "electionTracker": 0,
+      "lastPresidentId": "randId1",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId3",
+      "currentSession": {
+        "chancellorId": "randId3",
+        "hasSucceeded": true,
+        "presidentId": "randId1",
+        "presidentPolicies": "liberal,fascist,fascist",
+        "votes": {
+          "randId0": true,
+          "randId1": true,
+          "randId2": true,
+          "randId3": true,
+          "randId4": true,
+          "randId5": true,
+          "randId6": true
+        }
+      },
+      "status": "legislativeSession",
+      "subStatus": "legislativeSession_presidentDiscardingPolicy"
+    }
+  },
+  {
+    "scenario": "session",
+    "after": "president discards",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 0, "liberal": 0 },
+        "discardPile": { "fascist": 1 },
+        "drawPile": "liberal,liberal,fascist,fascist,liberal,liberal,liberal,fascist"
+      },
+      "electionTracker": 0,
+      "lastPresidentId": "randId1",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId3",
+      "currentSession": {
+        "chancellorId": "randId3",
+        "chancellorPolicies": "liberal,fascist",
+        "hasSucceeded": true,
+        "presidentId": "randId1",
+        "presidentPolicies": "liberal,fascist,fascist",
+        "votes": {
+          "randId0": true,
+          "randId1": true,
+          "randId2": true,
+          "randId3": true,
+          "randId4": true,
+          "randId5": true,
+          "randId6": true
+        }
+      },
+      "status": "legislativeSession",
+      "subStatus": "legislativeSession_chancellorDiscardingPolicy"
+    }
+  },
+  {
+    "scenario": "session",
+    "after": "chancellor discards",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 0, "liberal": 1 },
+        "discardPile": { "fascist": 2 },
+        "drawPile": "liberal,liberal,fascist,fascist,liberal,liberal,liberal,fascist"
+      },
+      "electionTracker": 0,
+      "lastPresidentId": "randId1",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId3",
+      "currentSession": {
+        "chancellorId": "randId3",
+        "chancellorPolicies": "liberal,fascist",
+        "enactedPolicy": "liberal",
+        "hasSucceeded": true,
+        "presidentId": "randId1",
+        "presidentPolicies": "liberal,fascist,fascist",
+        "votes": {
+          "randId0": true,
+          "randId1": true,
+          "randId2": true,
+          "randId3": true,
+          "randId4": true,
+          "randId5": true,
+          "randId6": true
+        }
+      },
+      "status": "legislativeSession",
+      "subStatus": "legislativeSession_sessionEndedWithPolicyEnactment",
+      "pendingTransition": { "at": "<time>", "kind": "nextElection" }
+    }
+  },
+  {
+    "scenario": "session",
+    "after": "advance",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 0, "liberal": 1 },
+        "discardPile": { "fascist": 2 },
+        "drawPile": "liberal,liberal,fascist,fascist,liberal,liberal,liberal,fascist"
+      },
+      "electionTracker": 0,
+      "lastPresidentId": "randId2",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId3",
+      "currentSession": { "isSpecialElection": false, "presidentId": "randId2" },
+      "sessions": [
+        {
+          "chancellorId": "randId3",
+          "chancellorPolicies": "liberal,fascist",
+          "enactedPolicy": "liberal",
+          "hasSucceeded": true,
+          "presidentId": "randId1",
+          "presidentPolicies": "liberal,fascist,fascist",
+          "votes": {
+            "randId0": true,
+            "randId1": true,
+            "randId2": true,
+            "randId3": true,
+            "randId4": true,
+            "randId5": true,
+            "randId6": true
+          }
+        }
+      ],
+      "status": "election",
+      "subStatus": "election_presidentChoosingChancellor"
+    }
+  },
+  {
+    "scenario": "session",
+    "after": "nominate again",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 0, "liberal": 1 },
+        "discardPile": { "fascist": 2 },
+        "drawPile": "liberal,liberal,fascist,fascist,liberal,liberal,liberal,fascist"
+      },
+      "electionTracker": 0,
+      "lastPresidentId": "randId2",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId3",
+      "currentSession": {
+        "chancellorId": "randId5",
+        "isSpecialElection": false,
+        "presidentId": "randId2"
+      },
+      "sessions": [
+        {
+          "chancellorId": "randId3",
+          "chancellorPolicies": "liberal,fascist",
+          "enactedPolicy": "liberal",
+          "hasSucceeded": true,
+          "presidentId": "randId1",
+          "presidentPolicies": "liberal,fascist,fascist",
+          "votes": {
+            "randId0": true,
+            "randId1": true,
+            "randId2": true,
+            "randId3": true,
+            "randId4": true,
+            "randId5": true,
+            "randId6": true
+          }
+        }
+      ],
+      "status": "election",
+      "subStatus": "election_voting"
+    }
+  },
+  {
+    "scenario": "session",
+    "after": "votes fail",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 0, "liberal": 1 },
+        "discardPile": { "fascist": 2 },
+        "drawPile": "liberal,liberal,fascist,fascist,liberal,liberal,liberal,fascist"
+      },
+      "electionTracker": 1,
+      "lastPresidentId": "randId2",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId3",
+      "currentSession": {
+        "chancellorId": "randId5",
+        "hasSucceeded": false,
+        "isSpecialElection": false,
+        "presidentId": "randId2",
+        "votes": {
+          "randId0": false,
+          "randId1": false,
+          "randId2": false,
+          "randId3": false,
+          "randId4": false,
+          "randId5": false,
+          "randId6": false
+        }
+      },
+      "sessions": [
+        {
+          "chancellorId": "randId3",
+          "chancellorPolicies": "liberal,fascist",
+          "enactedPolicy": "liberal",
+          "hasSucceeded": true,
+          "presidentId": "randId1",
+          "presidentPolicies": "liberal,fascist,fascist",
+          "votes": {
+            "randId0": true,
+            "randId1": true,
+            "randId2": true,
+            "randId3": true,
+            "randId4": true,
+            "randId5": true,
+            "randId6": true
+          }
+        }
+      ],
+      "status": "election",
+      "subStatus": "election_votingEnded",
+      "pendingTransition": { "at": "<time>", "kind": "nextElection" }
+    }
+  },
+  {
+    "scenario": "session",
+    "after": "advance",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 0, "liberal": 1 },
+        "discardPile": { "fascist": 2 },
+        "drawPile": "liberal,liberal,fascist,fascist,liberal,liberal,liberal,fascist"
+      },
+      "electionTracker": 1,
+      "lastPresidentId": "randId3",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId3",
+      "currentSession": { "isSpecialElection": false, "presidentId": "randId3" },
+      "sessions": [
+        {
+          "chancellorId": "randId3",
+          "chancellorPolicies": "liberal,fascist",
+          "enactedPolicy": "liberal",
+          "hasSucceeded": true,
+          "presidentId": "randId1",
+          "presidentPolicies": "liberal,fascist,fascist",
+          "votes": {
+            "randId0": true,
+            "randId1": true,
+            "randId2": true,
+            "randId3": true,
+            "randId4": true,
+            "randId5": true,
+            "randId6": true
+          }
+        },
+        {
+          "chancellorId": "randId5",
+          "hasSucceeded": false,
+          "isSpecialElection": false,
+          "presidentId": "randId2",
+          "votes": {
+            "randId0": false,
+            "randId1": false,
+            "randId2": false,
+            "randId3": false,
+            "randId4": false,
+            "randId5": false,
+            "randId6": false
+          }
+        }
+      ],
+      "status": "election",
+      "subStatus": "election_presidentChoosingChancellor"
+    }
+  },
+  {
+    "scenario": "chaos",
+    "after": "nominate",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 2, "liberal": 1 },
+        "discardPile": { "fascist": 2, "liberal": 1 },
+        "drawPile": "fascist,liberal,liberal,liberal,liberal,liberal,liberal,liberal,liberal"
+      },
+      "electionTracker": 1,
+      "lastPresidentId": "randId1",
+      "lastSuccessfulPresidentId": "randId4",
+      "lastSuccessfulChancellorId": "randId5",
+      "currentSession": { "chancellorId": "randId3", "presidentId": "randId1" },
+      "status": "election",
+      "subStatus": "election_voting"
+    }
+  },
+  {
+    "scenario": "chaos",
+    "after": "votes fail",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 2, "liberal": 1 },
+        "discardPile": { "fascist": 2, "liberal": 1 },
+        "drawPile": "fascist,liberal,liberal,liberal,liberal,liberal,liberal,liberal,liberal"
+      },
+      "electionTracker": 2,
+      "lastPresidentId": "randId1",
+      "lastSuccessfulPresidentId": "randId4",
+      "lastSuccessfulChancellorId": "randId5",
+      "currentSession": {
+        "chancellorId": "randId3",
+        "hasSucceeded": false,
+        "presidentId": "randId1",
+        "votes": {
+          "randId0": false,
+          "randId1": false,
+          "randId2": false,
+          "randId3": false,
+          "randId4": false,
+          "randId5": false,
+          "randId6": false
+        }
+      },
+      "status": "election",
+      "subStatus": "election_votingEnded",
+      "pendingTransition": { "at": "<time>", "kind": "nextElection" }
+    }
+  },
+  {
+    "scenario": "chaos",
+    "after": "advance",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 2, "liberal": 1 },
+        "discardPile": { "fascist": 2, "liberal": 1 },
+        "drawPile": "fascist,liberal,liberal,liberal,liberal,liberal,liberal,liberal,liberal"
+      },
+      "electionTracker": 2,
+      "lastPresidentId": "randId2",
+      "lastSuccessfulPresidentId": "randId4",
+      "lastSuccessfulChancellorId": "randId5",
+      "currentSession": { "isSpecialElection": false, "presidentId": "randId2" },
+      "sessions": [
+        {
+          "chancellorId": "randId3",
+          "hasSucceeded": false,
+          "presidentId": "randId1",
+          "votes": {
+            "randId0": false,
+            "randId1": false,
+            "randId2": false,
+            "randId3": false,
+            "randId4": false,
+            "randId5": false,
+            "randId6": false
+          }
+        }
+      ],
+      "status": "election",
+      "subStatus": "election_presidentChoosingChancellor"
+    }
+  },
+  {
+    "scenario": "chaos",
+    "after": "nominate",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 2, "liberal": 1 },
+        "discardPile": { "fascist": 2, "liberal": 1 },
+        "drawPile": "fascist,liberal,liberal,liberal,liberal,liberal,liberal,liberal,liberal"
+      },
+      "electionTracker": 2,
+      "lastPresidentId": "randId2",
+      "lastSuccessfulPresidentId": "randId4",
+      "lastSuccessfulChancellorId": "randId5",
+      "currentSession": {
+        "chancellorId": "randId6",
+        "isSpecialElection": false,
+        "presidentId": "randId2"
+      },
+      "sessions": [
+        {
+          "chancellorId": "randId3",
+          "hasSucceeded": false,
+          "presidentId": "randId1",
+          "votes": {
+            "randId0": false,
+            "randId1": false,
+            "randId2": false,
+            "randId3": false,
+            "randId4": false,
+            "randId5": false,
+            "randId6": false
+          }
+        }
+      ],
+      "status": "election",
+      "subStatus": "election_voting"
+    }
+  },
+  {
+    "scenario": "chaos",
+    "after": "votes fail",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 2, "liberal": 1 },
+        "discardPile": { "fascist": 2, "liberal": 1 },
+        "drawPile": "fascist,liberal,liberal,liberal,liberal,liberal,liberal,liberal,liberal"
+      },
+      "electionTracker": 3,
+      "lastPresidentId": "randId2",
+      "lastSuccessfulPresidentId": "randId4",
+      "lastSuccessfulChancellorId": "randId5",
+      "currentSession": {
+        "chancellorId": "randId6",
+        "hasSucceeded": false,
+        "isSpecialElection": false,
+        "presidentId": "randId2",
+        "votes": {
+          "randId0": false,
+          "randId1": false,
+          "randId2": false,
+          "randId3": false,
+          "randId4": false,
+          "randId5": false,
+          "randId6": false
+        }
+      },
+      "sessions": [
+        {
+          "chancellorId": "randId3",
+          "hasSucceeded": false,
+          "presidentId": "randId1",
+          "votes": {
+            "randId0": false,
+            "randId1": false,
+            "randId2": false,
+            "randId3": false,
+            "randId4": false,
+            "randId5": false,
+            "randId6": false
+          }
+        }
+      ],
+      "status": "election",
+      "subStatus": "election_votingEnded",
+      "pendingTransition": { "at": "<time>", "kind": "frustratedPopulace" }
+    }
+  },
+  {
+    "scenario": "chaos",
+    "after": "advance (chaos)",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 3, "liberal": 1 },
+        "discardPile": { "fascist": 2, "liberal": 1 },
+        "drawPile": "liberal,liberal,liberal,liberal,liberal,liberal,liberal,liberal"
+      },
+      "electionTracker": 0,
+      "lastPresidentId": "randId3",
+      "currentSession": { "isSpecialElection": false, "presidentId": "randId3" },
+      "sessions": [
+        {
+          "chancellorId": "randId3",
+          "hasSucceeded": false,
+          "presidentId": "randId1",
+          "votes": {
+            "randId0": false,
+            "randId1": false,
+            "randId2": false,
+            "randId3": false,
+            "randId4": false,
+            "randId5": false,
+            "randId6": false
+          }
+        },
+        {
+          "chancellorId": "randId6",
+          "hasSucceeded": false,
+          "isSpecialElection": false,
+          "presidentId": "randId2",
+          "votes": {
+            "randId0": false,
+            "randId1": false,
+            "randId2": false,
+            "randId3": false,
+            "randId4": false,
+            "randId5": false,
+            "randId6": false
+          }
+        },
+        {
+          "enactedPolicy": "fascist",
+          "enactmentByFrustratedPopulace": true,
+          "hasSucceeded": false,
+          "isSpecialElection": false
+        }
+      ],
+      "status": "election",
+      "subStatus": "election_presidentChoosingChancellor"
+    }
+  },
+  {
+    "scenario": "chaos reshuffle",
+    "after": "nominate",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 0, "liberal": 1 },
+        "discardPile": { "liberal": 4 },
+        "drawPile": "liberal,liberal,liberal"
+      },
+      "electionTracker": 2,
+      "lastPresidentId": "randId1",
+      "currentSession": { "chancellorId": "randId3", "presidentId": "randId1" },
+      "status": "election",
+      "subStatus": "election_voting"
+    }
+  },
+  {
+    "scenario": "chaos reshuffle",
+    "after": "votes fail",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 0, "liberal": 1 },
+        "discardPile": { "liberal": 4 },
+        "drawPile": "liberal,liberal,liberal"
+      },
+      "electionTracker": 3,
+      "lastPresidentId": "randId1",
+      "currentSession": {
+        "chancellorId": "randId3",
+        "hasSucceeded": false,
+        "presidentId": "randId1",
+        "votes": {
+          "randId0": false,
+          "randId1": false,
+          "randId2": false,
+          "randId3": false,
+          "randId4": false,
+          "randId5": false,
+          "randId6": false
+        }
+      },
+      "status": "election",
+      "subStatus": "election_votingEnded",
+      "pendingTransition": { "at": "<time>", "kind": "frustratedPopulace" }
+    }
+  },
+  {
+    "scenario": "chaos reshuffle",
+    "after": "advance (chaos)",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 0, "liberal": 2 },
+        "drawPile": "liberal,liberal,liberal,liberal,liberal,liberal"
+      },
+      "electionTracker": 0,
+      "lastPresidentId": "randId2",
+      "currentSession": { "isSpecialElection": false, "presidentId": "randId2" },
+      "sessions": [
+        {
+          "chancellorId": "randId3",
+          "hasSucceeded": false,
+          "presidentId": "randId1",
+          "votes": {
+            "randId0": false,
+            "randId1": false,
+            "randId2": false,
+            "randId3": false,
+            "randId4": false,
+            "randId5": false,
+            "randId6": false
+          }
+        },
+        {
+          "enactedPolicy": "liberal",
+          "enactmentByFrustratedPopulace": true,
+          "hasSucceeded": false,
+          "isSpecialElection": false
+        }
+      ],
+      "status": "election",
+      "subStatus": "election_presidentChoosingChancellor"
+    }
+  },
+  {
+    "scenario": "veto refused",
+    "after": "nominate",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 5, "liberal": 0 },
+        "drawPile": "liberal,liberal,fascist,liberal,liberal,liberal,liberal,liberal,liberal,liberal"
+      },
+      "electionTracker": 0,
+      "lastPresidentId": "randId1",
+      "currentSession": { "chancellorId": "randId3", "presidentId": "randId1" },
+      "status": "election",
+      "subStatus": "election_voting"
+    }
+  },
+  {
+    "scenario": "veto refused",
+    "after": "votes",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 5, "liberal": 0 },
+        "drawPile": "liberal,liberal,fascist,liberal,liberal,liberal,liberal,liberal,liberal,liberal"
+      },
+      "electionTracker": 0,
+      "lastPresidentId": "randId1",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId3",
+      "currentSession": {
+        "chancellorId": "randId3",
+        "hasSucceeded": true,
+        "presidentId": "randId1",
+        "votes": {
+          "randId0": true,
+          "randId1": true,
+          "randId2": true,
+          "randId3": true,
+          "randId4": true,
+          "randId5": true,
+          "randId6": true
+        }
+      },
+      "status": "election",
+      "subStatus": "election_votingEnded",
+      "pendingTransition": { "at": "<time>", "kind": "beginLegislativeSession" }
+    }
+  },
+  {
+    "scenario": "veto refused",
+    "after": "advance",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 5, "liberal": 0 },
+        "drawPile": "liberal,liberal,liberal,liberal,liberal,liberal,liberal"
+      },
+      "electionTracker": 0,
+      "lastPresidentId": "randId1",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId3",
+      "currentSession": {
+        "chancellorId": "randId3",
+        "hasSucceeded": true,
+        "presidentId": "randId1",
+        "presidentPolicies": "liberal,liberal,fascist",
+        "votes": {
+          "randId0": true,
+          "randId1": true,
+          "randId2": true,
+          "randId3": true,
+          "randId4": true,
+          "randId5": true,
+          "randId6": true
+        }
+      },
+      "status": "legislativeSession",
+      "subStatus": "legislativeSession_presidentDiscardingPolicy"
+    }
+  },
+  {
+    "scenario": "veto refused",
+    "after": "president discards",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 5, "liberal": 0 },
+        "discardPile": { "fascist": 1 },
+        "drawPile": "liberal,liberal,liberal,liberal,liberal,liberal,liberal"
+      },
+      "electionTracker": 0,
+      "lastPresidentId": "randId1",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId3",
+      "currentSession": {
+        "chancellorId": "randId3",
+        "chancellorPolicies": "liberal,liberal",
+        "hasSucceeded": true,
+        "presidentId": "randId1",
+        "presidentPolicies": "liberal,liberal,fascist",
+        "votes": {
+          "randId0": true,
+          "randId1": true,
+          "randId2": true,
+          "randId3": true,
+          "randId4": true,
+          "randId5": true,
+          "randId6": true
+        }
+      },
+      "status": "legislativeSession",
+      "subStatus": "legislativeSession_chancellorDiscardingPolicy"
+    }
+  },
+  {
+    "scenario": "veto refused",
+    "after": "ask veto",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 5, "liberal": 0 },
+        "discardPile": { "fascist": 1 },
+        "drawPile": "liberal,liberal,liberal,liberal,liberal,liberal,liberal"
+      },
+      "electionTracker": 0,
+      "lastPresidentId": "randId1",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId3",
+      "currentSession": {
+        "chancellorId": "randId3",
+        "chancellorPolicies": "liberal,liberal",
+        "hasSucceeded": true,
+        "presidentId": "randId1",
+        "presidentPolicies": "liberal,liberal,fascist",
+        "votes": {
+          "randId0": true,
+          "randId1": true,
+          "randId2": true,
+          "randId3": true,
+          "randId4": true,
+          "randId5": true,
+          "randId6": true
+        }
+      },
+      "status": "legislativeSession",
+      "subStatus": "legislativeSession_chancellorSeekingVeto"
+    }
+  },
+  {
+    "scenario": "veto refused",
+    "after": "refuse",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 5, "liberal": 0 },
+        "discardPile": { "fascist": 1 },
+        "drawPile": "liberal,liberal,liberal,liberal,liberal,liberal,liberal"
+      },
+      "electionTracker": 0,
+      "lastPresidentId": "randId1",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId3",
+      "currentSession": {
+        "chancellorId": "randId3",
+        "chancellorPolicies": "liberal,liberal",
+        "hasSucceeded": true,
+        "isVetoRefused": true,
+        "presidentId": "randId1",
+        "presidentPolicies": "liberal,liberal,fascist",
+        "votes": {
+          "randId0": true,
+          "randId1": true,
+          "randId2": true,
+          "randId3": true,
+          "randId4": true,
+          "randId5": true,
+          "randId6": true
+        }
+      },
+      "status": "legislativeSession",
+      "subStatus": "legislativeSession_chancellorDiscardingPolicy"
+    }
+  },
+  {
+    "scenario": "veto refused",
+    "after": "chancellor enacts",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 5, "liberal": 1 },
+        "discardPile": { "fascist": 1, "liberal": 1 },
+        "drawPile": "liberal,liberal,liberal,liberal,liberal,liberal,liberal"
+      },
+      "electionTracker": 0,
+      "lastPresidentId": "randId1",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId3",
+      "currentSession": {
+        "chancellorId": "randId3",
+        "chancellorPolicies": "liberal,liberal",
+        "enactedPolicy": "liberal",
+        "hasSucceeded": true,
+        "isVetoRefused": true,
+        "presidentId": "randId1",
+        "presidentPolicies": "liberal,liberal,fascist",
+        "votes": {
+          "randId0": true,
+          "randId1": true,
+          "randId2": true,
+          "randId3": true,
+          "randId4": true,
+          "randId5": true,
+          "randId6": true
+        }
+      },
+      "status": "legislativeSession",
+      "subStatus": "legislativeSession_sessionEndedWithPolicyEnactment",
+      "pendingTransition": { "at": "<time>", "kind": "nextElection" }
+    }
+  },
+  {
+    "scenario": "veto accepted",
+    "after": "nominate",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 5, "liberal": 0 },
+        "drawPile": "liberal,liberal,fascist,liberal,liberal,liberal,liberal,liberal,liberal,liberal"
+      },
+      "electionTracker": 1,
+      "lastPresidentId": "randId1",
+      "currentSession": { "chancellorId": "randId3", "presidentId": "randId1" },
+      "status": "election",
+      "subStatus": "election_voting"
+    }
+  },
+  {
+    "scenario": "veto accepted",
+    "after": "votes",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 5, "liberal": 0 },
+        "drawPile": "liberal,liberal,fascist,liberal,liberal,liberal,liberal,liberal,liberal,liberal"
+      },
+      "electionTracker": 1,
+      "lastPresidentId": "randId1",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId3",
+      "currentSession": {
+        "chancellorId": "randId3",
+        "hasSucceeded": true,
+        "presidentId": "randId1",
+        "votes": {
+          "randId0": true,
+          "randId1": true,
+          "randId2": true,
+          "randId3": true,
+          "randId4": true,
+          "randId5": true,
+          "randId6": true
+        }
+      },
+      "status": "election",
+      "subStatus": "election_votingEnded",
+      "pendingTransition": { "at": "<time>", "kind": "beginLegislativeSession" }
+    }
+  },
+  {
+    "scenario": "veto accepted",
+    "after": "advance",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 5, "liberal": 0 },
+        "drawPile": "liberal,liberal,liberal,liberal,liberal,liberal,liberal"
+      },
+      "electionTracker": 1,
+      "lastPresidentId": "randId1",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId3",
+      "currentSession": {
+        "chancellorId": "randId3",
+        "hasSucceeded": true,
+        "presidentId": "randId1",
+        "presidentPolicies": "liberal,liberal,fascist",
+        "votes": {
+          "randId0": true,
+          "randId1": true,
+          "randId2": true,
+          "randId3": true,
+          "randId4": true,
+          "randId5": true,
+          "randId6": true
+        }
+      },
+      "status": "legislativeSession",
+      "subStatus": "legislativeSession_presidentDiscardingPolicy"
+    }
+  },
+  {
+    "scenario": "veto accepted",
+    "after": "president discards",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 5, "liberal": 0 },
+        "discardPile": { "fascist": 1 },
+        "drawPile": "liberal,liberal,liberal,liberal,liberal,liberal,liberal"
+      },
+      "electionTracker": 1,
+      "lastPresidentId": "randId1",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId3",
+      "currentSession": {
+        "chancellorId": "randId3",
+        "chancellorPolicies": "liberal,liberal",
+        "hasSucceeded": true,
+        "presidentId": "randId1",
+        "presidentPolicies": "liberal,liberal,fascist",
+        "votes": {
+          "randId0": true,
+          "randId1": true,
+          "randId2": true,
+          "randId3": true,
+          "randId4": true,
+          "randId5": true,
+          "randId6": true
+        }
+      },
+      "status": "legislativeSession",
+      "subStatus": "legislativeSession_chancellorDiscardingPolicy"
+    }
+  },
+  {
+    "scenario": "veto accepted",
+    "after": "ask veto",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 5, "liberal": 0 },
+        "discardPile": { "fascist": 1 },
+        "drawPile": "liberal,liberal,liberal,liberal,liberal,liberal,liberal"
+      },
+      "electionTracker": 1,
+      "lastPresidentId": "randId1",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId3",
+      "currentSession": {
+        "chancellorId": "randId3",
+        "chancellorPolicies": "liberal,liberal",
+        "hasSucceeded": true,
+        "presidentId": "randId1",
+        "presidentPolicies": "liberal,liberal,fascist",
+        "votes": {
+          "randId0": true,
+          "randId1": true,
+          "randId2": true,
+          "randId3": true,
+          "randId4": true,
+          "randId5": true,
+          "randId6": true
+        }
+      },
+      "status": "legislativeSession",
+      "subStatus": "legislativeSession_chancellorSeekingVeto"
+    }
+  },
+  {
+    "scenario": "veto accepted",
+    "after": "accept",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 5, "liberal": 0 },
+        "discardPile": { "fascist": 1, "liberal": 2 },
+        "drawPile": "liberal,liberal,liberal,liberal,liberal,liberal,liberal"
+      },
+      "electionTracker": 2,
+      "lastPresidentId": "randId1",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId3",
+      "currentSession": {
+        "chancellorId": "randId3",
+        "chancellorPolicies": "liberal,liberal",
+        "hasSucceeded": true,
+        "isVetoRefused": false,
+        "presidentId": "randId1",
+        "presidentPolicies": "liberal,liberal,fascist",
+        "votes": {
+          "randId0": true,
+          "randId1": true,
+          "randId2": true,
+          "randId3": true,
+          "randId4": true,
+          "randId5": true,
+          "randId6": true
+        }
+      },
+      "status": "legislativeSession",
+      "subStatus": "legislativeSession_sessionEndedWithVeto",
+      "pendingTransition": { "at": "<time>", "kind": "nextElection" }
+    }
+  },
+  {
+    "scenario": "veto accepted",
+    "after": "advance",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 5, "liberal": 0 },
+        "discardPile": { "fascist": 1, "liberal": 2 },
+        "drawPile": "liberal,liberal,liberal,liberal,liberal,liberal,liberal"
+      },
+      "electionTracker": 2,
+      "lastPresidentId": "randId2",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId3",
+      "currentSession": { "isSpecialElection": false, "presidentId": "randId2" },
+      "sessions": [
+        {
+          "chancellorId": "randId3",
+          "chancellorPolicies": "liberal,liberal",
+          "hasSucceeded": true,
+          "isVetoRefused": false,
+          "presidentId": "randId1",
+          "presidentPolicies": "liberal,liberal,fascist",
+          "votes": {
+            "randId0": true,
+            "randId1": true,
+            "randId2": true,
+            "randId3": true,
+            "randId4": true,
+            "randId5": true,
+            "randId6": true
+          }
+        }
+      ],
+      "status": "election",
+      "subStatus": "election_presidentChoosingChancellor"
+    }
+  },
+  {
+    "scenario": "veto accepted at 2",
+    "after": "nominate",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 5, "liberal": 0 },
+        "drawPile": "liberal,liberal,fascist,liberal,liberal,liberal,liberal,liberal,liberal,liberal"
+      },
+      "electionTracker": 2,
+      "lastPresidentId": "randId1",
+      "currentSession": { "chancellorId": "randId3", "presidentId": "randId1" },
+      "status": "election",
+      "subStatus": "election_voting"
+    }
+  },
+  {
+    "scenario": "veto accepted at 2",
+    "after": "votes",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 5, "liberal": 0 },
+        "drawPile": "liberal,liberal,fascist,liberal,liberal,liberal,liberal,liberal,liberal,liberal"
+      },
+      "electionTracker": 2,
+      "lastPresidentId": "randId1",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId3",
+      "currentSession": {
+        "chancellorId": "randId3",
+        "hasSucceeded": true,
+        "presidentId": "randId1",
+        "votes": {
+          "randId0": true,
+          "randId1": true,
+          "randId2": true,
+          "randId3": true,
+          "randId4": true,
+          "randId5": true,
+          "randId6": true
+        }
+      },
+      "status": "election",
+      "subStatus": "election_votingEnded",
+      "pendingTransition": { "at": "<time>", "kind": "beginLegislativeSession" }
+    }
+  },
+  {
+    "scenario": "veto accepted at 2",
+    "after": "advance",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 5, "liberal": 0 },
+        "drawPile": "liberal,liberal,liberal,liberal,liberal,liberal,liberal"
+      },
+      "electionTracker": 2,
+      "lastPresidentId": "randId1",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId3",
+      "currentSession": {
+        "chancellorId": "randId3",
+        "hasSucceeded": true,
+        "presidentId": "randId1",
+        "presidentPolicies": "liberal,liberal,fascist",
+        "votes": {
+          "randId0": true,
+          "randId1": true,
+          "randId2": true,
+          "randId3": true,
+          "randId4": true,
+          "randId5": true,
+          "randId6": true
+        }
+      },
+      "status": "legislativeSession",
+      "subStatus": "legislativeSession_presidentDiscardingPolicy"
+    }
+  },
+  {
+    "scenario": "veto accepted at 2",
+    "after": "president discards",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 5, "liberal": 0 },
+        "discardPile": { "fascist": 1 },
+        "drawPile": "liberal,liberal,liberal,liberal,liberal,liberal,liberal"
+      },
+      "electionTracker": 2,
+      "lastPresidentId": "randId1",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId3",
+      "currentSession": {
+        "chancellorId": "randId3",
+        "chancellorPolicies": "liberal,liberal",
+        "hasSucceeded": true,
+        "presidentId": "randId1",
+        "presidentPolicies": "liberal,liberal,fascist",
+        "votes": {
+          "randId0": true,
+          "randId1": true,
+          "randId2": true,
+          "randId3": true,
+          "randId4": true,
+          "randId5": true,
+          "randId6": true
+        }
+      },
+      "status": "legislativeSession",
+      "subStatus": "legislativeSession_chancellorDiscardingPolicy"
+    }
+  },
+  {
+    "scenario": "veto accepted at 2",
+    "after": "ask veto",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 5, "liberal": 0 },
+        "discardPile": { "fascist": 1 },
+        "drawPile": "liberal,liberal,liberal,liberal,liberal,liberal,liberal"
+      },
+      "electionTracker": 2,
+      "lastPresidentId": "randId1",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId3",
+      "currentSession": {
+        "chancellorId": "randId3",
+        "chancellorPolicies": "liberal,liberal",
+        "hasSucceeded": true,
+        "presidentId": "randId1",
+        "presidentPolicies": "liberal,liberal,fascist",
+        "votes": {
+          "randId0": true,
+          "randId1": true,
+          "randId2": true,
+          "randId3": true,
+          "randId4": true,
+          "randId5": true,
+          "randId6": true
+        }
+      },
+      "status": "legislativeSession",
+      "subStatus": "legislativeSession_chancellorSeekingVeto"
+    }
+  },
+  {
+    "scenario": "veto accepted at 2",
+    "after": "accept",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 5, "liberal": 0 },
+        "discardPile": { "fascist": 1, "liberal": 2 },
+        "drawPile": "liberal,liberal,liberal,liberal,liberal,liberal,liberal"
+      },
+      "electionTracker": 3,
+      "lastPresidentId": "randId1",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId3",
+      "currentSession": {
+        "chancellorId": "randId3",
+        "chancellorPolicies": "liberal,liberal",
+        "hasSucceeded": true,
+        "isVetoRefused": false,
+        "presidentId": "randId1",
+        "presidentPolicies": "liberal,liberal,fascist",
+        "votes": {
+          "randId0": true,
+          "randId1": true,
+          "randId2": true,
+          "randId3": true,
+          "randId4": true,
+          "randId5": true,
+          "randId6": true
+        }
+      },
+      "status": "legislativeSession",
+      "subStatus": "legislativeSession_sessionEndedWithVeto",
+      "pendingTransition": { "at": "<time>", "kind": "frustratedPopulace" }
+    }
+  },
+  {
+    "scenario": "veto accepted at 2",
+    "after": "advance (chaos)",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 5, "liberal": 1 },
+        "discardPile": { "fascist": 1, "liberal": 2 },
+        "drawPile": "liberal,liberal,liberal,liberal,liberal,liberal"
+      },
+      "electionTracker": 0,
+      "lastPresidentId": "randId2",
+      "currentSession": { "isSpecialElection": false, "presidentId": "randId2" },
+      "sessions": [
+        {
+          "chancellorId": "randId3",
+          "chancellorPolicies": "liberal,liberal",
+          "hasSucceeded": true,
+          "isVetoRefused": false,
+          "presidentId": "randId1",
+          "presidentPolicies": "liberal,liberal,fascist",
+          "votes": {
+            "randId0": true,
+            "randId1": true,
+            "randId2": true,
+            "randId3": true,
+            "randId4": true,
+            "randId5": true,
+            "randId6": true
+          }
+        },
+        {
+          "enactedPolicy": "liberal",
+          "enactmentByFrustratedPopulace": true,
+          "hasSucceeded": false,
+          "isSpecialElection": false
+        }
+      ],
+      "status": "election",
+      "subStatus": "election_presidentChoosingChancellor"
+    }
+  },
+  {
+    "scenario": "policy peek",
+    "after": "enact fascist",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" }
+      ],
+      "executiveActions": [null, null, null, "policyPeek", "execution", "execution"],
+      "policies": {
+        "board": { "fascist": 3, "liberal": 1 },
+        "discardPile": { "liberal": 2 },
+        "drawPile": "fascist,liberal,fascist,liberal,liberal,fascist,liberal,liberal,liberal"
+      },
+      "electionTracker": 0,
+      "lastPresidentId": "randId1",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId3",
+      "currentSession": {
+        "chancellorId": "randId3",
+        "chancellorPolicies": "fascist,liberal",
+        "enactedPolicy": "fascist",
+        "hasSucceeded": true,
+        "presidentId": "randId1",
+        "presidentPolicies": "fascist,fascist,liberal",
+        "presidentialPower": "presidentialPower_policyPeek",
+        "votes": {
+          "randId0": true,
+          "randId1": true,
+          "randId2": true,
+          "randId3": true,
+          "randId4": true
+        }
+      },
+      "status": "presidentialPower",
+      "subStatus": "presidentialPower_policyPeek"
+    }
+  },
+  {
+    "scenario": "policy peek",
+    "after": "peek",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" }
+      ],
+      "executiveActions": [null, null, null, "policyPeek", "execution", "execution"],
+      "policies": {
+        "board": { "fascist": 3, "liberal": 1 },
+        "discardPile": { "liberal": 2 },
+        "drawPile": "fascist,liberal,fascist,liberal,liberal,fascist,liberal,liberal,liberal"
+      },
+      "electionTracker": 0,
+      "lastPresidentId": "randId1",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId3",
+      "currentSession": {
+        "chancellorId": "randId3",
+        "chancellorPolicies": "fascist,liberal",
+        "enactedPolicy": "fascist",
+        "hasSucceeded": true,
+        "policyPeekThreePolicies": "fascist,liberal,fascist",
+        "presidentId": "randId1",
+        "presidentPolicies": "fascist,fascist,liberal",
+        "presidentialPower": "presidentialPower_policyPeek",
+        "votes": {
+          "randId0": true,
+          "randId1": true,
+          "randId2": true,
+          "randId3": true,
+          "randId4": true
+        }
+      },
+      "status": "presidentialPower",
+      "subStatus": "presidentialPower_policyPeek",
+      "presidentialPower": "consumed"
+    }
+  },
+  {
+    "scenario": "policy peek",
+    "after": "done",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" }
+      ],
+      "executiveActions": [null, null, null, "policyPeek", "execution", "execution"],
+      "policies": {
+        "board": { "fascist": 3, "liberal": 1 },
+        "discardPile": { "liberal": 2 },
+        "drawPile": "fascist,liberal,fascist,liberal,liberal,fascist,liberal,liberal,liberal"
+      },
+      "electionTracker": 0,
+      "lastPresidentId": "randId1",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId3",
+      "currentSession": {
+        "chancellorId": "randId3",
+        "chancellorPolicies": "fascist,liberal",
+        "enactedPolicy": "fascist",
+        "hasSucceeded": true,
+        "policyPeekThreePolicies": "fascist,liberal,fascist",
+        "presidentId": "randId1",
+        "presidentPolicies": "fascist,fascist,liberal",
+        "presidentialPower": "presidentialPower_policyPeek",
+        "votes": {
+          "randId0": true,
+          "randId1": true,
+          "randId2": true,
+          "randId3": true,
+          "randId4": true
+        }
+      },
+      "status": "presidentialPower",
+      "subStatus": "presidentialPower_policyPeek",
+      "presidentialPower": "done",
+      "pendingTransition": { "at": "<time>", "kind": "nextElection" }
+    }
+  },
+  {
+    "scenario": "policy peek",
+    "after": "advance",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" }
+      ],
+      "executiveActions": [null, null, null, "policyPeek", "execution", "execution"],
+      "policies": {
+        "board": { "fascist": 3, "liberal": 1 },
+        "discardPile": { "liberal": 2 },
+        "drawPile": "fascist,liberal,fascist,liberal,liberal,fascist,liberal,liberal,liberal"
+      },
+      "electionTracker": 0,
+      "lastPresidentId": "randId2",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId3",
+      "currentSession": { "isSpecialElection": false, "presidentId": "randId2" },
+      "sessions": [
+        {
+          "chancellorId": "randId3",
+          "chancellorPolicies": "fascist,liberal",
+          "enactedPolicy": "fascist",
+          "hasSucceeded": true,
+          "policyPeekThreePolicies": "fascist,liberal,fascist",
+          "presidentId": "randId1",
+          "presidentPolicies": "fascist,fascist,liberal",
+          "presidentialPower": "presidentialPower_policyPeek",
+          "votes": {
+            "randId0": true,
+            "randId1": true,
+            "randId2": true,
+            "randId3": true,
+            "randId4": true
+          }
+        }
+      ],
+      "status": "election",
+      "subStatus": "election_presidentChoosingChancellor"
+    }
+  },
+  {
+    "scenario": "investigation",
+    "after": "enact fascist",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 2, "liberal": 1 },
+        "discardPile": { "liberal": 2 },
+        "drawPile": "fascist,liberal,fascist,liberal,liberal,fascist,liberal,liberal,liberal"
+      },
+      "electionTracker": 0,
+      "lastPresidentId": "randId1",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId3",
+      "currentSession": {
+        "chancellorId": "randId3",
+        "chancellorPolicies": "fascist,liberal",
+        "enactedPolicy": "fascist",
+        "hasSucceeded": true,
+        "presidentId": "randId1",
+        "presidentPolicies": "fascist,fascist,liberal",
+        "presidentialPower": "presidentialPower_investigateLoyalty",
+        "votes": {
+          "randId0": true,
+          "randId1": true,
+          "randId2": true,
+          "randId3": true,
+          "randId4": true,
+          "randId5": true,
+          "randId6": true
+        }
+      },
+      "status": "presidentialPower",
+      "subStatus": "presidentialPower_investigateLoyalty"
+    }
+  },
+  {
+    "scenario": "investigation",
+    "after": "investigate",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        {
+          "assetReference": "liberal_1",
+          "id": "randId4",
+          "isInvestigated": true,
+          "name": "p4",
+          "role": "liberal"
+        },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 2, "liberal": 1 },
+        "discardPile": { "liberal": 2 },
+        "drawPile": "fascist,liberal,fascist,liberal,liberal,fascist,liberal,liberal,liberal"
+      },
+      "electionTracker": 0,
+      "lastPresidentId": "randId1",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId3",
+      "currentSession": {
+        "beingInvestigatedPlayerId": "randId4",
+        "chancellorId": "randId3",
+        "chancellorPolicies": "fascist,liberal",
+        "enactedPolicy": "fascist",
+        "hasSucceeded": true,
+        "presidentId": "randId1",
+        "presidentPolicies": "fascist,fascist,liberal",
+        "presidentialPower": "presidentialPower_investigateLoyalty",
+        "votes": {
+          "randId0": true,
+          "randId1": true,
+          "randId2": true,
+          "randId3": true,
+          "randId4": true,
+          "randId5": true,
+          "randId6": true
+        }
+      },
+      "status": "presidentialPower",
+      "subStatus": "presidentialPower_investigateLoyalty",
+      "presidentialPower": "consumed"
+    }
+  },
+  {
+    "scenario": "investigation",
+    "after": "investigate again",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        {
+          "assetReference": "liberal_1",
+          "id": "randId4",
+          "isInvestigated": true,
+          "name": "p4",
+          "role": "liberal"
+        },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 2, "liberal": 1 },
+        "discardPile": { "liberal": 2 },
+        "drawPile": "fascist,liberal,fascist,liberal,liberal,fascist,liberal,liberal,liberal"
+      },
+      "electionTracker": 0,
+      "lastPresidentId": "randId1",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId3",
+      "currentSession": {
+        "beingInvestigatedPlayerId": "randId4",
+        "chancellorId": "randId3",
+        "chancellorPolicies": "fascist,liberal",
+        "enactedPolicy": "fascist",
+        "hasSucceeded": true,
+        "presidentId": "randId1",
+        "presidentPolicies": "fascist,fascist,liberal",
+        "presidentialPower": "presidentialPower_investigateLoyalty",
+        "votes": {
+          "randId0": true,
+          "randId1": true,
+          "randId2": true,
+          "randId3": true,
+          "randId4": true,
+          "randId5": true,
+          "randId6": true
+        }
+      },
+      "status": "presidentialPower",
+      "subStatus": "presidentialPower_investigateLoyalty",
+      "presidentialPower": "done",
+      "pendingTransition": { "at": "<time>", "kind": "nextElection" }
+    }
+  },
+  {
+    "scenario": "investigation",
+    "after": "advance",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        {
+          "assetReference": "liberal_1",
+          "id": "randId4",
+          "isInvestigated": true,
+          "name": "p4",
+          "role": "liberal"
+        },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 2, "liberal": 1 },
+        "discardPile": { "liberal": 2 },
+        "drawPile": "fascist,liberal,fascist,liberal,liberal,fascist,liberal,liberal,liberal"
+      },
+      "electionTracker": 0,
+      "lastPresidentId": "randId2",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId3",
+      "currentSession": { "isSpecialElection": false, "presidentId": "randId2" },
+      "sessions": [
+        {
+          "beingInvestigatedPlayerId": "randId4",
+          "chancellorId": "randId3",
+          "chancellorPolicies": "fascist,liberal",
+          "enactedPolicy": "fascist",
+          "hasSucceeded": true,
+          "presidentId": "randId1",
+          "presidentPolicies": "fascist,fascist,liberal",
+          "presidentialPower": "presidentialPower_investigateLoyalty",
+          "votes": {
+            "randId0": true,
+            "randId1": true,
+            "randId2": true,
+            "randId3": true,
+            "randId4": true,
+            "randId5": true,
+            "randId6": true
+          }
+        }
+      ],
+      "status": "election",
+      "subStatus": "election_presidentChoosingChancellor"
+    }
+  },
+  {
+    "scenario": "special election",
+    "after": "enact fascist",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 3, "liberal": 1 },
+        "discardPile": { "liberal": 2 },
+        "drawPile": "fascist,liberal,fascist,liberal,liberal,fascist,liberal,liberal,liberal"
+      },
+      "electionTracker": 0,
+      "lastPresidentId": "randId1",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId3",
+      "currentSession": {
+        "chancellorId": "randId3",
+        "chancellorPolicies": "fascist,liberal",
+        "enactedPolicy": "fascist",
+        "hasSucceeded": true,
+        "presidentId": "randId1",
+        "presidentPolicies": "fascist,fascist,liberal",
+        "presidentialPower": "presidentialPower_callSpecialElection",
+        "votes": {
+          "randId0": true,
+          "randId1": true,
+          "randId2": true,
+          "randId3": true,
+          "randId4": true,
+          "randId5": true,
+          "randId6": true
+        }
+      },
+      "status": "presidentialPower",
+      "subStatus": "presidentialPower_callSpecialElection"
+    }
+  },
+  {
+    "scenario": "special election",
+    "after": "choose",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 3, "liberal": 1 },
+        "discardPile": { "liberal": 2 },
+        "drawPile": "fascist,liberal,fascist,liberal,liberal,fascist,liberal,liberal,liberal"
+      },
+      "electionTracker": 0,
+      "lastPresidentId": "randId1",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId3",
+      "currentSession": {
+        "chancellorId": "randId3",
+        "chancellorPolicies": "fascist,liberal",
+        "enactedPolicy": "fascist",
+        "hasSucceeded": true,
+        "presidentId": "randId1",
+        "presidentPolicies": "fascist,fascist,liberal",
+        "presidentialPower": "presidentialPower_callSpecialElection",
+        "votes": {
+          "randId0": true,
+          "randId1": true,
+          "randId2": true,
+          "randId3": true,
+          "randId4": true,
+          "randId5": true,
+          "randId6": true
+        }
+      },
+      "status": "presidentialPower",
+      "subStatus": "presidentialPower_callSpecialElection",
+      "presidentialPower": "done",
+      "specialElectionPlayer": "randId5",
+      "pendingTransition": {
+        "at": "<time>",
+        "kind": "nextElection",
+        "specialElectionPresidentId": "randId5"
+      }
+    }
+  },
+  {
+    "scenario": "special election",
+    "after": "advance",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 3, "liberal": 1 },
+        "discardPile": { "liberal": 2 },
+        "drawPile": "fascist,liberal,fascist,liberal,liberal,fascist,liberal,liberal,liberal"
+      },
+      "electionTracker": 0,
+      "lastPresidentId": "randId1",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId3",
+      "currentSession": { "isSpecialElection": true, "presidentId": "randId5" },
+      "sessions": [
+        {
+          "chancellorId": "randId3",
+          "chancellorPolicies": "fascist,liberal",
+          "enactedPolicy": "fascist",
+          "hasSucceeded": true,
+          "presidentId": "randId1",
+          "presidentPolicies": "fascist,fascist,liberal",
+          "presidentialPower": "presidentialPower_callSpecialElection",
+          "votes": {
+            "randId0": true,
+            "randId1": true,
+            "randId2": true,
+            "randId3": true,
+            "randId4": true,
+            "randId5": true,
+            "randId6": true
+          }
+        }
+      ],
+      "status": "election",
+      "subStatus": "election_presidentChoosingChancellor"
+    }
+  },
+  {
+    "scenario": "special election",
+    "after": "special nominates",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 3, "liberal": 1 },
+        "discardPile": { "liberal": 2 },
+        "drawPile": "fascist,liberal,fascist,liberal,liberal,fascist,liberal,liberal,liberal"
+      },
+      "electionTracker": 0,
+      "lastPresidentId": "randId1",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId3",
+      "currentSession": {
+        "chancellorId": "randId2",
+        "isSpecialElection": true,
+        "presidentId": "randId5"
+      },
+      "sessions": [
+        {
+          "chancellorId": "randId3",
+          "chancellorPolicies": "fascist,liberal",
+          "enactedPolicy": "fascist",
+          "hasSucceeded": true,
+          "presidentId": "randId1",
+          "presidentPolicies": "fascist,fascist,liberal",
+          "presidentialPower": "presidentialPower_callSpecialElection",
+          "votes": {
+            "randId0": true,
+            "randId1": true,
+            "randId2": true,
+            "randId3": true,
+            "randId4": true,
+            "randId5": true,
+            "randId6": true
+          }
+        }
+      ],
+      "status": "election",
+      "subStatus": "election_voting"
+    }
+  },
+  {
+    "scenario": "special election",
+    "after": "votes fail",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 3, "liberal": 1 },
+        "discardPile": { "liberal": 2 },
+        "drawPile": "fascist,liberal,fascist,liberal,liberal,fascist,liberal,liberal,liberal"
+      },
+      "electionTracker": 1,
+      "lastPresidentId": "randId1",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId3",
+      "currentSession": {
+        "chancellorId": "randId2",
+        "hasSucceeded": false,
+        "isSpecialElection": true,
+        "presidentId": "randId5",
+        "votes": {
+          "randId0": false,
+          "randId1": false,
+          "randId2": false,
+          "randId3": false,
+          "randId4": false,
+          "randId5": false,
+          "randId6": false
+        }
+      },
+      "sessions": [
+        {
+          "chancellorId": "randId3",
+          "chancellorPolicies": "fascist,liberal",
+          "enactedPolicy": "fascist",
+          "hasSucceeded": true,
+          "presidentId": "randId1",
+          "presidentPolicies": "fascist,fascist,liberal",
+          "presidentialPower": "presidentialPower_callSpecialElection",
+          "votes": {
+            "randId0": true,
+            "randId1": true,
+            "randId2": true,
+            "randId3": true,
+            "randId4": true,
+            "randId5": true,
+            "randId6": true
+          }
+        }
+      ],
+      "status": "election",
+      "subStatus": "election_votingEnded",
+      "pendingTransition": { "at": "<time>", "kind": "nextElection" }
+    }
+  },
+  {
+    "scenario": "special election",
+    "after": "advance (rotation back)",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 3, "liberal": 1 },
+        "discardPile": { "liberal": 2 },
+        "drawPile": "fascist,liberal,fascist,liberal,liberal,fascist,liberal,liberal,liberal"
+      },
+      "electionTracker": 1,
+      "lastPresidentId": "randId2",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId3",
+      "currentSession": { "isSpecialElection": false, "presidentId": "randId2" },
+      "sessions": [
+        {
+          "chancellorId": "randId3",
+          "chancellorPolicies": "fascist,liberal",
+          "enactedPolicy": "fascist",
+          "hasSucceeded": true,
+          "presidentId": "randId1",
+          "presidentPolicies": "fascist,fascist,liberal",
+          "presidentialPower": "presidentialPower_callSpecialElection",
+          "votes": {
+            "randId0": true,
+            "randId1": true,
+            "randId2": true,
+            "randId3": true,
+            "randId4": true,
+            "randId5": true,
+            "randId6": true
+          }
+        },
+        {
+          "chancellorId": "randId2",
+          "hasSucceeded": false,
+          "isSpecialElection": true,
+          "presidentId": "randId5",
+          "votes": {
+            "randId0": false,
+            "randId1": false,
+            "randId2": false,
+            "randId3": false,
+            "randId4": false,
+            "randId5": false,
+            "randId6": false
+          }
+        }
+      ],
+      "status": "election",
+      "subStatus": "election_presidentChoosingChancellor"
+    }
+  },
+  {
+    "scenario": "execution",
+    "after": "enact fascist",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 4, "liberal": 1 },
+        "discardPile": { "liberal": 2 },
+        "drawPile": "fascist,liberal,fascist,liberal,liberal,fascist,liberal,liberal,liberal"
+      },
+      "electionTracker": 0,
+      "lastPresidentId": "randId1",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId3",
+      "currentSession": {
+        "chancellorId": "randId3",
+        "chancellorPolicies": "fascist,liberal",
+        "enactedPolicy": "fascist",
+        "hasSucceeded": true,
+        "presidentId": "randId1",
+        "presidentPolicies": "fascist,fascist,liberal",
+        "presidentialPower": "presidentialPower_execution",
+        "votes": {
+          "randId0": true,
+          "randId1": true,
+          "randId2": true,
+          "randId3": true,
+          "randId4": true,
+          "randId5": true,
+          "randId6": true
+        }
+      },
+      "status": "presidentialPower",
+      "subStatus": "presidentialPower_execution"
+    }
+  },
+  {
+    "scenario": "execution",
+    "after": "execute",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        {
+          "assetReference": "liberal_1",
+          "id": "randId6",
+          "isExecuted": true,
+          "name": "p6",
+          "role": "liberal"
+        }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 4, "liberal": 1 },
+        "discardPile": { "liberal": 2 },
+        "drawPile": "fascist,liberal,fascist,liberal,liberal,fascist,liberal,liberal,liberal"
+      },
+      "electionTracker": 0,
+      "lastPresidentId": "randId1",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId3",
+      "currentSession": {
+        "chancellorId": "randId3",
+        "chancellorPolicies": "fascist,liberal",
+        "enactedPolicy": "fascist",
+        "executedPlayerId": "randId6",
+        "hasSucceeded": true,
+        "presidentId": "randId1",
+        "presidentPolicies": "fascist,fascist,liberal",
+        "presidentialPower": "presidentialPower_execution",
+        "votes": {
+          "randId0": true,
+          "randId1": true,
+          "randId2": true,
+          "randId3": true,
+          "randId4": true,
+          "randId5": true,
+          "randId6": true
+        }
+      },
+      "status": "presidentialPower",
+      "subStatus": "presidentialPower_execution",
+      "presidentialPower": "done",
+      "pendingTransition": { "at": "<time>", "kind": "nextElection" }
+    }
+  },
+  {
+    "scenario": "execution",
+    "after": "advance",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        {
+          "assetReference": "liberal_1",
+          "id": "randId6",
+          "isExecuted": true,
+          "name": "p6",
+          "role": "liberal"
+        }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 4, "liberal": 1 },
+        "discardPile": { "liberal": 2 },
+        "drawPile": "fascist,liberal,fascist,liberal,liberal,fascist,liberal,liberal,liberal"
+      },
+      "electionTracker": 0,
+      "lastPresidentId": "randId2",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId3",
+      "currentSession": { "isSpecialElection": false, "presidentId": "randId2" },
+      "sessions": [
+        {
+          "chancellorId": "randId3",
+          "chancellorPolicies": "fascist,liberal",
+          "enactedPolicy": "fascist",
+          "executedPlayerId": "randId6",
+          "hasSucceeded": true,
+          "presidentId": "randId1",
+          "presidentPolicies": "fascist,fascist,liberal",
+          "presidentialPower": "presidentialPower_execution",
+          "votes": {
+            "randId0": true,
+            "randId1": true,
+            "randId2": true,
+            "randId3": true,
+            "randId4": true,
+            "randId5": true,
+            "randId6": true
+          }
+        }
+      ],
+      "status": "election",
+      "subStatus": "election_presidentChoosingChancellor"
+    }
+  },
+  {
+    "scenario": "execute hitler",
+    "after": "execute Hitler",
+    "game": {
+      "players": [
+        {
+          "assetReference": "liberal_1",
+          "id": "randId0",
+          "isExecuted": true,
+          "name": "p0",
+          "role": "hitler"
+        },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 4, "liberal": 1 },
+        "discardPile": { "liberal": 2 },
+        "drawPile": "fascist,liberal,fascist,liberal,liberal,fascist,liberal,liberal,liberal"
+      },
+      "electionTracker": 0,
+      "lastPresidentId": "randId1",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId3",
+      "sessions": [
+        {
+          "chancellorId": "randId3",
+          "chancellorPolicies": "fascist,liberal",
+          "enactedPolicy": "fascist",
+          "executedPlayerId": "randId0",
+          "hasSucceeded": true,
+          "presidentId": "randId1",
+          "presidentPolicies": "fascist,fascist,liberal",
+          "presidentialPower": "presidentialPower_execution",
+          "votes": {
+            "randId0": true,
+            "randId1": true,
+            "randId2": true,
+            "randId3": true,
+            "randId4": true,
+            "randId5": true,
+            "randId6": true
+          }
+        }
+      ],
+      "status": "gameEnded",
+      "subStatus": "gameEnded_liberal",
+      "presidentialPower": "done"
+    }
+  },
+  {
+    "scenario": "hitler elected",
+    "after": "nominate Hitler",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 3, "liberal": 0 },
+        "drawPile": "liberal,liberal,liberal,liberal"
+      },
+      "electionTracker": 0,
+      "lastPresidentId": "randId1",
+      "currentSession": { "chancellorId": "randId0", "presidentId": "randId1" },
+      "status": "election",
+      "subStatus": "election_voting"
+    }
+  },
+  {
+    "scenario": "hitler elected",
+    "after": "votes",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 3, "liberal": 0 },
+        "drawPile": "liberal,liberal,liberal,liberal"
+      },
+      "electionTracker": 0,
+      "lastPresidentId": "randId1",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId0",
+      "sessions": [
+        {
+          "chancellorId": "randId0",
+          "hasSucceeded": true,
+          "presidentId": "randId1",
+          "votes": {
+            "randId0": true,
+            "randId1": true,
+            "randId2": true,
+            "randId3": true,
+            "randId4": true,
+            "randId5": true,
+            "randId6": true
+          }
+        }
+      ],
+      "status": "gameEnded",
+      "subStatus": "gameEnded_fascist"
+    }
+  },
+  {
+    "scenario": "liberal win",
+    "after": "enact liberal",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 0, "liberal": 5 },
+        "discardPile": { "fascist": 1 },
+        "drawPile": "liberal,liberal,liberal,liberal"
+      },
+      "electionTracker": 0,
+      "lastPresidentId": "randId1",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId3",
+      "sessions": [
+        {
+          "chancellorId": "randId3",
+          "chancellorPolicies": "fascist,liberal",
+          "enactedPolicy": "liberal",
+          "hasSucceeded": true,
+          "presidentId": "randId1",
+          "presidentPolicies": "fascist,fascist,liberal",
+          "votes": {
+            "randId0": true,
+            "randId1": true,
+            "randId2": true,
+            "randId3": true,
+            "randId4": true,
+            "randId5": true,
+            "randId6": true
+          }
+        }
+      ],
+      "status": "gameEnded",
+      "subStatus": "gameEnded_liberal"
+    }
+  },
+  {
+    "scenario": "fascist win",
+    "after": "enact fascist",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 6, "liberal": 0 },
+        "discardPile": { "liberal": 1 },
+        "drawPile": "fascist,fascist,fascist,fascist"
+      },
+      "electionTracker": 0,
+      "lastPresidentId": "randId1",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId3",
+      "sessions": [
+        {
+          "chancellorId": "randId3",
+          "chancellorPolicies": "fascist,liberal",
+          "enactedPolicy": "fascist",
+          "hasSucceeded": true,
+          "presidentId": "randId1",
+          "presidentPolicies": "fascist,fascist,liberal",
+          "votes": {
+            "randId0": true,
+            "randId1": true,
+            "randId2": true,
+            "randId3": true,
+            "randId4": true,
+            "randId5": true,
+            "randId6": true
+          }
+        }
+      ],
+      "status": "gameEnded",
+      "subStatus": "gameEnded_fascist"
+    }
+  },
+  {
+    "scenario": "rejections",
+    "after": "discard during nomination",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        {
+          "assetReference": "liberal_1",
+          "id": "randId6",
+          "isExecuted": true,
+          "name": "p6",
+          "role": "liberal"
+        }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 2, "liberal": 0 },
+        "drawPile": "liberal,liberal,liberal,liberal,liberal,liberal"
+      },
+      "electionTracker": 0,
+      "lastPresidentId": "randId1",
+      "lastSuccessfulPresidentId": "randId2",
+      "lastSuccessfulChancellorId": "randId4",
+      "currentSession": { "presidentId": "randId1" },
+      "status": "election",
+      "subStatus": "election_presidentChoosingChancellor"
+    }
+  },
+  {
+    "scenario": "rejections",
+    "after": "nominate",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        {
+          "assetReference": "liberal_1",
+          "id": "randId6",
+          "isExecuted": true,
+          "name": "p6",
+          "role": "liberal"
+        }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 2, "liberal": 0 },
+        "drawPile": "liberal,liberal,liberal,liberal,liberal,liberal"
+      },
+      "electionTracker": 0,
+      "lastPresidentId": "randId1",
+      "lastSuccessfulPresidentId": "randId2",
+      "lastSuccessfulChancellorId": "randId4",
+      "currentSession": { "chancellorId": "randId3", "presidentId": "randId1" },
+      "status": "election",
+      "subStatus": "election_voting"
+    }
+  },
+  {
+    "scenario": "rejections",
+    "after": "six votes",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        {
+          "assetReference": "liberal_1",
+          "id": "randId6",
+          "isExecuted": true,
+          "name": "p6",
+          "role": "liberal"
+        }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 2, "liberal": 0 },
+        "drawPile": "liberal,liberal,liberal,liberal,liberal,liberal"
+      },
+      "electionTracker": 1,
+      "lastPresidentId": "randId1",
+      "lastSuccessfulPresidentId": "randId2",
+      "lastSuccessfulChancellorId": "randId4",
+      "currentSession": {
+        "chancellorId": "randId3",
+        "hasSucceeded": false,
+        "presidentId": "randId1",
+        "votes": {
+          "randId0": true,
+          "randId1": false,
+          "randId2": true,
+          "randId3": false,
+          "randId4": true,
+          "randId5": false
+        }
+      },
+      "status": "election",
+      "subStatus": "election_votingEnded",
+      "pendingTransition": { "at": "<time>", "kind": "nextElection" }
+    }
+  },
+  {
+    "scenario": "rejections",
+    "after": "advance",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        {
+          "assetReference": "liberal_1",
+          "id": "randId6",
+          "isExecuted": true,
+          "name": "p6",
+          "role": "liberal"
+        }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 2, "liberal": 0 },
+        "drawPile": "liberal,liberal,liberal,liberal,liberal,liberal"
+      },
+      "electionTracker": 1,
+      "lastPresidentId": "randId2",
+      "lastSuccessfulPresidentId": "randId2",
+      "lastSuccessfulChancellorId": "randId4",
+      "currentSession": { "isSpecialElection": false, "presidentId": "randId2" },
+      "sessions": [
+        {
+          "chancellorId": "randId3",
+          "hasSucceeded": false,
+          "presidentId": "randId1",
+          "votes": {
+            "randId0": true,
+            "randId1": false,
+            "randId2": true,
+            "randId3": false,
+            "randId4": true,
+            "randId5": false
+          }
+        }
+      ],
+      "status": "election",
+      "subStatus": "election_presidentChoosingChancellor"
+    }
+  },
+  {
+    "scenario": "discard rejections",
+    "after": "chancellor discards early",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 1, "liberal": 1 },
+        "discardPile": { "liberal": 1 },
+        "drawPile": "fascist,liberal,fascist,liberal,liberal,fascist,liberal,liberal,liberal"
+      },
+      "electionTracker": 0,
+      "lastPresidentId": "randId1",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId3",
+      "currentSession": {
+        "chancellorId": "randId3",
+        "hasSucceeded": true,
+        "presidentId": "randId1",
+        "presidentPolicies": "fascist,fascist,fascist"
+      },
+      "status": "legislativeSession",
+      "subStatus": "legislativeSession_presidentDiscardingPolicy"
+    }
+  },
+  {
+    "scenario": "discard rejections",
+    "after": "discard",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 1, "liberal": 1 },
+        "discardPile": { "fascist": 1, "liberal": 1 },
+        "drawPile": "fascist,liberal,fascist,liberal,liberal,fascist,liberal,liberal,liberal"
+      },
+      "electionTracker": 0,
+      "lastPresidentId": "randId1",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId3",
+      "currentSession": {
+        "chancellorId": "randId3",
+        "chancellorPolicies": "fascist,fascist",
+        "hasSucceeded": true,
+        "presidentId": "randId1",
+        "presidentPolicies": "fascist,fascist,fascist"
+      },
+      "status": "legislativeSession",
+      "subStatus": "legislativeSession_chancellorDiscardingPolicy"
+    }
+  },
+  {
+    "scenario": "discard rejections",
+    "after": "chancellor discards",
+    "game": {
+      "players": [
+        { "assetReference": "liberal_1", "id": "randId0", "name": "p0", "role": "hitler" },
+        { "assetReference": "liberal_1", "id": "randId1", "name": "p1", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId2", "name": "p2", "role": "fascist" },
+        { "assetReference": "liberal_1", "id": "randId3", "name": "p3", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId4", "name": "p4", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId5", "name": "p5", "role": "liberal" },
+        { "assetReference": "liberal_1", "id": "randId6", "name": "p6", "role": "liberal" }
+      ],
+      "executiveActions": [
+        null,
+        null,
+        "investigateLoyalty",
+        "callSpecialElection",
+        "execution",
+        "execution"
+      ],
+      "policies": {
+        "board": { "fascist": 2, "liberal": 1 },
+        "discardPile": { "fascist": 2, "liberal": 1 },
+        "drawPile": "fascist,liberal,fascist,liberal,liberal,fascist,liberal,liberal,liberal"
+      },
+      "electionTracker": 0,
+      "lastPresidentId": "randId1",
+      "lastSuccessfulPresidentId": "randId1",
+      "lastSuccessfulChancellorId": "randId3",
+      "currentSession": {
+        "chancellorId": "randId3",
+        "chancellorPolicies": "fascist,fascist",
+        "enactedPolicy": "fascist",
+        "hasSucceeded": true,
+        "presidentId": "randId1",
+        "presidentPolicies": "fascist,fascist,fascist",
+        "presidentialPower": "presidentialPower_investigateLoyalty"
+      },
+      "status": "presidentialPower",
+      "subStatus": "presidentialPower_investigateLoyalty"
+    }
+  }
+]

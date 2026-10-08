@@ -66,7 +66,8 @@ copied into `.env.[PROJECTNAME]` by `npm run link` can't disable authentication 
 ## Tests
 
 The rules engine (`functions/src/engine`, see its [README](functions/src/engine/README.md)) has its own
-tests, which need no emulator and run in seconds. From `functions/`:
+tests, which need no emulator and run in seconds, along with the tests of the adapter between the
+database and the engine. From `functions/`:
 
 ```shell
 npm run test:engine

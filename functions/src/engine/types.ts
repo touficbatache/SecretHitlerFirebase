@@ -37,9 +37,11 @@ export interface Session {
   presidentPolicies?: Policy[]
   /** The 2 policies the President passed to the Chancellor. */
   chancellorPolicies?: Policy[]
-  /** The President refused the Chancellor's veto: the Chancellor must enact a policy. */
+  /** Whether the President refused the Chancellor's veto (false: accepted). Unset without a veto. */
   vetoRefused?: boolean
   enactedPolicy?: Policy
+  /** The presidential power the enacted policy granted. */
+  power?: Power
   /** What a policy peek showed the President. */
   peekedPolicies?: Policy[]
   investigatedId?: string

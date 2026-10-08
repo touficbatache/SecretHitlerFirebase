@@ -51,6 +51,13 @@ All the randomness (roles, shuffles, the first President) comes from the `rng` y
 `seededRng(seed)` gives the same game every time, so a game can be replayed from its seed and its
 list of actions.
 
+## How the backend uses it
+
+Every game move in `gameplay-controller.ts` goes through the engine: read the game from the database,
+convert it with `engine-adapter.ts`, `apply` the action, and write back only what changed. The
+database keeps its format (CSV policy lists, `status` / `subStatus`…), so the app and existing games
+don't notice. Rule errors become HTTP errors: `ineligible` is 458, the others 457.
+
 ## Tests
 
 `npm run test:engine` runs without the emulators:
@@ -62,6 +69,8 @@ list of actions.
   - a new government can always draw 3 policies,
   - a game only ends with its win condition,
   - every action from `legalActions` is accepted.
+- **The database adapter** (`test/unit`): 68 game states the old controller wrote, and every state
+  of 120 random games, survive the trip to the engine and back; a move only writes what changed.
 
 ## Uses beyond this app
 
