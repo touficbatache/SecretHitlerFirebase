@@ -38,4 +38,24 @@ module.exports = {
     ],
     "import/no-unresolved": 0,
   },
+  overrides: [
+    {
+      // The rules engine stays pure, so it can become its own npm package (see engine/README.md)
+      files: ["src/engine/**/*.ts"],
+      rules: {
+        "@typescript-eslint/no-explicit-any": "error",
+        "no-restricted-imports": [
+          "error",
+          {
+            patterns: [
+              {
+                group: ["firebase-*", "firebase-*/*", "express", "express-*", "../*"],
+                message: "The engine can't depend on Firebase, Express or the rest of the backend.",
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
 }
