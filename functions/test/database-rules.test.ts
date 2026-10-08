@@ -91,3 +91,12 @@ test("players can't touch the game locks", async () => {
   assert.equal(await request("GET", "gameLocks/111111", "alice"), 401)
   assert.equal(await request("PUT", "gameLocks/111111", "alice", { token: "x", expiresAt: 0 }), 401)
 })
+
+test("players can't read or write action receipts", async () => {
+  assert.equal(await request("GET", "actionReceipts/111111", "alice"), 401)
+  assert.equal(await request("GET", "actionReceipts/111111/alice", "alice"), 401)
+  assert.equal(
+    await request("PUT", "actionReceipts/111111/alice", "alice", { id: "x", response: {} }),
+    401,
+  )
+})

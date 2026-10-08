@@ -2,15 +2,15 @@ import { Request, Response } from "express"
 import { NextFunction } from "express-serve-static-core"
 
 import * as constants from "../constants"
-import { isDevMode } from "../dev-mode"
-import { handleInternalError, handlePlayerNotInGame } from "../utils"
+import { isSimulated } from "../dev-mode"
+import { sendError, sendInternalError } from "../errors"
 
 export async function verifyInGameHandler(
   req: Request,
   res: Response,
   next: NextFunction,
 ): Promise<void> {
-  if (isDevMode()) return next()
+  if (isSimulated(res)) return next()
 
   try {
     if (
@@ -18,14 +18,14 @@ export async function verifyInGameHandler(
         .map((player: any) => player.id)
         .includes(res.locals.uid)
     ) {
-      handlePlayerNotInGame(res)
+      sendError(res, "NOT_IN_GAME")
       return
     }
 
     next()
     return
   } catch (err: any) {
-    handleInternalError(res, err)
+    sendInternalError(res, err)
     return
   }
 }

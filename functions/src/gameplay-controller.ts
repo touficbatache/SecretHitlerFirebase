@@ -3,20 +3,8 @@ import * as admin from "firebase-admin"
 import { database } from "firebase-admin"
 
 import * as constants from "./constants"
-import { isDevMode } from "./dev-mode"
-import {
-  Action,
-  apply,
-  ApplyResult,
-  GameState,
-  Phase,
-  Player,
-  Policy,
-  RuleError,
-  rules,
-  setupGame,
-  shuffle,
-} from "./engine"
+import { isSimulated } from "./dev-mode"
+import { Action, apply, ApplyResult, GameState, Player, rules, setupGame, shuffle } from "./engine"
 import {
   databaseUpdates,
   hasStarted,
@@ -24,29 +12,17 @@ import {
   toDatabase,
   toEngineState,
 } from "./engine-adapter"
+import { ErrorCode, sendError, sendInternalError, sendRuleError } from "./errors"
 import { GameDataUpdates } from "./handlers/game-data-handler"
 import { ChamberStatus, GameVisibility } from "./objects"
-import {
-  handleCreated,
-  handleForbiddenError,
-  handleGameNotFound,
-  handleGameProgressTamperingError,
-  handleGameStartedError,
-  handleIneligiblePlayerError,
-  handleInternalError,
-  handleInternalErrorWithMessage,
-  handleMissingFields,
-  handleNotEnoughPlayersError,
-  handlePlayerAlreadyInGame,
-  handleSuccess,
-} from "./utils"
+import { handleCreated, handleSuccess } from "./utils"
 
 import Reference = database.Reference
 
 export async function newGame(req: Request, res: Response): Promise<void> {
   try {
-    const userId: string = isDevMode() ? "randId0" : res.locals.uid
-    const userName: string = isDevMode() ? "randName0" : res.locals.name
+    const userId: string = isSimulated(res) ? "randId0" : res.locals.uid
+    const userName: string = isSimulated(res) ? "randName0" : res.locals.name
     const temp: string = _randomGameCode().toString()
 
     let gameCreationTries: number = 1
@@ -77,10 +53,10 @@ export async function newGame(req: Request, res: Response): Promise<void> {
       }
     }
 
-    handleInternalErrorWithMessage(res, "Game creation failed")
+    sendError(res, "INTERNAL", "No free game code found")
     return
   } catch (err) {
-    handleInternalError(res, err)
+    sendInternalError(res, err)
     return
   }
 }
@@ -109,7 +85,7 @@ export async function setGameVisibility(req: Request, res: Response): Promise<vo
       typeof visibility !== "string" ||
       !Object.values(GameVisibility).includes(visibility)
     ) {
-      handleMissingFields(res)
+      sendError(res, "INVALID_REQUEST")
       return
     }
 
@@ -127,17 +103,17 @@ export async function setGameVisibility(req: Request, res: Response): Promise<vo
     handleSuccess(res, { code: gameCode })
     return
   } catch (err) {
-    handleInternalError(res, err)
+    sendInternalError(res, err)
     return
   }
 }
 
 export async function joinGame(req: Request, res: Response): Promise<void> {
   try {
-    const userId: string = isDevMode()
+    const userId: string = isSimulated(res)
       ? `randId${res.locals.gameData[constants.DATABASE_NODE_PLAYERS].length}`
       : res.locals.uid
-    const userName: string = isDevMode()
+    const userName: string = isSimulated(res)
       ? `randName${res.locals.gameData[constants.DATABASE_NODE_PLAYERS].length}`
       : res.locals.name
     const gameCode: string = res.locals.gameCode
@@ -147,22 +123,22 @@ export async function joinGame(req: Request, res: Response): Promise<void> {
 
     // should never be > 10 but just in case...
     if (players.length >= 10) {
-      handleForbiddenError(res)
+      sendError(res, "GAME_FULL")
       return
     }
 
     if (gameData[constants.DATABASE_NODE_STATUS] === ChamberStatus[ChamberStatus.deleted]) {
-      handleGameNotFound(res)
+      sendError(res, "GAME_NOT_FOUND")
       return
     }
 
     if (players.some((player: any) => player[constants.DATABASE_NODE_ID] === userId)) {
-      handlePlayerAlreadyInGame(res)
+      sendError(res, "ALREADY_IN_GAME")
       return
     }
 
     if (gameData[constants.DATABASE_NODE_STATUS] != ChamberStatus[ChamberStatus.waiting]) {
-      handleGameStartedError(res)
+      sendError(res, "GAME_STARTED")
       return
     }
 
@@ -187,7 +163,7 @@ export async function joinGame(req: Request, res: Response): Promise<void> {
     handleSuccess(res, { code: gameCode })
     return
   } catch (err) {
-    handleInternalError(res, err)
+    sendInternalError(res, err)
     return
   }
 }
@@ -201,14 +177,14 @@ function _user(id: string, name: string) {
 
 export async function unJoinGame(req: Request, res: Response): Promise<void> {
   try {
-    const userId: string = isDevMode()
+    const userId: string = isSimulated(res)
       ? `randId${res.locals.gameData[constants.DATABASE_NODE_PLAYERS].length}`
       : res.locals.uid
     const gameCode: string = res.locals.gameCode
     const gameData: any = res.locals.gameData
 
     if (gameData[constants.DATABASE_NODE_STATUS] != ChamberStatus[ChamberStatus.waiting]) {
-      handleGameStartedError(res)
+      sendError(res, "GAME_STARTED")
       return
     }
 
@@ -256,7 +232,7 @@ export async function unJoinGame(req: Request, res: Response): Promise<void> {
     handleSuccess(res, { code: gameCode })
     return
   } catch (err) {
-    handleInternalError(res, err)
+    sendInternalError(res, err)
     return
   }
 }
@@ -275,18 +251,18 @@ export async function startGame(req: Request, res: Response): Promise<void> {
       skipLongIntro == null ||
       typeof skipLongIntro !== "boolean"
     ) {
-      handleMissingFields(res)
+      sendError(res, "INVALID_REQUEST")
       return
     }
 
     if (gameData[constants.DATABASE_NODE_STATUS] != ChamberStatus[ChamberStatus.waiting]) {
-      handleGameStartedError(res)
+      sendError(res, "GAME_STARTED")
       return
     }
 
     const lobbyPlayers: any[] = gameData[constants.DATABASE_NODE_PLAYERS]
     if (lobbyPlayers.length < rules.MIN_PLAYERS) {
-      handleNotEnoughPlayersError(res)
+      sendError(res, "NOT_ENOUGH_PLAYERS")
       return
     }
 
@@ -333,7 +309,7 @@ export async function startGame(req: Request, res: Response): Promise<void> {
     handleSuccess(res, { code: gameCode })
     return
   } catch (err) {
-    handleInternalError(res, err)
+    sendInternalError(res, err)
     return
   }
 }
@@ -366,120 +342,99 @@ function _pictures(players: Player[]): string[] {
  * whether an action is allowed and what it changes (see engine/README.md).
  */
 
-export async function chooseChancellor(req: Request, res: Response): Promise<void> {
-  const chancellorId: unknown = req.body[constants.REQUEST_CHANCELLOR_ID]
-  if (typeof chancellorId !== "string") {
-    handleMissingFields(res)
-    return
-  }
-  await _play(res, (state: GameState) => ({
-    type: "nominate",
-    by: _actor(res, state, "president"),
-    chancellorId,
-  }))
+type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never
+
+/** An engine action that a player makes, rather than the server. */
+type PlayedAction = Exclude<Action, { type: "continue" }>
+
+/** A move as a client sends it: an engine action without `by`, since the server knows who asks. */
+export type PlayerAction = DistributiveOmit<PlayedAction, "by">
+
+/** Client-generated, so a retry can be recognized. A UUID fits. */
+const ACTION_ID: RegExp = /^[A-Za-z0-9_-]{1,64}$/
+
+/**
+ * POST /action { code, actionId?, action }: plays one move.
+ *
+ * `action` is an engine action without `by`, e.g. `{ type: "vote", ja: true }`. The response is
+ * `{ code }`, plus what a power showed the President: `policies` for a policy peek, `membership`
+ * for an investigation.
+ *
+ * With an `actionId`, sending the same request again is safe: once an action has succeeded, a
+ * retry with its id gets the same response and changes nothing.
+ */
+export async function act(req: Request, res: Response): Promise<void> {
+  await _act(req, res, () => parseAction(req.body.action) ?? "INVALID_REQUEST")
 }
 
-export async function vote(req: Request, res: Response): Promise<void> {
-  const ja: unknown = req.body[constants.REQUEST_VOTE]
-  if (typeof ja !== "boolean") {
-    handleMissingFields(res)
-    return
+/** Validates a client's action. Returns undefined if it's malformed. */
+export function parseAction(raw: unknown): PlayerAction | undefined {
+  if (typeof raw !== "object" || raw === null) return undefined
+  const action: Record<string, unknown> = raw as Record<string, unknown>
+  switch (action.type) {
+    case "nominate":
+      return typeof action.chancellorId === "string"
+        ? { type: "nominate", chancellorId: action.chancellorId }
+        : undefined
+    case "vote":
+      return typeof action.ja === "boolean" ? { type: "vote", ja: action.ja } : undefined
+    case "discard":
+      return action.policy === "liberal" || action.policy === "fascist"
+        ? { type: "discard", policy: action.policy }
+        : undefined
+    case "proposeVeto":
+      return { type: "proposeVeto" }
+    case "answerVeto":
+      return typeof action.accept === "boolean"
+        ? { type: "answerVeto", accept: action.accept }
+        : undefined
+    case "usePower":
+      if (action.targetId === undefined) return { type: "usePower" }
+      return typeof action.targetId === "string"
+        ? { type: "usePower", targetId: action.targetId }
+        : undefined
+    case "endPower":
+      return { type: "endPower" }
+    default:
+      return undefined
   }
-  await _play(res, (state: GameState) => ({
-    type: "vote",
-    // Dev mode: each vote is the next fake player's
-    by: isDevMode() ? `randId${Object.keys(state.session?.votes ?? {}).length}` : res.locals.uid,
-    ja,
-  }))
-}
-
-export async function presidentDiscardPolicy(req: Request, res: Response): Promise<void> {
-  const policy: unknown = req.body[constants.REQUEST_POLICY]
-  if (typeof policy !== "string") {
-    handleMissingFields(res)
-    return
-  }
-  await _play(
-    res,
-    (state: GameState) => ({
-      type: "discard",
-      by: _actor(res, state, "president"),
-      policy: policy as Policy,
-    }),
-    { phase: "presidentDiscard" },
-  )
-}
-
-export async function chancellorDiscardPolicy(req: Request, res: Response): Promise<void> {
-  const policy: unknown = req.body[constants.REQUEST_POLICY]
-  if (typeof policy !== "string") {
-    handleMissingFields(res)
-    return
-  }
-  await _play(
-    res,
-    (state: GameState) => ({
-      type: "discard",
-      by: _actor(res, state, "chancellor"),
-      policy: policy as Policy,
-    }),
-    { phase: "chancellorDiscard" },
-  )
-}
-
-export async function askForVeto(req: Request, res: Response): Promise<void> {
-  await _play(res, (state: GameState) => ({
-    type: "proposeVeto",
-    by: _actor(res, state, "chancellor"),
-  }))
-}
-
-export async function answerVeto(req: Request, res: Response): Promise<void> {
-  const refuseVeto: unknown = req.body[constants.REQUEST_REFUSE_VETO]
-  if (typeof refuseVeto !== "boolean") {
-    handleMissingFields(res)
-    return
-  }
-  await _play(res, (state: GameState) => ({
-    type: "answerVeto",
-    by: _actor(res, state, "president"),
-    accept: !refuseVeto,
-  }))
 }
 
 /**
- * Uses the current presidential power. For the policy peek and the investigation, a second call
- * closes the result and moves the game on.
+ * The routes from before /action, kept so that apps loaded before a deploy keep working until
+ * they reload. They take the same path as /action. To remove once no app calls them.
  */
-export async function presidentialPower(req: Request, res: Response): Promise<void> {
-  const target: unknown = req.body[constants.REQUEST_PLAYER]
-  await _play(
-    res,
-    (state: GameState) => {
-      const by: string = _actor(res, state, "president")
-      const phase: Phase = state.phase
-      if (phase.name === "power" && phase.used && !phase.done) return { type: "endPower", by }
-      if (phase.name === "power" && phase.power !== "policyPeek" && typeof target !== "string") {
-        return MISSING_FIELDS
-      }
-      return { type: "usePower", by, targetId: typeof target === "string" ? target : undefined }
-    },
-    {
-      response: (before: GameState, after: GameState, action: Action) => {
-        if (action.type !== "usePower" || before.phase.name !== "power") return {}
-        if (before.phase.power === "policyPeek") {
-          return { policies: (after.session?.peekedPolicies ?? []).join(",") }
-        }
-        if (before.phase.power === "investigateLoyalty") {
-          const investigated: Player | undefined = after.players.find(
-            (p: Player) => p.id === action.targetId,
-          )
-          return { membership: rules.teamOf(investigated?.role ?? "liberal") }
-        }
-        return {}
-      },
-    },
-  )
+export const legacyRoutes: Record<string, (req: Request, res: Response) => Promise<void>> = {
+  chooseChancellor: (req: Request, res: Response) =>
+    _act(req, res, () => parseAction({ type: "nominate", chancellorId: req.body.chancellorId })),
+  vote: (req: Request, res: Response) =>
+    _act(req, res, () => parseAction({ type: "vote", ja: req.body.vote })),
+  presidentDiscardPolicy: (req: Request, res: Response) =>
+    _act(req, res, (state: GameState) =>
+      state.phase.name === "presidentDiscard"
+        ? parseAction({ type: "discard", policy: req.body.policy })
+        : "WRONG_PHASE",
+    ),
+  chancellorDiscardPolicy: (req: Request, res: Response) =>
+    _act(req, res, (state: GameState) =>
+      state.phase.name === "chancellorDiscard"
+        ? parseAction({ type: "discard", policy: req.body.policy })
+        : "WRONG_PHASE",
+    ),
+  askForVeto: (req: Request, res: Response) => _act(req, res, () => ({ type: "proposeVeto" })),
+  answerVeto: (req: Request, res: Response) =>
+    _act(req, res, () =>
+      typeof req.body.refuseVeto === "boolean"
+        ? { type: "answerVeto", accept: !req.body.refuseVeto }
+        : undefined,
+    ),
+  // A second call closes the policy peek or the investigation result
+  presidentialPower: (req: Request, res: Response) =>
+    _act(req, res, (state: GameState) =>
+      state.phase.name === "power" && state.phase.used && !state.phase.done
+        ? { type: "endPower" }
+        : parseAction({ type: "usePower", targetId: req.body.player }),
+    ),
 }
 
 /**
@@ -515,86 +470,146 @@ export async function advance(req: Request, res: Response): Promise<void> {
   })
 }
 
-const MISSING_FIELDS: unique symbol = Symbol("missing fields")
-
-interface PlayOptions {
-  /** The phase this endpoint is for: other phases get a 457 without asking the engine. */
-  phase?: Phase["name"]
-  /** Extra response data, such as what a policy peek showed. */
-  response?: (before: GameState, after: GameState, action: Action) => Record<string, unknown>
+interface Receipt {
+  id: string
+  response: Record<string, unknown>
 }
 
-/** Runs one engine action on the request's game, saves the result and responds. */
-async function _play(
+/**
+ * Plays one move on the request's game: checks it, applies it with the engine, saves the result
+ * and responds. `makeAction` reads the request, and returns an error code if it can't.
+ */
+async function _act(
+  req: Request,
   res: Response,
-  makeAction: (state: GameState) => Action | typeof MISSING_FIELDS,
-  options: PlayOptions = {},
+  makeAction: (state: GameState) => PlayerAction | ErrorCode | undefined,
 ): Promise<void> {
   try {
     const gameCode: string = res.locals.gameCode
     const gameData: any = res.locals.gameData
 
-    if (!hasStarted(gameData)) {
-      handleGameProgressTamperingError(res)
-      return
-    }
-    const before: GameState = toEngineState(gameData)
-    if (options.phase !== undefined && before.phase.name !== options.phase) {
-      handleGameProgressTamperingError(res)
+    const actionId: unknown = req.body.actionId
+    if (actionId !== undefined && !(typeof actionId === "string" && ACTION_ID.test(actionId))) {
+      sendError(res, "INVALID_REQUEST", "Invalid actionId")
       return
     }
 
-    const action: Action | typeof MISSING_FIELDS = makeAction(before)
-    if (action === MISSING_FIELDS) {
-      handleMissingFields(res)
+    if (!hasStarted(gameData)) {
+      sendError(res, "WRONG_PHASE", "The game hasn't started")
+      return
+    }
+    const before: GameState = toEngineState(gameData)
+
+    const made: PlayerAction | ErrorCode | undefined = makeAction(before)
+    if (made === undefined) {
+      sendError(res, "INVALID_REQUEST")
+      return
+    }
+    if (typeof made === "string") {
+      sendError(res, made as ErrorCode)
+      return
+    }
+    const action: PlayedAction = { ...made, by: _actor(res, before, made) } as PlayedAction
+
+    // A retry of an action that succeeded: same response, nothing changes. Checked before the
+    // pause, since the action itself may have started it (the last vote, a discard...).
+    const receiptPath: string = _receiptPath(gameCode, action.by)
+    if (actionId !== undefined) {
+      const receipt: Receipt | null = (await admin.database().ref(receiptPath).get()).val()
+      if (receipt?.id === actionId) {
+        handleSuccess(res, receipt.response)
+        return
+      }
+    }
+
+    if (gameData[constants.DATABASE_NODE_PENDING_TRANSITION] != null) {
+      sendError(res, "PAUSED")
       return
     }
 
     const result: ApplyResult = apply(before, action, Math.random)
     if (result.error !== undefined) {
-      _sendRuleError(res, result.error)
+      sendRuleError(res, result.error)
       return
     }
     const after: GameState = result.state as GameState
-    await _save(gameCode, gameData, before, after)
 
-    handleSuccess(res, { code: gameCode, ...options.response?.(before, after, action) })
+    const response: Record<string, unknown> = { code: gameCode, ..._shown(before, after, action) }
+    const receipt: Record<string, unknown> =
+      actionId === undefined ? {} : { [receiptPath]: { id: actionId, response } }
+    await _save(gameCode, gameData, before, after, receipt)
+
+    handleSuccess(res, response)
   } catch (err) {
-    handleInternalError(res, err)
+    sendInternalError(res, err)
   }
 }
 
-/** Who acts. In dev mode, any request acts as whoever's turn it is. */
-function _actor(res: Response, state: GameState, role: "president" | "chancellor"): string {
-  if (!isDevMode()) return res.locals.uid
-  return (role === "president" ? state.session?.presidentId : state.session?.chancellorId) ?? ""
+/** What a power showed the President: the policy peek, or the investigated player's team. */
+function _shown(before: GameState, after: GameState, action: Action): Record<string, unknown> {
+  if (action.type !== "usePower" || before.phase.name !== "power") return {}
+  if (before.phase.power === "policyPeek") {
+    return { policies: (after.session?.peekedPolicies ?? []).join(",") }
+  }
+  if (before.phase.power === "investigateLoyalty") {
+    const investigated: Player | undefined = after.players.find(
+      (p: Player) => p.id === action.targetId,
+    )
+    return { membership: rules.teamOf(investigated?.role ?? "liberal") }
+  }
+  return {}
 }
 
-/** The same statuses as before the engine: 458 for a player who can't be chosen, else 457. */
-function _sendRuleError(res: Response, error: RuleError): void {
-  if (error.code === "ineligible") {
-    handleIneligiblePlayerError(res)
-  } else {
-    handleGameProgressTamperingError(res)
+/** Who acts: the logged-in player, or in a simulated dev mode request, whoever's turn it is. */
+function _actor(res: Response, state: GameState, action: PlayerAction): string {
+  if (!isSimulated(res)) return res.locals.uid
+  const session: GameState["session"] = state.session
+  switch (action.type) {
+    case "vote":
+      return (
+        state.players.find((p: Player) => p.isAlive && session?.votes[p.id] === undefined)?.id ?? ""
+      )
+    case "discard":
+      return (
+        (state.phase.name === "chancellorDiscard" ? session?.chancellorId : session?.presidentId) ??
+        ""
+      )
+    case "proposeVeto":
+      return session?.chancellorId ?? ""
+    default:
+      return session?.presidentId ?? ""
   }
 }
 
+/** Saves the game's changes, and any `extra` root paths, in one atomic write. */
 async function _save(
   gameCode: string,
   gameData: any,
   before: GameState,
   after: GameState,
+  extra: Record<string, unknown> = {},
 ): Promise<void> {
-  const updates: Record<string, unknown> = databaseUpdates(
+  const changes: Record<string, unknown> = databaseUpdates(
     before,
     after,
     gameData[constants.DATABASE_NODE_SETTINGS],
   )
+  const game: string = `${constants.DATABASE_NODE_ONGOING_GAMES}/${gameCode}`
+  const updates: Record<string, unknown> = {
+    ...Object.fromEntries(
+      Object.entries(changes).map(([path, value]: [string, unknown]) => [`${game}/${path}`, value]),
+    ),
+    ...extra,
+  }
   if (Object.keys(updates).length > 0) {
-    await _gameRef(gameCode).update(updates)
+    await admin.database().ref().update(updates)
   }
 }
 
 function _gameRef(gameCode: string): Reference {
   return admin.database().ref().child(constants.DATABASE_NODE_ONGOING_GAMES).child(gameCode)
+}
+
+function _receiptPath(gameCode: string, playerId: string): string {
+  return `${constants.DATABASE_NODE_ACTION_RECEIPTS}/${gameCode}/${playerId}`
 }
