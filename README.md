@@ -65,7 +65,14 @@ copied into `.env.[PROJECTNAME]` by `npm run link` can't disable authentication 
 
 ## Tests
 
-The tests play games through the API against the Firebase emulators (functions and database), in
+The rules engine (`functions/src/engine`, see its [README](functions/src/engine/README.md)) has its own
+tests, which need no emulator and run in seconds. From `functions/`:
+
+```shell
+npm run test:engine
+```
+
+The other tests play games through the API against the Firebase emulators (functions and database), in
 dev mode. They cover the game rules, concurrent requests, phase timing, lobbies and the database
 security rules. From `functions/`:
 
@@ -73,7 +80,7 @@ security rules. From `functions/`:
 npm test
 ```
 
-This builds the functions, starts the emulators on the `demo-shtest` project (`DEV=true` comes from
+This runs the engine tests, then builds the functions, starts the emulators on the `demo-shtest` project (`DEV=true` comes from
 `functions/.env.demo-shtest`), runs every file in `functions/test/` and stops the emulators. A
 `functions/.env.local` file also applies to the emulator: make sure it doesn't set `DEV=false`.
 
