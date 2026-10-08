@@ -34,6 +34,7 @@ export interface PublicSession {
   passed?: boolean
   vetoRefused?: boolean
   enactedPolicy?: Policy
+  power?: Power
   investigatedId?: string
   specialElectionPresidentId?: string
   executedId?: string
@@ -147,6 +148,7 @@ function publicSession(session: Session, voteOpen: boolean): PublicSession {
   if (session.passed !== undefined) view.passed = session.passed
   if (session.vetoRefused !== undefined) view.vetoRefused = session.vetoRefused
   if (session.enactedPolicy !== undefined) view.enactedPolicy = session.enactedPolicy
+  if (session.power !== undefined) view.power = session.power
   if (session.investigatedId !== undefined) view.investigatedId = session.investigatedId
   if (session.specialElectionPresidentId !== undefined) {
     view.specialElectionPresidentId = session.specialElectionPresidentId

@@ -6,5 +6,5 @@
     "rootDir": ".",
     "target": "es2020"
   },
-  "include": ["test", "src/engine"]
+  "include": ["test", "src"]
 }

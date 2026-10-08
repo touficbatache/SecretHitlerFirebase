@@ -348,6 +348,7 @@ class Game {
     const power: Power | undefined =
       enacted === "fascist" ? this.state.powers[this.state.board.fascist] : undefined
     if (power !== undefined) {
+      this.session.power = power
       this.state.phase = { name: "power", power, used: false, done: false }
       return
     }
@@ -374,6 +375,7 @@ class Game {
       return
     }
 
+    this.session.vetoRefused = false
     for (const policy of this.session.chancellorPolicies ?? []) {
       this.state.discardPile[policy]++
     }

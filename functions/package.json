@@ -4,7 +4,7 @@
     "build": "tsc",
     "build:watch": "tsc --watch",
     "test": "npm run test:engine && npm run build && firebase emulators:exec --only functions,database --project demo-shtest \"npm run test:run\"",
-    "test:engine": "tsc -p tsconfig.engine.json && tsc -p tsconfig.test.json && node --test lib-test/test/engine/*.test.js",
+    "test:engine": "tsc -p tsconfig.engine.json && tsc -p tsconfig.test.json && node --test lib-test/test/engine/*.test.js lib-test/test/unit/*.test.js",
     "test:run": "tsc -p tsconfig.test.json && node --test --test-concurrency=1 lib-test/test/*.test.js",
     "lint": "prettier --check . && eslint . --fix",
     "format": "prettier --write .",
