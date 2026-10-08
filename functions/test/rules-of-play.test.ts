@@ -2,7 +2,17 @@
 import * as assert from "node:assert/strict"
 import { test } from "node:test"
 
-import { api, ApiResult, cards, game, getGame, newGame, putGame, waitForGame } from "./helpers"
+import {
+  advanceWhenDue,
+  api,
+  ApiResult,
+  cards,
+  game,
+  getGame,
+  newGame,
+  putGame,
+  waitForGame,
+} from "./helpers"
 
 test("chaos with 3 cards left reshuffles, and the next President still gets 3 cards", async () => {
   const code: string = "900001"
@@ -96,25 +106,23 @@ test("the end-of-session reshuffle includes this session's discards", async () =
   assert.equal(reshuffled.electionTracker, 0, "an enactment resets the election tracker")
 })
 
-test("a nomination sent during the intro is rejected right away", async () => {
+test("a nomination sent during the intro is rejected", async () => {
   const code: string = await newGame()
   for (let i: number = 0; i < 4; i++) {
     assert.equal((await api("joinGame", { code })).status, 200)
   }
-  const starting: Promise<ApiResult> = api("startGame", {
-    code,
-    hidePicsGameInfo: false,
-    skipLongIntro: true,
-  })
-  const intro: any = await waitForGame(code, (g: any) => g.status === "settingUp", "intro")
+  assert.equal(
+    (await api("startGame", { code, hidePicsGameInfo: false, skipLongIntro: true })).status,
+    200,
+  )
+  const intro: any = await getGame(code)
+  assert.equal(intro.status, "settingUp")
   const other: string = intro.players.find((p: any) => p.id !== intro.currentSession.presidentId).id
 
   const early: ApiResult = await api("chooseChancellor", { code, chancellorId: other })
   assert.equal(early.status, 457, early.body)
-  assert.ok(early.ms < 2000, `the rejection took ${early.ms}ms: it waited for the intro`)
 
-  assert.equal((await starting).status, 200)
-  const started: any = await getGame(code)
+  const started: any = await advanceWhenDue(code)
   assert.equal(started.subStatus, "election_presidentChoosingChancellor")
   assert.equal(started.currentSession.chancellorId, undefined)
   assert.equal((await api("chooseChancellor", { code, chancellorId: other })).status, 200)

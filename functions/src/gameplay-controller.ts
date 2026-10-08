@@ -8,7 +8,6 @@ import { isDevMode } from "./dev-mode"
 import { DiscardPile, reshuffledDrawPile } from "./draw-pile"
 import { findPlayer, isEligibleForChancellor, isValidPowerTarget } from "./eligibility"
 import { GameDataUpdates, getGameData } from "./handlers/game-data-handler"
-import { pauseGame } from "./handlers/game-lock"
 import {
   AssetReference,
   ChamberStatus,
@@ -22,6 +21,16 @@ import {
   Policy,
   PresidentialPower,
 } from "./objects"
+import {
+  isDue,
+  LONG_INTRO_MS,
+  PendingTransition,
+  pendingTransition,
+  RESULT_PAUSE_MS,
+  scheduleTransition,
+  SHORT_INTRO_MS,
+  TransitionKind,
+} from "./pending-transition"
 import {
   handleCreated,
   handleForbiddenError,
@@ -222,8 +231,8 @@ export async function unJoinGame(req: Request, res: Response): Promise<void> {
             [constants.DATABASE_NODE_STATUS]: ChamberStatus[ChamberStatus.deleted],
           }).updates,
         )
-      // Gives clients a moment to see the game was closed before it disappears.
-      await pauseGame(2000)
+      // Clients see the empty player list from the first write and leave, then the game goes.
+      // Nothing can join in between: requests on a game run one at a time.
       await admin
         .database()
         .ref()
@@ -357,6 +366,13 @@ export async function startGame(req: Request, res: Response): Promise<void> {
       gameData[constants.DATABASE_NODE_PLAYERS],
     )
 
+    // The intro plays on every screen, then the first President chooses a Chancellor
+    const introMs: number = skipLongIntro ? SHORT_INTRO_MS : LONG_INTRO_MS
+    const introTransition: PendingTransition = pendingTransition(
+      TransitionKind.finishSetup,
+      introMs,
+    )
+
     await admin
       .database()
       .ref()
@@ -379,10 +395,10 @@ export async function startGame(req: Request, res: Response): Promise<void> {
             [constants.DATABASE_NODE_PRESIDENT_ID]: presidentPlayerId,
           },
           [constants.DATABASE_NODE_LAST_PRESIDENT_ID]: presidentPlayerId,
+          [constants.DATABASE_NODE_STARTED_AT]: introTransition.at - introMs,
+          [`${constants.DATABASE_NODE_PENDING_TRANSITION}.override`]: introTransition,
         }).updates,
       )
-
-    await _finishSetup(gameCode, gameType, skipLongIntro)
 
     handleSuccess(res, { code: gameCode })
     return
@@ -443,18 +459,7 @@ function _randomPresidentPlayerId(players: any[]) {
   return players[index][constants.DATABASE_NODE_ID]
 }
 
-async function _finishSetup(gameCode: string, gameType: GameType, skipLongIntro: boolean) {
-  await admin
-    .database()
-    .ref()
-    .child(constants.DATABASE_NODE_ONGOING_GAMES)
-    .child(gameCode)
-    .child(constants.DATABASE_NODE_STARTED_AT)
-    .set(Date.now())
-
-  const waitTimeInS: number = skipLongIntro ? 5 : 30
-  await pauseGame(waitTimeInS * 1000)
-
+async function _finishSetup(gameCode: string) {
   await admin
     .database()
     .ref()
@@ -465,6 +470,7 @@ async function _finishSetup(gameCode: string, gameType: GameType, skipLongIntro:
         [constants.DATABASE_NODE_STATUS]: ChamberStatus[ChamberStatus.election],
         [constants.DATABASE_NODE_SUB_STATUS]:
           ChamberSubStatus[ChamberSubStatus.election_presidentChoosingChancellor],
+        [constants.DATABASE_NODE_PENDING_TRANSITION]: null,
       }).updates,
     )
 }
@@ -607,6 +613,21 @@ export async function vote(req: Request, res: Response): Promise<void> {
           [constants.DATABASE_NODE_HAS_SUCCEEDED]: hasSucceeded,
         },
       })
+
+      // Everyone sees the votes, then the game moves on
+      const isThirdFailure: boolean =
+        !hasSucceeded && gameData[constants.DATABASE_NODE_ELECTION_TRACKER] + 1 == 3
+      const next: TransitionKind = hasSucceeded
+        ? TransitionKind.beginLegislativeSession
+        : isThirdFailure
+        ? TransitionKind.frustratedPopulace
+        : TransitionKind.nextElection
+      gameDataUpdates.push({
+        [`${constants.DATABASE_NODE_PENDING_TRANSITION}.override`]: pendingTransition(
+          next,
+          RESULT_PAUSE_MS,
+        ),
+      })
       if (hasSucceeded) {
         // The election tracker is not reset here: per the rules it resets when a policy is
         // enacted, so a vetoed government still advances it (see answerVeto).
@@ -632,20 +653,9 @@ export async function vote(req: Request, res: Response): Promise<void> {
       .child(gameCode)
       .update(gameDataUpdates.updates)
 
-    if (hasVoteEnded) {
-      if (hasSucceeded) {
-        // End game if 3+ fascist policies are enacted and hitler is chancellor
-        const hasGameEnded: boolean = await _tryEndGameAfterGovernmentElection(gameCode)
-        if (!hasGameEnded) {
-          await _beginLegislativeSession(gameCode)
-        }
-      } else {
-        if (gameData[constants.DATABASE_NODE_ELECTION_TRACKER] + 1 == 3) {
-          await _enactPolicyByFrustratedPopulace(gameCode)
-        } else {
-          await _nextElection(gameCode)
-        }
-      }
+    if (hasVoteEnded && hasSucceeded) {
+      // End game if 3+ fascist policies are enacted and hitler is chancellor
+      await _tryEndGameAfterGovernmentElection(gameCode)
     }
 
     handleSuccess(res, { code: gameCode })
@@ -657,8 +667,6 @@ export async function vote(req: Request, res: Response): Promise<void> {
 }
 
 async function _enactPolicyByFrustratedPopulace(gameCode: string) {
-  await pauseGame(5000)
-
   // The pile should already hold 3+ policies; this only guards against an empty pile.
   await _prepareDrawPile(gameCode)
 
@@ -674,6 +682,7 @@ async function _enactPolicyByFrustratedPopulace(gameCode: string) {
   }
 
   // Chaos resets the tracker and makes everyone eligible again (term limits are forgotten).
+  gameDataUpdates.push({ [constants.DATABASE_NODE_PENDING_TRANSITION]: null })
   gameDataUpdates.push({ [constants.DATABASE_NODE_ELECTION_TRACKER]: 0 })
   gameDataUpdates.push({ [constants.DATABASE_NODE_LAST_SUCCESSFUL_PRESIDENT_ID]: null })
   gameDataUpdates.push({ [constants.DATABASE_NODE_LAST_SUCCESSFUL_CHANCELLOR_ID]: null })
@@ -732,18 +741,23 @@ async function _enactPolicyByFrustratedPopulace(gameCode: string) {
   // - 6 fascist policies are enacted
   const hasGameEnded: boolean = await _tryEndGameWithBoardCount(gameCode)
   if (!hasGameEnded) {
-    await _nextElection(gameCode, true, undefined, false)
+    await _startNextElection(gameCode, undefined, false)
   }
 }
 
-async function _nextElection(
+/** Ends the government's turn: after a pause, the next President chooses a Chancellor. */
+async function _nextElection(gameCode: string, specialElectionPresidentId?: string) {
+  await scheduleTransition(
+    gameCode,
+    pendingTransition(TransitionKind.nextElection, RESULT_PAUSE_MS, specialElectionPresidentId),
+  )
+}
+
+async function _startNextElection(
   gameCode: string,
-  skipWaitTime: boolean = false,
   specialElectionPresidentId: string | undefined = undefined,
   archiveCurrentSession: boolean = true,
 ) {
-  if (!skipWaitTime) await pauseGame(5000)
-
   const gameData: any = await getGameData(gameCode)
 
   const sessionCount: number = (gameData[constants.DATABASE_NODE_SESSIONS] ?? []).length
@@ -765,6 +779,7 @@ async function _nextElection(
     [constants.DATABASE_NODE_STATUS]: ChamberStatus[ChamberStatus.election],
     [constants.DATABASE_NODE_SUB_STATUS]:
       ChamberSubStatus[ChamberSubStatus.election_presidentChoosingChancellor],
+    [constants.DATABASE_NODE_PENDING_TRANSITION]: null,
   })
 
   if (archiveCurrentSession) {
@@ -797,8 +812,6 @@ function _nextPresidentId(players: any[], lastPresidentIndex: number): string {
 }
 
 async function _beginLegislativeSession(gameCode: string) {
-  await pauseGame(5000)
-
   // The pile is reshuffled at the end of each session, so this is only a safety net.
   await _prepareDrawPile(gameCode)
 
@@ -824,6 +837,7 @@ async function _beginLegislativeSession(gameCode: string) {
         [constants.DATABASE_NODE_STATUS]: ChamberStatus[ChamberStatus.legislativeSession],
         [constants.DATABASE_NODE_SUB_STATUS]:
           ChamberSubStatus[ChamberSubStatus.legislativeSession_presidentDiscardingPolicy],
+        [constants.DATABASE_NODE_PENDING_TRANSITION]: null,
       }).updates,
     )
 }
@@ -1222,7 +1236,7 @@ export async function presidentialPower(req: Request, res: Response): Promise<vo
             }).updates,
           )
 
-        await _nextElection(gameCode, false, playerId)
+        await _nextElection(gameCode, playerId)
       }
 
       if (
@@ -1382,6 +1396,7 @@ async function _updatePreviousSessionsOnGameEnd(
           [sessionCount]: gameData[constants.DATABASE_NODE_CURRENT_SESSION],
         },
         [`${constants.DATABASE_NODE_CURRENT_SESSION}.override`]: undefined,
+        [constants.DATABASE_NODE_PENDING_TRANSITION]: null,
         [constants.DATABASE_NODE_STATUS]: ChamberStatus[ChamberStatus.gameEnded],
         [constants.DATABASE_NODE_SUB_STATUS]:
           ChamberSubStatus[
@@ -1534,7 +1549,10 @@ export async function answerVeto(req: Request, res: Response): Promise<void> {
       await _prepareDrawPile(gameCode)
 
       if (electionTracker + 1 == 3) {
-        await _enactPolicyByFrustratedPopulace(gameCode)
+        await scheduleTransition(
+          gameCode,
+          pendingTransition(TransitionKind.frustratedPopulace, RESULT_PAUSE_MS),
+        )
       } else {
         await _nextElection(gameCode)
       }
@@ -1546,4 +1564,66 @@ export async function answerVeto(req: Request, res: Response): Promise<void> {
     handleInternalError(res, err)
     return
   }
+}
+
+async function _runTransition(gameCode: string, transition: PendingTransition): Promise<void> {
+  switch (transition.kind) {
+    case TransitionKind.finishSetup:
+      return _finishSetup(gameCode)
+    case TransitionKind.beginLegislativeSession:
+      return _beginLegislativeSession(gameCode)
+    case TransitionKind.frustratedPopulace:
+      return _enactPolicyByFrustratedPopulace(gameCode)
+    case TransitionKind.nextElection:
+      return _startNextElection(gameCode, transition.specialElectionPresidentId)
+  }
+}
+
+/**
+ * Applies the game's pending transition if its pause is over, and any transition that becomes
+ * due as a result. Must run while holding the game's lock. Returns whether anything changed.
+ */
+export async function runDueTransitions(gameCode: string, gameData: any): Promise<boolean> {
+  let changed: boolean = false
+  let pending: PendingTransition | undefined =
+    gameData?.[constants.DATABASE_NODE_PENDING_TRANSITION]
+
+  // A transition never schedules one that is already due, so this is a safety limit
+  for (let step: number = 0; step < 5 && isDue(pending); step++) {
+    const transition: PendingTransition = pending as PendingTransition
+    await _runTransition(gameCode, transition)
+    changed = true
+
+    const after: any = await getGameData(gameCode)
+    pending = after?.[constants.DATABASE_NODE_PENDING_TRANSITION]
+    if (pending?.at === transition.at && pending?.kind === transition.kind) {
+      // The transition couldn't clear itself (an unexpected game state): drop it rather than
+      // retry it on every request.
+      console.error(`Transition ${transition.kind} of game ${gameCode} failed, dropping it`)
+      await admin
+        .database()
+        .ref()
+        .child(constants.DATABASE_NODE_ONGOING_GAMES)
+        .child(gameCode)
+        .child(constants.DATABASE_NODE_PENDING_TRANSITION)
+        .remove()
+      break
+    }
+  }
+
+  return changed
+}
+
+/**
+ * Lets a client move the game on once a pause is over: due transitions are applied before any
+ * request reaches this handler (see pendingTransitionHandler). Responds with the time of the
+ * transition still pending, if any, so a client whose clock ran ahead can try again then.
+ */
+export async function advance(req: Request, res: Response): Promise<void> {
+  const pending: PendingTransition | undefined =
+    res.locals.gameData[constants.DATABASE_NODE_PENDING_TRANSITION]
+  handleSuccess(res, {
+    code: res.locals.gameCode,
+    ...(pending != null ? { pendingTransitionAt: pending.at } : {}),
+  })
 }

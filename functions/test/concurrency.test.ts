@@ -2,12 +2,23 @@
 import * as assert from "node:assert/strict"
 import { test } from "node:test"
 
-import { api, ApiResult, cards, game, getGame, lockOf, putGame, sleep, write } from "./helpers"
+import {
+  advanceWhenDue,
+  api,
+  ApiResult,
+  cards,
+  game,
+  getGame,
+  lockOf,
+  putGame,
+  sleep,
+  write,
+} from "./helpers"
 
 const statuses: (results: ApiResult[]) => number[] = (results: ApiResult[]) =>
   results.map((result: ApiResult) => result.status).sort()
 
-test("7 simultaneous votes: one vote each, one legislative session, 3 cards drawn once", async () => {
+test("7 simultaneous votes, then 7 simultaneous /advance: one session, 3 cards drawn once", async () => {
   const code: string = "920001"
   await putGame(
     code,
@@ -25,8 +36,16 @@ test("7 simultaneous votes: one vote each, one legislative session, 3 cards draw
     Array.from({ length: 7 }, () => api("vote", { code, vote: true })),
   )
   assert.deepEqual(statuses(results), Array(7).fill(200))
+  const results7: any = await getGame(code)
+  assert.equal(Object.keys(results7.currentSession.votes).length, 7, "7 distinct votes")
+
+  // Every client asks to move on as soon as the votes have been shown
+  await sleep(results7.pendingTransition.at - Date.now() + 50)
+  const advances: ApiResult[] = await Promise.all(
+    Array.from({ length: 7 }, () => api("advance", { code })),
+  )
+  assert.deepEqual(statuses(advances), Array(7).fill(200))
   const after: any = await getGame(code)
-  assert.equal(Object.keys(after.currentSession.votes).length, 7, "7 distinct votes")
   assert.equal(after.subStatus, "legislativeSession_presidentDiscardingPolicy")
   assert.equal(cards(after.currentSession.presidentPolicies).length, 3, "the President holds 3")
   assert.equal(cards(after.policies.drawPile).length, 6, "9 - 3 left in the pile")
@@ -60,7 +79,8 @@ test("a player who double-taps their vote only votes once", async () => {
     api("vote", { code, vote: true }),
   ])
   assert.deepEqual(statuses(results), [200, 457])
-  assert.equal(cards((await getGame(code)).policies.drawPile).length, 1, "drew exactly once")
+  assert.equal(Object.keys((await getGame(code)).currentSession.votes).length, 6)
+  assert.equal(cards((await advanceWhenDue(code)).policies.drawPile).length, 1, "drew once")
 })
 
 test("4 simultaneous joins on an 8-player lobby: exactly 10 players", async () => {
@@ -121,7 +141,7 @@ test("a President who double-taps an execution executes one player", async () =>
     api("presidentialPower", { code, player: "randId5" }),
     api("presidentialPower", { code, player: "randId6" }),
   ])
-  const after: any = await getGame(code)
+  const after: any = await advanceWhenDue(code)
   const executed: string[] = Object.values(after.players)
     .filter((p: any) => p.isExecuted)
     .map((p: any) => p.id)
@@ -136,42 +156,7 @@ test("the lock is released after each request, including failed ones", async () 
   assert.equal(await lockOf("999999"), null, "for a game that doesn't exist")
 })
 
-test("a client that disconnects mid-request doesn't leave the game locked", async () => {
-  const code: string = "920006"
-  await putGame(
-    code,
-    game(
-      {
-        status: "election",
-        subStatus: "election_voting",
-        currentSession: {
-          presidentId: "randId1",
-          chancellorId: "randId3",
-          votes: { randId0: true, randId1: true, randId2: true, randId3: true },
-        },
-        policies: {
-          drawPile: "liberal,liberal,liberal,liberal",
-          board: { liberal: 0, fascist: 0 },
-        },
-      },
-      5,
-    ),
-  )
-  const controller: AbortController = new AbortController()
-  const lastVote: Promise<unknown> = api("vote", { code, vote: true }, controller.signal).catch(
-    () => "aborted",
-  )
-  await sleep(500)
-  controller.abort() // the last voter closes the tab during the pause after the vote
-  await lastVote
-  await sleep(6000)
-  assert.equal(await lockOf(code), null)
-  const next: ApiResult = await api("presidentDiscardPolicy", { code, policy: "liberal" })
-  assert.equal(next.status, 200, next.body)
-  assert.ok(next.ms < 3000, `the next action waited ${next.ms}ms`)
-})
-
-test("an action during the pause after a vote is rejected right away", async () => {
+test("an action sent while the votes are shown is rejected right away", async () => {
   const code: string = "920007"
   await putGame(
     code,
@@ -192,20 +177,21 @@ test("an action during the pause after a vote is rejected right away", async () 
       5,
     ),
   )
-  const lastVote: Promise<ApiResult> = api("vote", { code, vote: true })
-  await sleep(800)
+  assert.equal((await api("vote", { code, vote: true })).status, 200)
   const early: ApiResult = await api("presidentDiscardPolicy", { code, policy: "liberal" })
   assert.equal(early.status, 457, early.body)
-  assert.ok(early.ms < 2000, `the rejection took ${early.ms}ms: it waited for the pause`)
-  assert.equal((await lastVote).status, 200)
-  assert.equal((await getGame(code)).subStatus, "legislativeSession_presidentDiscardingPolicy")
+  assert.ok(early.ms < 2000, `the rejection took ${early.ms}ms`)
+  assert.equal(
+    (await advanceWhenDue(code)).subStatus,
+    "legislativeSession_presidentDiscardingPolicy",
+  )
 })
 
-test("a lock left by a crashed request expires after about 20 seconds", async () => {
+test("a lock left by a crashed request expires after 10 seconds, and waiting requests go on", async () => {
   const code: string = "920008"
   await putGame(code, game({ status: "waiting" }, 5))
-  await write(`gameLocks/${code}`, { token: "crashed-request", expiresAt: Date.now() + 20_000 })
+  await write(`gameLocks/${code}`, { token: "crashed-request", expiresAt: Date.now() + 10_000 })
   const res: ApiResult = await api("setGameVisibility", { code, visibility: "public" })
   assert.equal(res.status, 200, res.body)
-  assert.ok(res.ms > 15_000 && res.ms < 25_000, `waited ${res.ms}ms`)
+  assert.ok(res.ms > 7_500 && res.ms < 14_000, `waited ${res.ms}ms`)
 })

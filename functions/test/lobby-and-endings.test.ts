@@ -2,7 +2,17 @@
 import * as assert from "node:assert/strict"
 import { test } from "node:test"
 
-import { api, ApiResult, game, getGame, newGame, putGame, sleep, write } from "./helpers"
+import {
+  api,
+  ApiResult,
+  game,
+  getGame,
+  newGame,
+  putGame,
+  recordEvents,
+  sleep,
+  write,
+} from "./helpers"
 
 test("actions after the game ended are rejected with 457, not a crash", async () => {
   const code: string = "930001"
@@ -32,18 +42,32 @@ test("actions after the game ended are rejected with 457, not a crash", async ()
   }
 })
 
-test("nobody can join a lobby while its owner is closing it", async () => {
+test("closing a lobby sends its players away, then removes it", async () => {
   const code: string = await newGame()
   for (let i: number = 0; i < 2; i++) {
     assert.equal((await api("joinGame", { code })).status, 200)
   }
   // In dev mode, unJoinGame acts as randId{player count}: make that player the owner
   await write(`ongoingGames/${code}/ownerId`, "randId3")
-  const closing: Promise<ApiResult> = api("unJoinGame", { code })
-  await sleep(700) // during the pause before the game is removed
-  assert.equal((await getGame(code))?.status, "deleted")
-  const late: ApiResult = await api("joinGame", { code })
-  assert.equal(late.status, 452, late.body)
-  assert.equal((await closing).status, 200)
-  assert.equal(await getGame(code), null, "the game is removed")
+
+  const recording: { events: { type: string; data: any }[]; stop: () => void } = recordEvents(
+    `ongoingGames/${code}`,
+  )
+  await sleep(500)
+  const close: ApiResult = await api("unJoinGame", { code })
+  assert.equal(close.status, 200, close.body)
+  assert.ok(close.ms < 3000, `closing took ${close.ms}ms`)
+  await sleep(500)
+  recording.stop()
+
+  // Players listening to the game first see it emptied (and leave), then it's removed
+  const emptied: number = recording.events.findIndex(
+    (event: { type: string; data: any }) => event.data?.status === "deleted",
+  )
+  const removed: number = recording.events.findIndex(
+    (event: { type: string; data: any }) => event.type === "put" && event.data === null,
+  )
+  assert.ok(emptied > 0 && removed > emptied, JSON.stringify(recording.events.slice(1)))
+  assert.equal(await getGame(code), null)
+  assert.equal((await api("joinGame", { code })).status, 452, "a late join finds no game")
 })

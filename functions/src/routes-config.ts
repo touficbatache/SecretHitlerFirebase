@@ -1,9 +1,10 @@
-import { Application } from "express"
+import { Application, RequestHandler } from "express"
 
 import { appCheckVerification } from "./appcheck/app-check-verification"
 import { isAuthenticatedHandler } from "./auth/authenticated"
 import { getActivePublicGames, getGamesForUser } from "./game-info-controller"
 import {
+  advance,
   answerVeto,
   askForVeto,
   chancellorDiscardPolicy,
@@ -20,8 +21,14 @@ import {
 import { chancellorOnlyHandler } from "./handlers/chancellor-only-handler"
 import { gameDataHandler } from "./handlers/game-data-handler"
 import { ownerOnlyHandler } from "./handlers/owner-only-handler"
+import { pendingTransitionHandler } from "./handlers/pending-transition-handler"
 import { presidentOnlyHandler } from "./handlers/president-only-handler"
 import { verifyInGameHandler } from "./handlers/verify-in-game-handler"
+
+// Every request on a game first applies the transitions that are due (see pending-transition.ts).
+// Gameplay actions sent during a pause are rejected; lobby and settings requests aren't.
+const applyDueTransitions: RequestHandler = pendingTransitionHandler({ rejectWhilePending: false })
+const rejectDuringPause: RequestHandler = pendingTransitionHandler({ rejectWhilePending: true })
 
 export function routesConfig(app: Application): void {
   app.post("/newGame", [appCheckVerification, isAuthenticatedHandler, newGame])
@@ -30,17 +37,25 @@ export function routesConfig(app: Application): void {
     appCheckVerification,
     isAuthenticatedHandler,
     gameDataHandler,
+    applyDueTransitions,
     verifyInGameHandler,
     ownerOnlyHandler,
     setGameVisibility,
   ])
 
-  app.post("/joinGame", [appCheckVerification, isAuthenticatedHandler, gameDataHandler, joinGame])
+  app.post("/joinGame", [
+    appCheckVerification,
+    isAuthenticatedHandler,
+    gameDataHandler,
+    applyDueTransitions,
+    joinGame,
+  ])
 
   app.post("/unJoinGame", [
     appCheckVerification,
     isAuthenticatedHandler,
     gameDataHandler,
+    applyDueTransitions,
     verifyInGameHandler,
     unJoinGame,
   ])
@@ -49,6 +64,7 @@ export function routesConfig(app: Application): void {
     appCheckVerification,
     isAuthenticatedHandler,
     gameDataHandler,
+    applyDueTransitions,
     verifyInGameHandler,
     ownerOnlyHandler,
     startGame,
@@ -58,6 +74,7 @@ export function routesConfig(app: Application): void {
     appCheckVerification,
     isAuthenticatedHandler,
     gameDataHandler,
+    rejectDuringPause,
     verifyInGameHandler,
     presidentOnlyHandler,
     chooseChancellor,
@@ -67,6 +84,7 @@ export function routesConfig(app: Application): void {
     appCheckVerification,
     isAuthenticatedHandler,
     gameDataHandler,
+    rejectDuringPause,
     verifyInGameHandler,
     vote,
   ])
@@ -75,6 +93,7 @@ export function routesConfig(app: Application): void {
     appCheckVerification,
     isAuthenticatedHandler,
     gameDataHandler,
+    rejectDuringPause,
     verifyInGameHandler,
     presidentOnlyHandler,
     presidentDiscardPolicy,
@@ -84,6 +103,7 @@ export function routesConfig(app: Application): void {
     appCheckVerification,
     isAuthenticatedHandler,
     gameDataHandler,
+    rejectDuringPause,
     verifyInGameHandler,
     chancellorOnlyHandler,
     chancellorDiscardPolicy,
@@ -93,6 +113,7 @@ export function routesConfig(app: Application): void {
     appCheckVerification,
     isAuthenticatedHandler,
     gameDataHandler,
+    rejectDuringPause,
     verifyInGameHandler,
     presidentOnlyHandler,
     presidentialPower,
@@ -102,6 +123,7 @@ export function routesConfig(app: Application): void {
     appCheckVerification,
     isAuthenticatedHandler,
     gameDataHandler,
+    rejectDuringPause,
     verifyInGameHandler,
     chancellorOnlyHandler,
     askForVeto,
@@ -111,9 +133,20 @@ export function routesConfig(app: Application): void {
     appCheckVerification,
     isAuthenticatedHandler,
     gameDataHandler,
+    rejectDuringPause,
     verifyInGameHandler,
     presidentOnlyHandler,
     answerVeto,
+  ])
+
+  // Clients call this when a pause is over, to move the game on
+  app.post("/advance", [
+    appCheckVerification,
+    isAuthenticatedHandler,
+    gameDataHandler,
+    verifyInGameHandler,
+    applyDueTransitions,
+    advance,
   ])
 
   app.post("/getGamesForSelf", [appCheckVerification, isAuthenticatedHandler, getGamesForUser])

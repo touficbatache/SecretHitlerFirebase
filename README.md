@@ -393,6 +393,35 @@ content-type: application/json
 { "code": "[GAMECODE]" }
 ```
 
+### ==== Move on after a pause ====
+
+The game pauses between some phases: the intro (5s, or 30s for the long intro), and 5s to show the
+votes, an enacted policy or a power's result. The server doesn't wait during a pause: it writes the
+next step in the game's `pendingTransition` node, as `{ "at": [SERVER TIME IN MS], "kind": "..." }`.
+
+Clients show the pause until `at` (on the server's clock, with `.info/serverTimeOffset`), then call
+this endpoint to apply it. Any request on the game also applies it once it's due. Actions sent
+during a pause get a 457.
+
+**Request:**
+
+`POST /advance/`
+
+```json
+{
+  "code": "[GAMECODE]"
+}
+```
+
+**Response:**
+
+```http request
+HTTP/1.1 200 OK
+content-type: application/json
+
+{ "code": "[GAMECODE]", "pendingTransitionAt": "[SERVER TIME IN MS, IF A PAUSE IS STILL ON]" }
+```
+
 ### ==== GAME END ====
 
 Game will end automatically and a team will win depending on one of these conditions:
@@ -429,7 +458,7 @@ content-type: application/json
 
 #### Game is busy
 
-Requests on the same game run one at a time. A request that waits more than 60 seconds for its turn gets:
+Requests on the same game run one at a time. A request that waits more than 15 seconds for its turn gets:
 
 ```http request
 HTTP/1.1 409 Conflict
