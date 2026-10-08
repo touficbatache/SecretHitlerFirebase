@@ -413,6 +413,17 @@ content-type: application/json
 { "message": "403 - Forbidden" }
 ```
 
+#### Game is busy
+
+Requests on the same game run one at a time. A request that waits more than 60 seconds for its turn gets:
+
+```http request
+HTTP/1.1 409 Conflict
+content-type: application/json
+
+{ "message": "409 - Game is busy, try again" }
+```
+
 #### Missing fields
 
 ```http request

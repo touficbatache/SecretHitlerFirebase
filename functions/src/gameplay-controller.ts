@@ -8,6 +8,7 @@ import { isDevMode } from "./dev-mode"
 import { DiscardPile, reshuffledDrawPile } from "./draw-pile"
 import { findPlayer, isEligibleForChancellor, isValidPowerTarget } from "./eligibility"
 import { GameDataUpdates, getGameData } from "./handlers/game-data-handler"
+import { pauseGame } from "./handlers/game-lock"
 import {
   AssetReference,
   ChamberStatus,
@@ -35,7 +36,6 @@ import {
   handleSuccess,
   handleUnexpectedInternalError,
   shuffle,
-  sleep,
 } from "./utils"
 import Reference = database.Reference
 
@@ -214,7 +214,7 @@ export async function unJoinGame(req: Request, res: Response): Promise<void> {
             [`${constants.DATABASE_NODE_PLAYERS}.override`]: [],
           }).updates,
         )
-      await sleep(2000)
+      await pauseGame(2000)
       await admin
         .database()
         .ref()
@@ -444,7 +444,7 @@ async function _finishSetup(gameCode: string, gameType: GameType, skipLongIntro:
     .set(Date.now())
 
   const waitTimeInS: number = skipLongIntro ? 5 : 30
-  await sleep(waitTimeInS * 1000)
+  await pauseGame(waitTimeInS * 1000)
 
   await admin
     .database()
@@ -648,7 +648,7 @@ export async function vote(req: Request, res: Response): Promise<void> {
 }
 
 async function _enactPolicyByFrustratedPopulace(gameCode: string) {
-  await sleep(5000)
+  await pauseGame(5000)
 
   // The pile should already hold 3+ policies; this only guards against an empty pile.
   await _prepareDrawPile(gameCode)
@@ -733,7 +733,7 @@ async function _nextElection(
   specialElectionPresidentId: string | undefined = undefined,
   archiveCurrentSession: boolean = true,
 ) {
-  if (!skipWaitTime) await sleep(5000)
+  if (!skipWaitTime) await pauseGame(5000)
 
   const gameData: any = await getGameData(gameCode)
 
@@ -788,7 +788,7 @@ function _nextPresidentId(players: any[], lastPresidentIndex: number): string {
 }
 
 async function _beginLegislativeSession(gameCode: string) {
-  await sleep(5000)
+  await pauseGame(5000)
 
   // The pile is reshuffled at the end of each session, so this is only a safety net.
   await _prepareDrawPile(gameCode)

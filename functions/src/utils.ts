@@ -28,6 +28,10 @@ export function handleAlreadyExistsError(res: Response) {
   return res.status(409).send({ message: "409 - Already exists" })
 }
 
+export function handleGameBusyError(res: Response) {
+  return res.status(409).send({ message: "409 - Game is busy, try again" })
+}
+
 export function handleMissingFields(res: Response) {
   return res.status(422).send({ message: "422 - Missing fields" })
 }
