@@ -10,7 +10,7 @@ import {
   handleMissingFields,
 } from "../utils"
 
-import { acquireGameLock, releaseGameLock } from "./game-lock"
+import { acquireGameLock, GameLockContext, releaseGameLock, runWithGameLock } from "./game-lock"
 
 /**
  * Loads the game for the rest of the request, after taking the game's lock.
@@ -20,6 +20,9 @@ import { acquireGameLock, releaseGameLock } from "./game-lock"
  * covers all of its reads and writes. A concurrent request waits, then reads the
  * updated game. This prevents double votes, double taps, joins past 10 players and
  * any other read-then-write race.
+ *
+ * The lock is released during pauses between phases (see pauseGame), so an action
+ * sent during the intro or a reveal is rejected immediately rather than queued.
  */
 export async function gameDataHandler(
   req: Request,
@@ -38,7 +41,8 @@ export async function gameDataHandler(
       handleGameBusyError(res)
       return
     }
-    releaseLockBeforeResponding(res, code, lockToken)
+    const lock: GameLockContext = { gameCode: code, token: lockToken }
+    releaseLockBeforeResponding(res, lock)
 
     const data: any = await getGameData(code)
     if (data == null) {
@@ -46,7 +50,7 @@ export async function gameDataHandler(
       return
     }
     res.locals = { ...res.locals, gameCode: code, gameData: data }
-    next()
+    runWithGameLock(lock, next)
     return
   } catch (err: any) {
     handleInternalError(res, err)
@@ -60,17 +64,17 @@ export async function gameDataHandler(
  * the lock expires. This also covers every way a request ends: success, an error
  * response from any middleware, or a client that disconnected mid-request.
  */
-function releaseLockBeforeResponding(res: Response, gameCode: string, lockToken: string): void {
+function releaseLockBeforeResponding(res: Response, lock: GameLockContext): void {
   const end: Response["end"] = res.end.bind(res)
-  let released: boolean = false
 
   res.end = ((...args: any[]) => {
-    if (released) {
+    const token: string | undefined = lock.token
+    if (token === undefined) {
       return (end as any)(...args)
     }
-    released = true
-    releaseGameLock(gameCode, lockToken)
-      .catch((err: any) => console.error(`Failed to release lock for game ${gameCode}`, err))
+    lock.token = undefined
+    releaseGameLock(lock.gameCode, token)
+      .catch((err: any) => console.error(`Failed to release lock for game ${lock.gameCode}`, err))
       .finally(() => (end as any)(...args))
     return res
   }) as Response["end"]
