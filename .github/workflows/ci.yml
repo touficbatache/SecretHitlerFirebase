@@ -93,10 +93,28 @@ jobs:
           cache: npm
           cache-dependency-path: functions/package-lock.json
 
-      - uses: google-github-actions/auth@v2
+      # Getting an access token right away makes a login that Google refuses fail here, with its
+      # reason, rather than later in the Firebase CLI with a generic error
+      - id: auth
+        uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
+          token_format: access_token
+
+      - name: Check access to the Firebase project
+        env:
+          ACCESS_TOKEN: ${{ steps.auth.outputs.access_token }}
+        run: |
+          status=$(curl -sS -o project.json -w '%{http_code}' \
+            -H "Authorization: Bearer $ACCESS_TOKEN" \
+            "https://firebase.googleapis.com/v1beta1/projects/$FIREBASE_PROJECT")
+          if [ "$status" != 200 ]; then
+            echo "::error::$GCP_SERVICE_ACCOUNT can't read the Firebase project $FIREBASE_PROJECT (HTTP $status). Google's reason:"
+            cat project.json
+            exit 1
+          fi
+          rm project.json
 
       - name: Install the Firebase CLI
         run: npm install --global firebase-tools@13.35.1
