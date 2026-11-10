@@ -114,7 +114,9 @@ PROJECT_ID=[PROJECTNAME]
 PROJECT_NUMBER=$(gcloud projects describe $PROJECT_ID --format='value(projectNumber)')
 DEPLOYER=github-deploy@$PROJECT_ID.iam.gserviceaccount.com
 
-gcloud services enable iamcredentials.googleapis.com sts.googleapis.com --project $PROJECT_ID
+# The keyless login, and the billing check the Firebase CLI runs before deploying functions
+gcloud services enable iamcredentials.googleapis.com sts.googleapis.com cloudbilling.googleapis.com \
+  --project $PROJECT_ID
 
 # Only the master branch of these two repositories can log in
 gcloud iam workload-identity-pools create github --project $PROJECT_ID --location global
