@@ -94,13 +94,71 @@ Actions runs the lint and all the tests on every pull request and on `master`
 
 ## Deploy to production
 
-Inside to the `functions/` directory, make sure to set the correct environment variable values for production
-in `.env.[PROJECTNAME]`, then deploy:
+Every merge to `master` deploys itself: once the tests pass, GitHub Actions deploys the functions
+and the database security rules to the Firebase project (`.github/workflows/ci.yml`). The app
+([SecretHitlerSvelte](https://github.com/touficbatache/SecretHitlerSvelte)) deploys the same way
+from its own repository.
+
+To deploy by hand instead, from `functions/`:
 
 ```shell
-cd functions/
-npm run deploy
+firebase deploy --only functions,database --project [PROJECTNAME]
 ```
+
+### Continuous deployment: one-time setup
+
+GitHub Actions logs in to Google Cloud without a stored key (Workload Identity Federation): GitHub
+proves to Google that the job runs on `master` of one of the two repositories, and Google lets it
+act as a deploy-only service account. Run this once with the
+[gcloud CLI](https://cloud.google.com/sdk/docs/install), logged in as an owner of the project:
+
+```shell
+PROJECT_ID=[PROJECTNAME]
+PROJECT_NUMBER=$(gcloud projects describe $PROJECT_ID --format='value(projectNumber)')
+DEPLOYER=github-deploy@$PROJECT_ID.iam.gserviceaccount.com
+
+# The keyless login, and the billing check the Firebase CLI runs before deploying functions
+gcloud services enable iamcredentials.googleapis.com sts.googleapis.com cloudbilling.googleapis.com \
+  --project $PROJECT_ID
+
+# Only the master branch of these two repositories can log in
+gcloud iam workload-identity-pools create github --project $PROJECT_ID --location global
+gcloud iam workload-identity-pools providers create-oidc github --project $PROJECT_ID \
+  --location global --workload-identity-pool github \
+  --issuer-uri https://token.actions.githubusercontent.com \
+  --attribute-mapping 'google.subject=assertion.sub,attribute.repository=assertion.repository' \
+  --attribute-condition "assertion.repository in ['touficbatache/SecretHitlerFirebase', 'touficbatache/SecretHitlerSvelte'] && assertion.ref == 'refs/heads/master'"
+
+# The account the deploys run as, with what deploying the functions, the rules and the app needs
+gcloud iam service-accounts create github-deploy --project $PROJECT_ID
+for role in firebase.admin cloudfunctions.admin run.admin cloudbuild.builds.editor \
+  artifactregistry.writer iam.serviceAccountUser serviceusage.serviceUsageConsumer \
+  serviceusage.apiKeysViewer; do
+  gcloud projects add-iam-policy-binding $PROJECT_ID --member serviceAccount:$DEPLOYER \
+    --role roles/$role --condition None
+done
+
+for repo in SecretHitlerFirebase SecretHitlerSvelte; do
+  gcloud iam service-accounts add-iam-policy-binding $DEPLOYER --project $PROJECT_ID \
+    --role roles/iam.workloadIdentityUser \
+    --member "principalSet://iam.googleapis.com/projects/$PROJECT_NUMBER/locations/global/workloadIdentityPools/github/attribute.repository/touficbatache/$repo"
+done
+
+# Lets deploys clean up old function images without asking (a deploy can't answer questions)
+firebase functions:artifacts:setpolicy --project $PROJECT_ID
+
+echo "GCP_WORKLOAD_IDENTITY_PROVIDER = projects/$PROJECT_NUMBER/locations/global/workloadIdentityPools/github/providers/github"
+echo "GCP_SERVICE_ACCOUNT = $DEPLOYER"
+echo "FIREBASE_PROJECT = $PROJECT_ID"
+```
+
+Then, in **both** repositories on GitHub (Settings, Secrets and variables, Actions, Variables), add
+the three repository variables the last commands print. None of them is a secret. The app's
+repository also needs its production `.env` file as a secret: see its README.
+
+A deploy that can't log in fails with a message naming what's missing. The deploys appear under
+the `production` environment on GitHub, where an approval step can be added later (Settings,
+Environments, production, Required reviewers).
 
 ## API description
 

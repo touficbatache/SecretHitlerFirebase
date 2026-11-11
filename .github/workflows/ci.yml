@@ -1,14 +1,15 @@
-name: CI
+name: CI/CD
 
 on:
   push:
     branches: [master]
   pull_request:
 
-# A new push to a pull request cancels the run for the previous one
+# A new push to a pull request cancels the run for the previous one. Runs on master are never
+# cancelled, so a deploy is never stopped halfway.
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read
@@ -26,7 +27,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
           cache-dependency-path: functions/package-lock.json
 
@@ -52,3 +53,75 @@ jobs:
       # Engine and adapter tests, then the API tests against the emulators
       - name: Tests
         run: npm test
+
+  # Every push to master that passes the tests goes live. See "Continuous deployment" in the README
+  # for the one-time setup.
+  deploy:
+    name: Deploy to Firebase
+    needs: functions
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production
+    # One deploy at a time: a second merge waits for the first deploy to finish
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      # Lets the job prove to Google that it's this repo's master branch (keyless login)
+      id-token: write
+    env:
+      FIREBASE_PROJECT: ${{ vars.FIREBASE_PROJECT }}
+      GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+      GCP_SERVICE_ACCOUNT: ${{ vars.GCP_SERVICE_ACCOUNT }}
+    steps:
+      - name: Check the deploy settings
+        run: |
+          for name in FIREBASE_PROJECT GCP_WORKLOAD_IDENTITY_PROVIDER GCP_SERVICE_ACCOUNT; do
+            if [ -z "${!name}" ]; then
+              echo "::error::The repository variable $name isn't set. See \"Continuous deployment\" in the README."
+              exit 1
+            fi
+          done
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: functions/package-lock.json
+
+      # Getting an access token right away makes a login that Google refuses fail here, with its
+      # reason, rather than later in the Firebase CLI with a generic error
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
+          token_format: access_token
+
+      - name: Check access to the Firebase project
+        env:
+          ACCESS_TOKEN: ${{ steps.auth.outputs.access_token }}
+        run: |
+          status=$(curl -sS -o project.json -w '%{http_code}' \
+            -H "Authorization: Bearer $ACCESS_TOKEN" \
+            "https://firebase.googleapis.com/v1beta1/projects/$FIREBASE_PROJECT")
+          if [ "$status" != 200 ]; then
+            echo "::error::$GCP_SERVICE_ACCOUNT can't read the Firebase project $FIREBASE_PROJECT (HTTP $status). Google's reason:"
+            cat project.json
+            exit 1
+          fi
+          rm project.json
+
+      - name: Install the Firebase CLI
+        run: npm install --global firebase-tools@13.35.1
+
+      - run: npm ci
+        working-directory: functions
+
+      # The functions and the database security rules, together, so the rules never lag behind
+      - name: Deploy
+        run: firebase deploy --only functions,database --project "$FIREBASE_PROJECT" --non-interactive
