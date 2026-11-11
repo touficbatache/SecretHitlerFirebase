@@ -100,3 +100,24 @@ test("players can't read or write action receipts", async () => {
     401,
   )
 })
+
+const SETTINGS: string = "users/alice/settings"
+
+test("a player reads and writes only their own settings", async () => {
+  assert.equal(await request("PUT", SETTINGS, "alice", { streamerMode: true }), 200)
+  assert.equal(await request("GET", SETTINGS, "alice"), 200)
+  assert.equal(await request("PATCH", SETTINGS, "alice", { skipLongIntro: false }), 200)
+
+  assert.equal(await request("GET", SETTINGS, "bob"), 401, "someone else's")
+  assert.equal(await request("PUT", `${SETTINGS}/streamerMode`, "bob", false), 401)
+  assert.equal(await request("GET", SETTINGS, null), 401, "signed out")
+  assert.equal(await request("GET", "users", "alice"), 401, "the list of all players")
+})
+
+test("settings are known switches, true or false", async () => {
+  // The database refuses a write that fails validation as it refuses any other: 401
+  assert.equal(await request("PUT", `${SETTINGS}/streamerMode`, "alice", "yes"), 401)
+  assert.equal(await request("PUT", `${SETTINGS}/admin`, "alice", true), 401)
+  assert.equal(await request("PUT", "users/alice/role", "alice", "owner"), 401)
+  assert.equal(await request("PUT", `${SETTINGS}/hidePicsGameInfo`, "alice", true), 200)
+})
