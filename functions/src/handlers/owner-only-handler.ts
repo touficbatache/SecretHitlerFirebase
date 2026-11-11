@@ -2,28 +2,28 @@ import { Request, Response } from "express"
 import { NextFunction } from "express-serve-static-core"
 
 import * as constants from "../constants"
-import { isDevMode } from "../dev-mode"
-import { handleInternalError, handleUnauthorizedError } from "../utils"
+import { isSimulated } from "../dev-mode"
+import { sendError, sendInternalError } from "../errors"
 
 export async function ownerOnlyHandler(
   req: Request,
   res: Response,
   next: NextFunction,
 ): Promise<void> {
-  if (isDevMode()) {
+  if (isSimulated(res)) {
     next()
     return
   }
 
   try {
     if (res.locals.uid != res.locals.gameData[constants.DATABASE_NODE_OWNER_ID]) {
-      handleUnauthorizedError(res)
+      sendError(res, "NOT_OWNER")
       return
     }
 
     return next()
   } catch (err: any) {
-    handleInternalError(res, err)
+    sendInternalError(res, err)
     return
   }
 }

@@ -56,7 +56,11 @@ list of actions.
 Every game move in `gameplay-controller.ts` goes through the engine: read the game from the database,
 convert it with `engine-adapter.ts`, `apply` the action, and write back only what changed. The
 database keeps its format (CSV policy lists, `status` / `subStatus`…), so the app and existing games
-don't notice. Rule errors become HTTP errors: `ineligible` is 458, the others 457.
+don't notice.
+
+Moves arrive at `POST /action` in the engine's own format, without `by`: the server fills in the
+logged-in player. Rule errors become error codes, like `WRONG_PHASE` for `wrongPhase` (see
+`errors.ts`).
 
 ## Tests
 

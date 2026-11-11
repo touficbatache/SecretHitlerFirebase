@@ -3,9 +3,10 @@ import { Request, Response } from "express"
 import * as admin from "firebase-admin"
 
 import * as constants from "./constants"
-import { isDevMode } from "./dev-mode"
+import { isSimulated } from "./dev-mode"
+import { sendInternalError } from "./errors"
 import { ChamberStatus, ChamberSubStatus, GameVisibility } from "./objects"
-import { handleInternalError, handleSuccess } from "./utils"
+import { handleSuccess } from "./utils"
 
 interface GameInfo {
   code: string
@@ -21,7 +22,7 @@ export async function getGamesForUser(req: Request, res: Response): Promise<void
   try {
     // In dev mode the game creator is always "randId0" (see newGame).
     // This route loads no game data, so it can't derive an id from a player count.
-    const userId: string = isDevMode() ? "randId0" : res.locals.uid
+    const userId: string = isSimulated(res) ? "randId0" : res.locals.uid
 
     const gamesSnapshot: DataSnapshot = await admin
       .database()
@@ -52,7 +53,7 @@ export async function getGamesForUser(req: Request, res: Response): Promise<void
     handleSuccess(res, gamesWithPlayer)
     return
   } catch (err) {
-    handleInternalError(res, err)
+    sendInternalError(res, err)
     return
   }
 }
@@ -94,7 +95,7 @@ export async function getActivePublicGames(req: Request, res: Response): Promise
     handleSuccess(res, activePublicGames)
     return
   } catch (err) {
-    handleInternalError(res, err)
+    sendInternalError(res, err)
     return
   }
 }

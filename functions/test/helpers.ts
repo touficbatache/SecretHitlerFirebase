@@ -21,6 +21,8 @@ const ADMIN: Record<string, string> = {
 export interface ApiResult {
   status: number
   body: string
+  /** The error code of an error response, like "WRONG_PHASE". */
+  error: string | undefined
   /** How long the request took. */
   ms: number
 }
@@ -29,19 +31,47 @@ export function sleep(ms: number): Promise<void> {
   return new Promise((resolve: () => void) => setTimeout(resolve, ms))
 }
 
+export interface ApiOptions {
+  /** Act as this player, with every check applied. Without it, dev mode picks whose turn it is. */
+  as?: string
+}
+
 export async function api(
   path: string,
   body: Record<string, unknown> = {},
-  signal?: AbortSignal,
+  options: ApiOptions = {},
 ): Promise<ApiResult> {
   const start: number = Date.now()
   const res: Response = await fetch(`${API_URL}/${path}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...(options.as !== undefined ? { "X-Dev-Uid": options.as } : {}),
+    },
     body: JSON.stringify(body),
-    signal,
   })
-  return { status: res.status, body: await res.text(), ms: Date.now() - start }
+  const text: string = await res.text()
+  let error: string | undefined
+  try {
+    error = JSON.parse(text)?.error?.code
+  } catch {
+    error = undefined
+  }
+  return { status: res.status, body: text, error, ms: Date.now() - start }
+}
+
+/** Plays a move through /action. */
+export async function act(
+  code: string,
+  action: Record<string, unknown>,
+  options: ApiOptions & { actionId?: string } = {},
+): Promise<ApiResult> {
+  const { actionId, ...apiOptions } = options
+  return api(
+    "action",
+    { code, action, ...(actionId !== undefined ? { actionId } : {}) },
+    apiOptions,
+  )
 }
 
 /** Creates a lobby through the API and returns its code. */
@@ -76,6 +106,9 @@ export const putGame: (code: string, game: unknown) => Promise<void> = (
 ) => write(`ongoingGames/${code}`, game)
 
 export const lockOf: (code: string) => Promise<any> = (code: string) => read(`gameLocks/${code}`)
+
+export const receiptsOf: (code: string) => Promise<any> = (code: string) =>
+  read(`actionReceipts/${code}`)
 
 /**
  * Polls the game until `predicate` holds, and returns it. Like a client, calls /advance when a

@@ -6,6 +6,12 @@ export const DATABASE_NODE_ID: string = "id"
 
 /// root
 export const DATABASE_NODE_ONGOING_GAMES: string = "ongoingGames"
+/**
+ * Each player's last successful action, so a retry gets the same response (see /action). Kept
+ * outside ongoingGames: the database rules grant clients no access to it. To remove along with
+ * a finished game once games are archived (#1).
+ */
+export const DATABASE_NODE_ACTION_RECEIPTS: string = "actionReceipts"
 
 /// Chamber
 export const DATABASE_NODE_OWNER_ID: string = "ownerId"
@@ -69,10 +75,4 @@ export const DATABASE_NODE_VISIBILITY: string = "visibility"
  */
 export const REQUEST_HIDE_PICS_GAME_INFO: string = "hidePicsGameInfo"
 export const REQUEST_SKIP_LONG_INTRO: string = "skipLongIntro"
-export const REQUEST_CHANCELLOR_ID: string = "chancellorId"
-export const REQUEST_VOTE: string = "vote"
-export const REQUEST_POLICY: string = "policy"
-export const REQUEST_PLAYER: string = "player"
-export const REQUEST_IS_DONE: string = "done"
-export const REQUEST_REFUSE_VETO: string = "refuseVeto"
 export const REQUEST_VISIBILITY: string = "visibility"

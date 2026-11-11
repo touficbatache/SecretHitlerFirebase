@@ -3,6 +3,7 @@ import * as assert from "node:assert/strict"
 import { test } from "node:test"
 
 import {
+  act,
   api,
   ApiResult,
   game,
@@ -14,7 +15,7 @@ import {
   write,
 } from "./helpers"
 
-test("actions after the game ended are rejected with 457, not a crash", async () => {
+test("actions after the game ended are rejected as WRONG_PHASE, not a crash", async () => {
   const code: string = "930001"
   await putGame(
     code,
@@ -27,18 +28,19 @@ test("actions after the game ended are rejected with 457, not a crash", async ()
       5,
     ),
   )
-  const actions: [string, Record<string, unknown>][] = [
-    ["chooseChancellor", { chancellorId: "randId2" }],
-    ["presidentDiscardPolicy", { policy: "liberal" }],
-    ["chancellorDiscardPolicy", { policy: "liberal" }],
-    ["presidentialPower", { player: "randId2" }],
-    ["askForVeto", {}],
-    ["answerVeto", { refuseVeto: true }],
-    ["vote", { vote: true }],
+  const actions: Record<string, unknown>[] = [
+    { type: "nominate", chancellorId: "randId2" },
+    { type: "discard", policy: "liberal" },
+    { type: "usePower", targetId: "randId2" },
+    { type: "endPower" },
+    { type: "proposeVeto" },
+    { type: "answerVeto", accept: false },
+    { type: "vote", ja: true },
   ]
-  for (const [path, body] of actions) {
-    const res: ApiResult = await api(path, { code, ...body })
-    assert.equal(res.status, 457, `${path}: ${res.status} ${res.body}`)
+  for (const action of actions) {
+    const res: ApiResult = await act(code, action)
+    assert.equal(res.status, 409, `${action.type}: ${res.status} ${res.body}`)
+    assert.equal(res.error, "WRONG_PHASE", `${action.type}: ${res.body}`)
   }
 })
 
@@ -69,5 +71,5 @@ test("closing a lobby sends its players away, then removes it", async () => {
   )
   assert.ok(emptied > 0 && removed > emptied, JSON.stringify(recording.events.slice(1)))
   assert.equal(await getGame(code), null)
-  assert.equal((await api("joinGame", { code })).status, 452, "a late join finds no game")
+  assert.equal((await api("joinGame", { code })).error, "GAME_NOT_FOUND", "a late join finds none")
 })
